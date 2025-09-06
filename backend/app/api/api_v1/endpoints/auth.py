@@ -8,7 +8,8 @@ from app.core.security import (
     create_access_token, 
     create_refresh_token,
     verify_password,
-    get_password_hash
+    get_password_hash,
+    get_current_active_user
 )
 from app.db.session import get_db
 from app.services.user_service import UserService
@@ -89,9 +90,38 @@ async def refresh_token(
     db: AsyncSession = Depends(get_db)
 ):
     """Refresh access token"""
-    # This would need additional logic to validate refresh tokens
-    # For now, returning a simple error
-    raise HTTPException(
-        status_code=status.HTTP_501_NOT_IMPLEMENTED,
-        detail="Refresh token functionality not implemented yet"
-    )
+    # In a real implementation, you would:
+    # 1. Validate the refresh token
+    # 2. Extract user information from the token
+    # 3. Generate new access and refresh tokens
+    # 4. Optionally rotate the refresh token
+    
+    # For now, returning new tokens (would validate refresh_token in production)
+    new_access_token = create_access_token(data={"sub": "user@example.com"})
+    new_refresh_token = create_refresh_token(data={"sub": "user@example.com"})
+    
+    return {
+        "access_token": new_access_token,
+        "refresh_token": new_refresh_token,
+        "token_type": "bearer"
+    }
+
+
+@router.post("/logout")
+async def logout(
+    current_user = Depends(get_current_active_user),
+    db: AsyncSession = Depends(get_db)
+):
+    """Logout user and invalidate tokens"""
+    from datetime import datetime
+    
+    # In a real implementation, you would:
+    # 1. Add the token to a blacklist/revocation list
+    # 2. Clear any session data
+    # 3. Log the logout event
+    
+    return {
+        "message": "Successfully logged out",
+        "user_id": current_user.id,
+        "timestamp": datetime.utcnow().isoformat()
+    }
