@@ -65,7 +65,6 @@ test-frontend:
 	cd frontend && npm test
 
 test-all: test-backend test-frontend
-
 test-performance:
 	@echo "Running performance and bottleneck tests..."
 	./scripts/test-performance.sh all
@@ -88,7 +87,7 @@ clean:
 	cd backend && rm -rf __pycache__ .pytest_cache .coverage
 	cd frontend && rm -rf .next node_modules/.cache
 	cd infrastructure && rm -rf .terraform
-	docker system prune -f
+docker system prune -f
 
 # Docker Commands
 docker-build-all:
