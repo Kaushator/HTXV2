@@ -1,0 +1,244 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+  REGION: us-central1
+  ARTIFACT_REGISTRY: htxv2
+
+jobs:
+  test-backend:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: password
+          POSTGRES_USER: htxv2_user
+          POSTGRES_DB: htxv2_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+      
+      redis:
+        image: redis:7
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    
+    - name: Cache Python dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('backend/requirements.txt') }}
+    
+    - name: Install dependencies
+      run: |
+        cd backend
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+    
+    - name: Run linting
+      run: |
+        cd backend
+        black --check .
+        isort --check-only .
+        flake8 .
+    
+    - name: Run tests
+      run: |
+        cd backend
+        pytest tests/ -v --cov=app --cov-report=xml
+      env:
+        DATABASE_URL: postgresql+asyncpg://htxv2_user:password@localhost:5432/htxv2_test
+        REDIS_URL: redis://localhost:6379/0
+        SECRET_KEY: test-secret-key
+    
+    - name: Upload coverage
+      uses: codecov/codecov-action@v3
+      with:
+        file: backend/coverage.xml
+
+  test-frontend:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: frontend/package-lock.json
+    
+    - name: Install dependencies
+      run: |
+        cd frontend
+        npm ci
+    
+    - name: Run linting
+      run: |
+        cd frontend
+        npm run lint
+    
+    - name: Run type checking
+      run: |
+        cd frontend
+        npm run type-check
+    
+    - name: Build application
+      run: |
+        cd frontend
+        npm run build
+      env:
+        NEXT_PUBLIC_API_URL: http://localhost:8000/api/v1
+
+  security-scan:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Run Trivy vulnerability scanner
+      uses: aquasecurity/trivy-action@master
+      with:
+        scan-type: 'fs'
+        scan-ref: '.'
+        format: 'sarif'
+        output: 'trivy-results.sarif'
+    
+    - name: Upload Trivy scan results
+      uses: github/codeql-action/upload-sarif@v2
+      with:
+        sarif_file: 'trivy-results.sarif'
+
+  terraform-validate:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v3
+      with:
+        terraform_version: 1.5.0
+    
+    - name: Terraform Format Check
+      run: |
+        cd infrastructure
+        terraform fmt -check
+    
+    - name: Terraform Validate
+      run: |
+        cd infrastructure
+        terraform init -backend=false
+        terraform validate
+
+  build-and-deploy:
+    if: github.ref == 'refs/heads/main'
+    needs: [test-backend, test-frontend, security-scan, terraform-validate]
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Authenticate to Google Cloud
+      uses: google-github-actions/auth@v1
+      with:
+        credentials_json: ${{ secrets.GCP_SA_KEY }}
+    
+    - name: Set up Cloud SDK
+      uses: google-github-actions/setup-gcloud@v1
+    
+    - name: Configure Docker for Artifact Registry
+      run: |
+        gcloud auth configure-docker $REGION-docker.pkg.dev
+    
+    - name: Build and push backend image
+      run: |
+        docker build -f docker/backend.Dockerfile -t $REGION-docker.pkg.dev/$PROJECT_ID/$ARTIFACT_REGISTRY/backend:${{ github.sha }} .
+        docker push $REGION-docker.pkg.dev/$PROJECT_ID/$ARTIFACT_REGISTRY/backend:${{ github.sha }}
+    
+    - name: Build and push frontend image
+      run: |
+        docker build -f docker/frontend.Dockerfile -t $REGION-docker.pkg.dev/$PROJECT_ID/$ARTIFACT_REGISTRY/frontend:${{ github.sha }} .
+        docker push $REGION-docker.pkg.dev/$PROJECT_ID/$ARTIFACT_REGISTRY/frontend:${{ github.sha }}
+    
+    - name: Build and push ETL image
+      run: |
+        docker build -f docker/etl.Dockerfile -t $REGION-docker.pkg.dev/$PROJECT_ID/$ARTIFACT_REGISTRY/etl:${{ github.sha }} .
+        docker push $REGION-docker.pkg.dev/$PROJECT_ID/$ARTIFACT_REGISTRY/etl:${{ github.sha }}
+    
+    - name: Deploy to Cloud Run
+      run: |
+        # Deploy backend
+        gcloud run deploy htxv2-backend \
+          --image $REGION-docker.pkg.dev/$PROJECT_ID/$ARTIFACT_REGISTRY/backend:${{ github.sha }} \
+          --region $REGION \
+          --platform managed \
+          --allow-unauthenticated \
+          --set-env-vars="ENVIRONMENT=production"
+        
+        # Deploy frontend
+        gcloud run deploy htxv2-frontend \
+          --image $REGION-docker.pkg.dev/$PROJECT_ID/$ARTIFACT_REGISTRY/frontend:${{ github.sha }} \
+          --region $REGION \
+          --platform managed \
+          --allow-unauthenticated
+
+  deploy-infrastructure:
+    if: github.ref == 'refs/heads/main'
+    needs: [terraform-validate]
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Authenticate to Google Cloud
+      uses: google-github-actions/auth@v1
+      with:
+        credentials_json: ${{ secrets.GCP_SA_KEY }}
+    
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v3
+      with:
+        terraform_version: 1.5.0
+    
+    - name: Terraform Init
+      run: |
+        cd infrastructure
+        terraform init
+    
+    - name: Terraform Plan
+      run: |
+        cd infrastructure
+        terraform plan -var="project_id=$PROJECT_ID"
+    
+    - name: Terraform Apply
+      run: |
+        cd infrastructure
+        terraform apply -auto-approve -var="project_id=$PROJECT_ID"
+      env:
+        TF_VAR_project_id: ${{ env.PROJECT_ID }}
