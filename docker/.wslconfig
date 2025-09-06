@@ -1,0 +1,13 @@
+# WSL2 GPU Configuration for RTX 4060
+
+# Enable GPU support in WSL2
+[wsl2]
+memory=85GB  # Use 85GB of 90GB available RAM
+processors=8  # Adjust based on your CPU cores
+swap=0  # Disable swap for better GPU performance
+localhostForwarding=true
+
+# GPU settings
+[experimental]
+autoMemoryReclaim=gradual  # Automatic memory reclaim
+sparseVhd=true  # Sparse VHD support
