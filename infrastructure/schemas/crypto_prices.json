@@ -1,0 +1,86 @@
+[
+  {
+    "name": "timestamp",
+    "type": "TIMESTAMP",
+    "mode": "REQUIRED",
+    "description": "Timestamp of the price data"
+  },
+  {
+    "name": "symbol",
+    "type": "STRING",
+    "mode": "REQUIRED",
+    "description": "Cryptocurrency symbol (e.g., BTC, ETH)"
+  },
+  {
+    "name": "exchange",
+    "type": "STRING",
+    "mode": "REQUIRED",
+    "description": "Exchange name (HTX, Binance, etc.)"
+  },
+  {
+    "name": "price",
+    "type": "NUMERIC",
+    "mode": "REQUIRED",
+    "description": "Price in USD"
+  },
+  {
+    "name": "volume_24h",
+    "type": "NUMERIC",
+    "mode": "NULLABLE",
+    "description": "24-hour trading volume"
+  },
+  {
+    "name": "market_cap",
+    "type": "NUMERIC",
+    "mode": "NULLABLE",
+    "description": "Market capitalization"
+  },
+  {
+    "name": "price_change_24h",
+    "type": "NUMERIC",
+    "mode": "NULLABLE",
+    "description": "24-hour price change percentage"
+  },
+  {
+    "name": "high_24h",
+    "type": "NUMERIC",
+    "mode": "NULLABLE",
+    "description": "24-hour high price"
+  },
+  {
+    "name": "low_24h",
+    "type": "NUMERIC",
+    "mode": "NULLABLE",
+    "description": "24-hour low price"
+  },
+  {
+    "name": "circulating_supply",
+    "type": "NUMERIC",
+    "mode": "NULLABLE",
+    "description": "Circulating supply"
+  },
+  {
+    "name": "total_supply",
+    "type": "NUMERIC",
+    "mode": "NULLABLE",
+    "description": "Total supply"
+  },
+  {
+    "name": "metadata",
+    "type": "JSON",
+    "mode": "NULLABLE",
+    "description": "Additional metadata as JSON"
+  },
+  {
+    "name": "data_source",
+    "type": "STRING",
+    "mode": "REQUIRED",
+    "description": "Source of the data (htx, coingecko, etc.)"
+  },
+  {
+    "name": "created_at",
+    "type": "TIMESTAMP",
+    "mode": "REQUIRED",
+    "description": "When the record was created"
+  }
+]
