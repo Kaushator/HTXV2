@@ -1,0 +1,45 @@
+# ML/LLM Dependencies
+torch>=2.0.0
+transformers>=4.35.0
+accelerate>=0.25.0
+peft>=0.7.0  # LoRA adapters
+bitsandbytes>=0.41.0  # Quantization
+
+# Google Cloud AI
+google-cloud-aiplatform>=1.38.0
+google-cloud-storage>=2.10.0
+
+# Vector operations
+numpy>=1.24.0
+faiss-cpu>=1.7.4
+sentence-transformers>=2.2.2
+
+# Data processing
+pandas>=2.1.0
+scikit-learn>=1.3.0
+ta>=0.10.2  # Technical analysis
+yfinance>=0.2.0
+
+# OpenAI
+openai>=1.3.0
+
+# FastAPI for model serving
+fastapi>=0.104.0
+uvicorn>=0.24.0
+
+# Monitoring
+mlflow>=2.8.0
+wandb>=0.16.0
+
+# Database
+sqlalchemy>=2.0.0
+asyncpg>=0.29.0
+
+# Utils
+pydantic>=2.5.0
+python-decouple>=3.8
+structlog>=23.2.0
+
+# Development
+pytest>=7.4.0
+jupyter>=1.0.0
