@@ -1,5 +1,5 @@
 # Development Commands
-.PHONY: help dev-backend dev-frontend dev-all test-backend test-frontend test-all lint-backend lint-frontend lint-all clean setup tf-init tf-plan tf-apply tf-destroy
+.PHONY: help dev-backend dev-frontend dev-all test-backend test-frontend test-all lint-backend lint-frontend lint-all clean setup tf-init tf-plan tf-apply tf-destroy gpu-start gpu-stop gpu-monitor gpu-test
 
 help:
 	@echo "Available commands:"
@@ -18,6 +18,12 @@ help:
 	@echo "  tf-plan         - Plan Terraform changes"
 	@echo "  tf-apply        - Apply Terraform changes"
 	@echo "  tf-destroy      - Destroy Terraform resources"
+	@echo ""
+	@echo "GPU/AI Commands:"
+	@echo "  gpu-start       - Start GPU-enabled environment (RTX 4060)"
+	@echo "  gpu-stop        - Stop GPU environment"
+	@echo "  gpu-monitor     - Monitor GPU usage and AI services"
+	@echo "  gpu-test        - Test AI model performance"
 
 setup:
 	@echo "Setting up development environment..."
@@ -69,3 +75,20 @@ tf-apply:
 
 tf-destroy:
 	cd infrastructure && terraform destroy
+
+# GPU/AI Commands
+gpu-start:
+	@echo "🚀 Starting GPU-enabled AI environment..."
+	./scripts/start-local-ai.sh
+
+gpu-stop:
+	@echo "🛑 Stopping GPU environment..."
+	cd docker && docker compose -f docker-compose.gpu.yml down
+
+gpu-monitor:
+	@echo "📊 Starting GPU monitoring..."
+	./scripts/monitor-gpu.sh
+
+gpu-test:
+	@echo "🧪 Testing AI models..."
+	python3 scripts/test-ai.py

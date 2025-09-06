@@ -5,13 +5,18 @@ accelerate>=0.25.0
 peft>=0.7.0  # LoRA adapters
 bitsandbytes>=0.41.0  # Quantization
 
+# GPU-specific packages for RTX 4060
+nvidia-ml-py3>=12.535.0  # NVIDIA GPU monitoring
+torchvision>=0.15.0
+torchaudio>=2.0.0
+
 # Google Cloud AI
 google-cloud-aiplatform>=1.38.0
 google-cloud-storage>=2.10.0
 
 # Vector operations
 numpy>=1.24.0
-faiss-cpu>=1.7.4
+faiss-gpu>=1.7.4  # GPU-accelerated FAISS
 sentence-transformers>=2.2.2
 
 # Data processing

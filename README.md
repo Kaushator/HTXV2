@@ -56,11 +56,44 @@ A comprehensive GCP-based cryptocurrency trading platform with ML/AI capabilitie
 
 ### Local Development
 
-1. Clone the repository
-2. Set up environment variables
-3. Run backend: `make dev-backend`
-4. Run frontend: `make dev-frontend`
-5. Run infrastructure: `make tf-plan`
+#### Option 1: Local AI Environment (RTX 4060 + 90GB RAM)
+
+For optimal AI development with local GPU acceleration:
+
+```bash
+# Clone repository
+git clone https://github.com/Kaushator/HTXV2.git
+cd HTXV2
+
+# Start GPU-enabled environment with FinGPT
+./scripts/start-local-ai.sh
+```
+
+See [Local AI Setup Guide](docs/LOCAL_AI_SETUP.md) for detailed WSL2 + Docker Desktop configuration.
+
+#### Option 2: Standard Development
+
+For cloud-only development without local GPU:
+
+```bash
+# Clone repository  
+git clone https://github.com/Kaushator/HTXV2.git
+cd HTXV2
+
+# Set up environment variables
+# Run backend: make dev-backend
+# Run frontend: make dev-frontend
+# Run infrastructure: make tf-plan
+```
+
+### Access Points
+
+After starting the local environment:
+
+- **Frontend**: http://localhost:3000
+- **Backend API**: http://localhost:8000  
+- **API Documentation**: http://localhost:8000/docs
+- **ML Service**: http://localhost:8080 (GPU-enabled FinGPT)
 
 ## Project Structure
 
@@ -85,10 +118,12 @@ A comprehensive GCP-based cryptocurrency trading platform with ML/AI capabilitie
 
 ## ML/LLM Stack
 
-- **Local FinGPT**: LoRA-adapted model running in Docker (RTX 4060)
-- **Vertex AI**: Cloud-based models (Gemini, Text-Bison)
+- **Local FinGPT**: LoRA-adapted model optimized for RTX 4060 (8GB VRAM)
+- **Vertex AI**: Cloud-based models (Gemini, Text-Bison)  
 - **OpenAI**: Fallback provider for high-quality responses
 - **Vector Search**: BigQuery Vector Search for RAG capabilities
+- **GPU Acceleration**: CUDA 12.1+ support with 4-bit quantization
+- **Memory Optimization**: Supports up to 90GB RAM for large model loading
 
 ## Security
 

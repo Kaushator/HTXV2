@@ -1,0 +1,139 @@
+services:
+  # PostgreSQL database with pgvector
+  postgres:
+    image: pgvector/pgvector:pg15
+    environment:
+      POSTGRES_DB: htxv2
+      POSTGRES_USER: htxv2_user
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U htxv2_user -d htxv2"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis cache
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Backend API
+  backend:
+    build:
+      context: ..
+      dockerfile: docker/backend.Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://htxv2_user:password@postgres:5432/htxv2
+      - REDIS_URL=redis://redis:6379/0
+      - SECRET_KEY=dev-secret-key-change-in-production
+      - DEBUG=true
+      - ENVIRONMENT=development
+      - ML_SERVICE_URL=http://ml-gpu:8080
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ../backend:/app
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+
+  # Frontend application
+  frontend:
+    build:
+      context: ..
+      dockerfile: docker/frontend.Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:8000/api/v1
+      - NEXT_PUBLIC_WS_URL=ws://localhost:8000/ws
+    depends_on:
+      - backend
+    volumes:
+      - ../frontend:/app
+      - /app/node_modules
+      - /app/.next
+
+  # ETL services
+  etl:
+    build:
+      context: ..
+      dockerfile: docker/etl.Dockerfile
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://htxv2_user:password@postgres:5432/htxv2
+      - REDIS_URL=redis://redis:6379/1
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ../etl:/app
+
+  # ML services with GPU support for RTX 4060
+  ml-gpu:
+    build:
+      context: ..
+      dockerfile: docker/ml.Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://htxv2_user:password@postgres:5432/htxv2
+      - REDIS_URL=redis://redis:6379/2
+      - CUDA_VISIBLE_DEVICES=0
+      - NVIDIA_VISIBLE_DEVICES=all
+      - LOCAL_MODEL_PATH=/app/models/fingpt
+      - USE_GPU=true
+      - GPU_MEMORY_FRACTION=0.8  # Use 80% of RTX 4060's 8GB VRAM
+      - MAX_SYSTEM_MEMORY=85  # Use up to 85GB of the 90GB RAM
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ../ml:/app
+      - ml_models:/app/models
+      - fingpt_cache:/app/models/cache
+      - ~/fingpt_models:/app/models/fingpt  # Local model storage
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    runtime: nvidia
+    # For Docker Desktop on Windows/WSL2
+    device_cgroup_rules:
+      - 'c 195:* rmw'
+    ulimits:
+      memlock: -1
+      stack: 67108864
+    shm_size: 8g  # Shared memory for model loading
+
+volumes:
+  postgres_data:
+  redis_data:
+  ml_models:
+  fingpt_cache:
+
+networks:
+  default:
+    name: htxv2-gpu-network
