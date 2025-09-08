@@ -1,6 +1,7 @@
 # HTX Interface v2
 
 ![CI](https://github.com/Kaushator/HTX_interfacev2/actions/workflows/ci.yml/badge.svg)
+![CI/CD](https://github.com/Kaushator/HTX_interfacev2/actions/workflows/ci-cd.yml/badge.svg)
 
 HTX Interface v2 — финтех‑платформа для анализа криптоактивов с ML/LLM стеком.
 

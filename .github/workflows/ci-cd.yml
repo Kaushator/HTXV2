@@ -147,6 +147,28 @@ jobs:
             --min-instances=1 \
             --max-instances=10 \
             --memory=1Gi
+      - name: Wait for Backend health
+        id: backend_health
+        run: |
+          set -e
+          BACKEND_URL=$(gcloud run services describe htx-interface-backend --region=us-central1 --format 'value(status.url)')
+          echo "url=$BACKEND_URL" >> $GITHUB_OUTPUT
+          for i in {1..15}; do
+            RESP=$(curl -fsS "$BACKEND_URL/health" || true)
+            if [ -n "$RESP" ]; then
+              python3 - <<'PY'
+import json,sys
+from sys import exit
+try:
+  data=json.loads(open(0).read())
+  exit(0 if data.get('status')=='healthy' else 1)
+except Exception:
+  exit(1)
+PY
+              echo "Backend healthy at $BACKEND_URL"; exit 0;
+            fi
+            echo "wait..."; sleep 5;
+          done; exit 1
             
       - name: Deploy Frontend to Cloud Run
         run: |
@@ -159,7 +181,33 @@ jobs:
             --min-instances=0 \
             --max-instances=5 \
             --memory=512Mi \
-            --update-env-vars=NEXT_PUBLIC_API_URL=https://htx-interface-backend-876480894698.us-central1.run.app,NEXT_PUBLIC_WS_URL=wss://htx-interface-backend-876480894698.us-central1.run.app/ws
+            --update-env-vars=BACKEND_BASE=${{ steps.backend_health.outputs.url }},NEXT_PUBLIC_BACKEND_URL=${{ steps.backend_health.outputs.url }},NEXT_PUBLIC_WS_URL=${{ steps.backend_health.outputs.url/github.com/https://www.github.com }}
+      - name: Fix WS URL env var
+        run: |
+          FRONTEND_URL=$(gcloud run services describe htx-interface-frontend --region=us-central1 --format 'value(status.url)')
+          BACKEND_URL=${{ steps.backend_health.outputs.url }}
+          WS_URL=$(echo "$BACKEND_URL" | sed -e 's#^https://#wss://#')/ws
+          gcloud run services update htx-interface-frontend --region=us-central1 --update-env-vars=NEXT_PUBLIC_WS_URL=$WS_URL
+      - name: Wait for Frontend health
+        run: |
+          set -e
+          FRONTEND_URL=$(gcloud run services describe htx-interface-frontend --region=us-central1 --format 'value(status.url)')
+          for i in {1..15}; do
+            RESP=$(curl -fsS "$FRONTEND_URL/health" || true)
+            if [ -n "$RESP" ]; then
+              python3 - <<'PY'
+import json,sys
+from sys import exit
+try:
+  data=json.loads(open(0).read())
+  exit(0 if data.get('status')=='healthy' else 1)
+except Exception:
+  exit(1)
+PY
+              echo "Frontend healthy at $FRONTEND_URL"; exit 0;
+            fi
+            echo "wait..."; sleep 5;
+          done; exit 1
 
       - name: Deploy FinGPT to Cloud Run
         run: |
@@ -173,3 +221,23 @@ jobs:
             --max-instances=2 \
             --cpu=2 \
             --memory=8Gi
+      - name: Wait for FinGPT health
+        run: |
+          set -e
+          FINGPT_URL=$(gcloud run services describe htx-interface-fingpt --region=us-central1 --format 'value(status.url)')
+          for i in {1..20}; do
+            RESP=$(curl -fsS "$FINGPT_URL/health" || true)
+            if [ -n "$RESP" ]; then
+              python3 - <<'PY'
+import json,sys
+from sys import exit
+try:
+  data=json.loads(open(0).read())
+  exit(0 if data.get('status')=='healthy' else 1)
+except Exception:
+  exit(1)
+PY
+              echo "FinGPT healthy at $FINGPT_URL"; exit 0;
+            fi
+            echo "wait..."; sleep 5;
+          done; exit 1

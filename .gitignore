@@ -50,3 +50,4 @@ tmp/
 # Local stray keys (do not commit)
 new
 new.pub
+github-actions-key.json

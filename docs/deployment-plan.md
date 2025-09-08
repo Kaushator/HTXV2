@@ -43,6 +43,7 @@
 - [x] Образы загружены в Artifact Registry
 - [x] Сервисы развернуты в Cloud Run (backend, frontend)
 - [x] Документация по деплою обновлена
+- [x] Создан сервисный аккаунт `github-actions-deployer`, добавлен секрет `GCP_SA_KEY`, ключ сохранён в Secret Manager (см. docs/service-account-setup.md)
 
 ### Фаза 2: Backend Services (1-2 недели)
 

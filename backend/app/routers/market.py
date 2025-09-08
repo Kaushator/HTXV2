@@ -13,12 +13,29 @@ _rl = RateLimiter(settings.redis_url)
 
 
 @router.get("/htx/ticker/{symbol}")
-async def htx_ticker(request: Request, symbol: str, ttl: int | None = None):
+async def htx_ticker(request: Request, symbol: str, ttl: int | None = None, api_key: str | None = None):
     """HTX market ticker for a symbol or pair (e.g., BTC or BTCUSDT)."""
     # Basic rate limit: per-IP per route
-    client_ip = request.client.host if request.client else "unknown"
-    key = f"rl:htx:ticker:{client_ip}"
-    allowed = await _rl.allow(key, settings.htx_rate_limit_max, settings.htx_rate_limit_window)
+    # Prefer API key (header or query) to scope rate limiting; fallback to IP
+    header_key = request.headers.get("X-API-Key")
+    effective_key = api_key or header_key
+    if effective_key:
+        key = f"rl:htx:ticker:key:{effective_key}"
+    else:
+        client_ip = request.client.host if request.client else "unknown"
+        key = f"rl:htx:ticker:ip:{client_ip}"
+    # Load per-key quota if available (placeholder for future DAO)
+    max_calls = settings.htx_rate_limit_max
+    window = settings.htx_rate_limit_window
+    try:
+        from ..services.quotas import get_rate_limit_for_api_key  # lazy import
+        if effective_key:
+            q = await get_rate_limit_for_api_key(effective_key)
+            if q:
+                max_calls, window = q
+    except Exception:
+        pass
+    allowed = await _rl.allow(key, max_calls, window)
     if not allowed:
         raise HTTPException(status_code=429, detail="Rate limit exceeded. Please slow down.")
     try:
