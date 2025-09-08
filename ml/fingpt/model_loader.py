@@ -78,8 +78,8 @@ class FinGPTLoader:
         """Download and load model from HuggingFace"""
         logger.info("Downloading FinGPT model from HuggingFace...")
         
-        # For now, use a compatible model as placeholder
-        model_name = "microsoft/DialoGPT-medium"  # Replace with actual FinGPT model
+        # TODO: Specify the actual FinGPT model requirements here. The model name should be set via environment variable FINGPT_MODEL_NAME or configuration.
+        model_name = os.environ.get("FINGPT_MODEL_NAME", getattr(self.config, "model_name", "microsoft/DialoGPT-medium"))
         
         def _download_and_load():
             # Create model directory
