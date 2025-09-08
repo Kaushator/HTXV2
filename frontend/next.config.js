@@ -14,18 +14,19 @@ const nextConfig = {
     FINGPT_BASE: process.env.FINGPT_BASE || 'http://localhost:8055',
   },
   async rewrites() {
+    const base = process.env.BACKEND_BASE || 'http://localhost:8000'
     return [
       {
         source: '/api/:path*',
-        destination: 'http://localhost:8000/api/:path*',
+        destination: `${base}/api/:path*`,
       },
       {
         source: '/health',
-        destination: 'http://localhost:8000/health',
+        destination: `${base}/health`,
       },
       {
         source: '/healthz',
-        destination: 'http://localhost:8000/healthz',
+        destination: `${base}/healthz`,
       },
     ]
   },

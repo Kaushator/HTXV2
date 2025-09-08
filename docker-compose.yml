@@ -1,0 +1,98 @@
+version: '3.9'
+
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_DB: htxdb
+      POSTGRES_USER: htx
+      POSTGRES_PASSWORD: htxpass
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U htx"]
+      interval: 20s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 20s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build: ./backend
+    environment:
+      DATABASE_URL: postgresql://htx:htxpass@postgres:5432/htxdb
+      REDIS_URL: redis://redis:6379/0
+      FINGPT_BASE: http://fingpt:8055
+      API_VERSION: 0.1.0
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 10
+
+  frontend:
+    build: ./frontend
+    environment:
+      BACKEND_BASE: http://backend:8000
+      NEXT_PUBLIC_BACKEND_URL: http://backend:8000
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    depends_on:
+      backend:
+        condition: service_healthy
+
+  fingpt:
+    build: ./fingpt
+    runtime: nvidia
+    gpus: all
+    environment:
+      CUDA_VISIBLE_DEVICES: 0
+      TORCH_CUDA_ARCH_LIST: "8.6"  # RTX 4060
+    ports:
+      - "8055:8055"
+    volumes:
+      - ./fingpt:/app
+
+  dev:
+    image: mcr.microsoft.com/devcontainers/base:ubuntu
+    volumes:
+      - .:/workspace:cached
+    working_dir: /workspace
+    depends_on:
+      - backend
+      - frontend
+      - postgres
+      - redis
+      - fingpt
+    # Keeps the container running for VS Code to attach
+    command: bash -lc "sleep infinity"
+
+volumes:
+  postgres_data:
+  redis_data:
+
