@@ -11,7 +11,6 @@
 
 ## Pending (stubs return 501)
 - GET `/api/data/sources` — list data sources
-- GET `/api/data/htx/ticker/{symbol}` — HTX ticker
 - GET `/api/data/coingecko/coin/{coin_id}` — CoinGecko coin info
 - POST `/api/data/upload/request-signed-url` — CSV/XLSX signed URL
 - GET `/api/news/cryptopanic` — news with ML filtering
@@ -20,3 +19,6 @@
 Notes
 - Stubs are wired via FastAPI routers with status 501 Not Implemented to reserve paths for later integration.
 - Update this document as endpoints graduate from Pending to Implemented.
+
+## Implemented (alpha)
+- GET `/api/data/htx/ticker/{symbol}` — HTX ticker (with optional Redis caching)
