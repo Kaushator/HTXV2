@@ -10,6 +10,17 @@
 - Ключ загружен в GitHub Secrets как `GCP_SA_KEY`.
 - Копия ключа сохранена в Google Secret Manager (для безопасного хранения/ротации).
 
+## Верификация
+- Описание сервисного аккаунта: "Service account for GitHub Actions CI/CD pipeline" — установлено
+- Роли подтверждены: Artifact Registry Writer, Cloud Run Developer, Service Account User, Storage Admin
+- Файл ключа: `github-actions-key.json`
+  - Формат: корректный JSON, размер ~2412 байт
+  - Поля проверены: `client_email` и `project_id` соответствуют проекту
+- Secret Manager:
+  - Секрет: `github-actions-sa-key` создан
+  - Версии: 2 версии (активная + резерв)
+  - Репликация: регион `us-central1`
+
 ## Шаги создания
 1. Console → IAM & Admin → Service Accounts → Create Service Account
 2. Название: `github-actions-deployer`, описание по желанию
@@ -43,4 +54,3 @@
 ```yaml
 - run: gcloud auth configure-docker us-central1-docker.pkg.dev
 ```
-
