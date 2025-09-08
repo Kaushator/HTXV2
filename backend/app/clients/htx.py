@@ -10,14 +10,19 @@ from ..config import settings
 
 def _normalize_symbol(symbol: str) -> str:
     s = symbol.strip().lower()
-    # Accept 'btc', 'btc-usdt', 'btcusdt'; default quote: usdt
-    if '-' in s:
-        s = s.replace('-', '')
-    if s.endswith('usdt'):
-        return s
-    if len(s) <= 5:  # e.g., 'btc', 'eth'
-        return f"{s}usdt"
-    return s
+    # Accept 'btc', 'btc-usdt', 'btcusdt'; default quote: first allowed quote
+    s = s.replace("-", "")
+    quotes = settings.htx_allowed_quotes
+    for q in quotes:
+        if s.endswith(q):
+            base = s[: -len(q)]
+            if not base or not base.isalpha():
+                raise ValueError("invalid base symbol")
+            return f"{base}{q}"
+    # no known quote found -> assume first allowed quote if looks like base
+    if s.isalpha():
+        return f"{s}{quotes[0]}"
+    raise ValueError("unsupported symbol/quote")
 
 
 async def _fetch_ticker_http(pair: str) -> Dict[str, Any]:
@@ -47,7 +52,7 @@ def _map_response(pair: str, data: Dict[str, Any]) -> Dict[str, Any]:
     }
 
 
-async def get_ticker(symbol: str) -> Dict[str, Any]:
+async def get_ticker(symbol: str, ttl_override: Optional[int] = None) -> Dict[str, Any]:
     """Fetch ticker from HTX with optional Redis caching.
 
     - Normalizes symbol to HTX pair (e.g., BTC -> btcusdt).
@@ -56,6 +61,11 @@ async def get_ticker(symbol: str) -> Dict[str, Any]:
     pair = _normalize_symbol(symbol)
     cache_key = f"htx:ticker:{pair}"
     ttl = settings.htx_ticker_ttl
+    if ttl_override is not None:
+        try:
+            ttl = max(1, min(int(ttl_override), settings.htx_ticker_ttl_max))
+        except Exception:
+            ttl = settings.htx_ticker_ttl
 
     # Try Redis cache first
     if settings.redis_url:
@@ -82,4 +92,3 @@ async def get_ticker(symbol: str) -> Dict[str, Any]:
             pass
 
     return mapped
-

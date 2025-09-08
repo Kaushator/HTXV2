@@ -13,7 +13,7 @@ _rl = RateLimiter(settings.redis_url)
 
 
 @router.get("/htx/ticker/{symbol}")
-async def htx_ticker(request: Request, symbol: str):
+async def htx_ticker(request: Request, symbol: str, ttl: int | None = None):
     """HTX market ticker for a symbol or pair (e.g., BTC or BTCUSDT)."""
     # Basic rate limit: per-IP per route
     client_ip = request.client.host if request.client else "unknown"
@@ -22,10 +22,12 @@ async def htx_ticker(request: Request, symbol: str):
     if not allowed:
         raise HTTPException(status_code=429, detail="Rate limit exceeded. Please slow down.")
     try:
-        data = await htx_client.get_ticker(symbol)
+        data = await htx_client.get_ticker(symbol, ttl_override=ttl)
         return data
     except httpx.HTTPStatusError as e:
         raise HTTPException(status_code=502, detail=f"HTX upstream error: {e.response.status_code}")
+    except ValueError as e:
+        raise HTTPException(status_code=422, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=502, detail=f"HTX upstream unavailable: {e}")
 

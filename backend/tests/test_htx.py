@@ -20,10 +20,9 @@ def test_htx_ticker_endpoint(monkeypatch, client: TestClient):
 
     monkeypatch.setattr(htx_client, "get_ticker", fake_get_ticker)
 
-    r = client.get("/api/data/htx/ticker/BTC")
+    r = client.get("/api/data/htx/ticker/BTC?ttl=2")
     assert r.status_code == 200
     data = r.json()
     assert data["provider"] == "HTX"
     assert data["pair"] == "btcusdt"
     assert "price" in data and isinstance(data["price"], (int, float))
-
