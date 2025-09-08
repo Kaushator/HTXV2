@@ -15,6 +15,12 @@ from .config import settings
 
 logger = logging.getLogger("htx.api")
 
+# Routers (pending integrations)
+from .routers import market as market_router
+from .routers import uploads as uploads_router
+from .routers import news as news_router
+from .routers import llm as llm_router
+
 app = FastAPI(
     title=settings.app_name,
     description="Backend API for HTX cryptocurrency trading platform with ML analytics",
@@ -29,6 +35,12 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Register routers under /api
+app.include_router(market_router.router)
+app.include_router(uploads_router.router)
+app.include_router(news_router.router)
+app.include_router(llm_router.router)
 
 @app.get("/")
 async def root():
