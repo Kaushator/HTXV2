@@ -5,6 +5,11 @@ on:
     branches: [ main ]
   pull_request:
     branches: [ main ]
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   backend:
@@ -21,12 +26,15 @@ jobs:
           cache-dependency-path: backend/requirements.txt
       - name: Install dependencies
         run: pip install -r backend/requirements.txt
+      - name: Lint (ruff)
+        working-directory: backend
+        run: ruff check app
       - name: Run tests
         working-directory: backend
         run: pytest -q
 
   frontend:
-    name: Frontend (lint)
+    name: Frontend (lint + type-check + tests)
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -43,6 +51,9 @@ jobs:
       - name: Lint
         working-directory: frontend
         run: npm run lint
+      - name: Type Check
+        working-directory: frontend
+        run: npm run type-check
       - name: Install test tooling (no-save)
         working-directory: frontend
         run: |

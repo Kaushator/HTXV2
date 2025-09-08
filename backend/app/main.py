@@ -4,12 +4,16 @@ from fastapi.responses import JSONResponse
 from datetime import datetime
 import asyncio
 import contextlib
+import time
+import logging
 
 import httpx
 import asyncpg
 from redis import asyncio as aioredis
 
 from .config import settings
+
+logger = logging.getLogger("htx.api")
 
 app = FastAPI(
     title=settings.app_name,
@@ -47,7 +51,8 @@ async def health():
             conn = await asyncpg.connect(settings.database_url, timeout=2.0)
             await conn.close()
             return "ok"
-        except Exception:
+        except Exception as e:
+            logger.warning("health: db unavailable: %s", e)
             return "unavailable"
 
     async def check_redis() -> str:
@@ -59,7 +64,8 @@ async def health():
             with contextlib.suppress(Exception):
                 await client.close()
             return "ok" if pong else "unavailable"
-        except Exception:
+        except Exception as e:
+            logger.warning("health: redis unavailable: %s", e)
             return "unavailable"
 
     async def check_fingpt() -> str:
@@ -78,7 +84,8 @@ async def health():
                     except Exception:
                         continue
             return "unavailable"
-        except Exception:
+        except Exception as e:
+            logger.warning("health: fingpt unavailable: %s", e)
             return "unavailable"
 
     # run checks concurrently with overall timeout buffer
@@ -108,6 +115,84 @@ async def health():
         "timestamp": datetime.now().isoformat(),
         "version": settings.version,
         "services": services,
+    }
+
+
+@app.get("/health/details")
+async def health_details():
+    """Health checks with timings per dependency."""
+    results: dict[str, dict] = {}
+
+    async def timed(name: str, coro):
+        start = time.perf_counter()
+        try:
+            status = await coro
+            ok = status in ("ok", "skipped")
+            err = None
+        except Exception as e:  # safety net
+            status = "error"
+            ok = False
+            err = str(e)
+            logger.exception("health details error for %s", name)
+        dur_ms = int((time.perf_counter() - start) * 1000)
+        results[name] = {"status": status, "ms": dur_ms, **({"error": err} if err else {})}
+
+    # reuse the inner functions from /health
+    async def check_db():
+        if not settings.database_url:
+            return "skipped"
+        try:
+            conn = await asyncpg.connect(settings.database_url, timeout=2.0)
+            await conn.close()
+            return "ok"
+        except Exception as e:
+            logger.debug("details: db error: %s", e)
+            return "unavailable"
+
+    async def check_redis():
+        if not settings.redis_url:
+            return "skipped"
+        try:
+            client = aioredis.from_url(settings.redis_url, decode_responses=True)
+            pong = await client.ping()
+            with contextlib.suppress(Exception):
+                await client.close()
+            return "ok" if pong else "unavailable"
+        except Exception as e:
+            logger.debug("details: redis error: %s", e)
+            return "unavailable"
+
+    async def check_fingpt():
+        base = settings.fingpt_base
+        if not base:
+            return "skipped"
+        try:
+            async with httpx.AsyncClient(timeout=2.0) as client:
+                for path in ("/health", ""):
+                    url = base.rstrip("/") + path
+                    try:
+                        r = await client.get(url)
+                        if r.status_code < 500:
+                            return "ok"
+                    except Exception:
+                        continue
+            return "unavailable"
+        except Exception as e:
+            logger.debug("details: fingpt error: %s", e)
+            return "unavailable"
+
+    await asyncio.gather(
+        timed("database", check_db()),
+        timed("redis", check_redis()),
+        timed("fingpt", check_fingpt()),
+    )
+
+    overall = "healthy" if all(v.get("status") in ("ok", "skipped") for v in results.values()) else "degraded"
+    return {
+        "status": overall,
+        "timestamp": datetime.now().isoformat(),
+        "version": settings.version,
+        "details": results,
     }
 
 @app.get("/api/coins")
