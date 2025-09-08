@@ -79,7 +79,7 @@ while true; do
     # System memory
     echo ""
     echo "🧠 System Memory:"
-    free -h | grep Mem | awk '{printf "   Used: %s/%s (%.1f%%)\n", $3, $2, ($3/$2)*100}'
+    free -b | grep Mem | awk '{used=$3/1024/1024/1024; total=$2/1024/1024/1024; percent=($3/$2)*100; printf "   Used: %.2fG/%.2fG (%.1f%%)\n", used, total, percent}'
     
     echo ""
     echo "⏱️  Press Ctrl+C to exit | Refreshing every 5 seconds..."
