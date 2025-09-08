@@ -1,19 +1,26 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
-import os
 from datetime import datetime
+import asyncio
+import contextlib
+
+import httpx
+import asyncpg
+from redis import asyncio as aioredis
+
+from .config import settings
 
 app = FastAPI(
-    title="HTX Interface v2 API",
+    title=settings.app_name,
     description="Backend API for HTX cryptocurrency trading platform with ML analytics",
-    version="0.1.0"
+    version=settings.version,
 )
 
 # CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://localhost:3001"],
+    allow_origins=settings.cors_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -22,8 +29,8 @@ app.add_middleware(
 @app.get("/")
 async def root():
     return {
-        "message": "HTX Interface v2 API",
-        "version": "0.1.0",
+        "message": settings.app_name,
+        "version": settings.version,
         "timestamp": datetime.now().isoformat(),
         "status": "running"
     }
@@ -31,16 +38,76 @@ async def root():
 @app.get("/health")
 @app.get("/healthz")
 async def health():
+    services: dict[str, str] = {"api": "running"}
+
+    async def check_db() -> str:
+        if not settings.database_url:
+            return "skipped"
+        try:
+            conn = await asyncpg.connect(settings.database_url, timeout=2.0)
+            await conn.close()
+            return "ok"
+        except Exception:
+            return "unavailable"
+
+    async def check_redis() -> str:
+        if not settings.redis_url:
+            return "skipped"
+        try:
+            client = aioredis.from_url(settings.redis_url, decode_responses=True)
+            pong = await client.ping()
+            with contextlib.suppress(Exception):
+                await client.close()
+            return "ok" if pong else "unavailable"
+        except Exception:
+            return "unavailable"
+
+    async def check_fingpt() -> str:
+        base = settings.fingpt_base
+        if not base:
+            return "skipped"
+        try:
+            async with httpx.AsyncClient(timeout=2.0) as client:
+                # Try /health, fallback to base
+                for path in ("/health", ""):
+                    url = base.rstrip("/") + path
+                    try:
+                        r = await client.get(url)
+                        if r.status_code < 500:
+                            return "ok"
+                    except Exception:
+                        continue
+            return "unavailable"
+        except Exception:
+            return "unavailable"
+
+    # run checks concurrently with overall timeout buffer
+    db_task = asyncio.create_task(check_db())
+    redis_task = asyncio.create_task(check_redis())
+    fingpt_task = asyncio.create_task(check_fingpt())
+
+    try:
+        db_status, redis_status, fingpt_status = await asyncio.wait_for(
+            asyncio.gather(db_task, redis_task, fingpt_task), timeout=3.0
+        )
+    except asyncio.TimeoutError:
+        db_status = db_task.result() if db_task.done() else "timeout"
+        redis_status = redis_task.result() if redis_task.done() else "timeout"
+        fingpt_status = fingpt_task.result() if fingpt_task.done() else "timeout"
+
+    services.update(
+        {
+            "database": db_status,
+            "redis": redis_status,
+            "fingpt": fingpt_status,
+        }
+    )
+
     return {
         "status": "healthy",
         "timestamp": datetime.now().isoformat(),
-        "version": "0.1.0",
-        "services": {
-            "api": "running",
-            "database": "pending",  # TODO: Add database health check
-            "redis": "pending",     # TODO: Add Redis health check
-            "fingpt": "pending"     # TODO: Add FinGPT health check
-        }
+        "version": settings.version,
+        "services": services,
     }
 
 @app.get("/api/coins")
