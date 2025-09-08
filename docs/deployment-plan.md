@@ -36,13 +36,21 @@
 - [ ] Cloud Monitoring + Error Reporting
 - [ ] Alerting Policy для критических сервисов
 
+## ✅ Статус (GCP деплой)
+- [x] Настроен Google Cloud CLI и аутентификация (`gcloud auth login`)
+- [x] Настроен Docker для Artifact Registry (`gcloud auth configure-docker`)
+- [x] Собраны Docker-образы для всех компонентов (backend, frontend, FinGPT)
+- [x] Образы загружены в Artifact Registry
+- [x] Сервисы развернуты в Cloud Run (backend, frontend)
+- [x] Документация по деплою обновлена
+
 ### Фаза 2: Backend Services (1-2 недели)
 
 #### 2.1 Core API
-- [ ] FastAPI backend в Cloud Run
+- [x] FastAPI backend в Cloud Run
 - [ ] SQLAlchemy ORM с Cloud SQL PostgreSQL
 - [ ] Redis integration через Memorystore
-- [ ] Сборка контейнерных образов в Artifact Registry (через Cloud Build)
+ - [x] Сборка+загрузка контейнерных образов в Artifact Registry
   
 Дополнительно (локальная разработка):
 - [x] HTX тикер (alpha) с кэшем и rate limiting
@@ -104,7 +112,7 @@ GCS (raw) → Cloud Run Jobs → BigQuery (curated) → Cloud SQL (operational)
 - [x] Next.js + React + shadcn/ui
 - [ ] WebSocket integration для real-time
 - [ ] File upload через Signed URLs
-- [ ] Deployment в Cloud Run
+- [x] Deployment в Cloud Run
 
 #### 4.1.1 CI Отчёты по тестам
 - [x] Backend (pytest): артефакты в GitHub Actions
