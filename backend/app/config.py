@@ -15,6 +15,9 @@ class Settings(BaseSettings):
     # HTX API
     htx_api_base: str = os.getenv("HTX_API_BASE", "https://api.huobi.pro")
     htx_ticker_ttl: int = int(os.getenv("HTX_TICKER_TTL", "5"))  # seconds
+    # Rate limiting
+    htx_rate_limit_max: int = int(os.getenv("HTX_RATE_LIMIT_MAX", "60"))
+    htx_rate_limit_window: int = int(os.getenv("HTX_RATE_LIMIT_WINDOW", "60"))  # seconds
 
     # CORS
     cors_origins: List[AnyHttpUrl] = []
