@@ -94,6 +94,14 @@ GCS (raw) → Cloud Run Jobs → BigQuery (curated) → Cloud SQL (operational)
 - [ ] File upload через Signed URLs
 - [ ] Deployment в Cloud Run
 
+#### 4.1.1 CI Отчёты по тестам
+- [x] Backend (pytest): артефакты в GitHub Actions
+  - JUnit XML: backend/pytest-junit.xml
+  - HTML отчёт: backend/pytest-report.html
+- [x] Frontend (Vitest): покрытие V8
+  - Артефакт: frontend/coverage/
+  - Доступ: Actions → CI → нужный job → Artifacts
+
 #### 4.2 MCP Server Integration
 - [ ] GitHub Copilot Chat integration
 - [ ] Claude/Cursor support

@@ -26,12 +26,24 @@ jobs:
           cache-dependency-path: backend/requirements.txt
       - name: Install dependencies
         run: pip install -r backend/requirements.txt
+      - name: Install test reporters
+        working-directory: backend
+        run: |
+          pip install pytest-html
       - name: Lint (ruff)
         working-directory: backend
         run: ruff check app
       - name: Run tests
         working-directory: backend
-        run: pytest -q
+        run: |
+          pytest -q --junitxml=pytest-junit.xml --html=pytest-report.html --self-contained-html
+      - name: Upload backend test artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-tests
+          path: |
+            backend/pytest-junit.xml
+            backend/pytest-report.html
 
   frontend:
     name: Frontend (lint + type-check + tests)
@@ -60,7 +72,12 @@ jobs:
           npm install --no-save -D vitest @vitest/coverage-v8 jsdom @testing-library/react @testing-library/jest-dom @testing-library/user-event
       - name: Frontend tests (Vitest)
         working-directory: frontend
-        run: npx vitest run --reporter=dot
+        run: npx vitest run --coverage --reporter=dot
+      - name: Upload frontend coverage
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-coverage
+          path: frontend/coverage
 
   secret-scan:
     name: Secret Scan (TruffleHog)
