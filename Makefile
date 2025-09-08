@@ -125,7 +125,7 @@ clean:
 	rm -rf node_modules/.cache/
 	cd frontend && rm -rf .next/ node_modules/.cache/
 	cd backend && rm -rf __pycache__ .pytest_cache
-test:
+test-docker:
 	docker compose exec api pytest -q || true
 
 ci-local:
