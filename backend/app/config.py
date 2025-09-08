@@ -12,6 +12,9 @@ class Settings(BaseSettings):
     database_url: Optional[str] = os.getenv("DATABASE_URL")
     redis_url: Optional[str] = os.getenv("REDIS_URL")
     fingpt_base: Optional[str] = os.getenv("FINGPT_BASE", "http://localhost:8055")
+    # HTX API
+    htx_api_base: str = os.getenv("HTX_API_BASE", "https://api.huobi.pro")
+    htx_ticker_ttl: int = int(os.getenv("HTX_TICKER_TTL", "5"))  # seconds
 
     # CORS
     cors_origins: List[AnyHttpUrl] = []
@@ -31,4 +34,3 @@ class Settings(BaseSettings):
 
 
 settings = Settings()
-
