@@ -1,0 +1,3 @@
+[submodule "HTXV2"]
+	path = HTXV2
+	url = git@github.com:kaushator/HTXV2.git

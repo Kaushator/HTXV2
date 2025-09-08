@@ -1,0 +1,10 @@
+[project]
+name = "htx-backend"
+version = "0.2.0"
+dependencies = [
+  "fastapi","uvicorn[standard]","sqlalchemy","psycopg[binary]","alembic",
+  "httpx","redis","pydantic","transformers","peft","accelerate",
+  "google-cloud-aiplatform","openai","python-dotenv"
+]
+[project.optional-dependencies]
+dev = ["black","ruff","pytest"]

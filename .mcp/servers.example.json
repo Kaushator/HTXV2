@@ -1,0 +1,15 @@
+{
+  "htx-mcp": {
+    "command": "node",
+    "args": [
+      "dist/index.js"
+    ],
+    "env": {
+      "BACKEND_BASE": "http://localhost:8000",
+      "FINGPT_BASE": "http://localhost:8055",
+      "AI_PROVIDER": "local",
+      "DEV_JOURNAL_PATH": "../docs/dev-journal.md"
+    },
+    "cwd": "${workspaceFolder}"
+  }
+}
