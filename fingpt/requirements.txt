@@ -1,6 +1,6 @@
 fastapi==0.104.1
 uvicorn[standard]==0.24.0
-torch==2.1.0
-numpy==1.24.3
+numpy==1.25.2
+torch ; platform_system != 'Windows' or platform_machine != 'AMD64'
+# On Windows with NVIDIA GPU, install torch per https://pytorch.org/get-started/locally/
 pydantic==2.5.0
-python-multipart==0.0.6

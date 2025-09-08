@@ -65,6 +65,12 @@ source venv/bin/activate
 pip install -r requirements.txt
 cd ..
 
+# FinGPT (install into backend venv)
+echo "Installing FinGPT dependencies..."
+cd fingpt
+pip install -r requirements.txt || true
+cd ..
+
 echo "✅ Dependencies installed"
 
 # Build MCP server

@@ -43,6 +43,14 @@ function Install-Dependencies {
     .\venv\Scripts\Activate.ps1
     pip install -r requirements.txt
     Set-Location ..
+
+    # FinGPT (installed into backend venv)
+    Write-Host "Installing FinGPT dependencies..." -ForegroundColor Cyan
+    Set-Location backend
+    .\venv\Scripts\Activate.ps1
+    Set-Location ..\fingpt
+    pip install -r requirements.txt
+    Set-Location ..
     
     Write-Host "✅ Dependencies installed successfully!" -ForegroundColor Green
 }
@@ -64,9 +72,17 @@ function Start-Frontend {
 
 function Start-FinGPT {
     Write-Host "🤖 Starting FinGPT service..." -ForegroundColor Green
-    Set-Location fingpt
-    Start-Process -FilePath "python" -ArgumentList "server.py"
-    Set-Location ..
+    $venvPython = Join-Path -Path (Resolve-Path "backend/venv/Scripts").Path -ChildPath "python.exe"
+    if (Test-Path $venvPython) {
+        Set-Location fingpt
+        Start-Process -FilePath $venvPython -ArgumentList "server.py"
+        Set-Location ..
+    } else {
+        Write-Host "⚠️ Backend venv not found, using system python" -ForegroundColor Yellow
+        Set-Location fingpt
+        Start-Process -FilePath "python" -ArgumentList "server.py"
+        Set-Location ..
+    }
 }
 
 function Start-MCP {
