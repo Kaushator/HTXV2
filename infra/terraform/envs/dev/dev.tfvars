@@ -1,3 +1,6 @@
 project_id="vibrant-period-470810-p7"
 region="us-central1"
 bq_location="US"
+db_name="htx_interface"
+db_user="postgres"
+db_password="postgres123"

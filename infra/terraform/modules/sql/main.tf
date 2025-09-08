@@ -9,6 +9,16 @@ resource "google_sql_database_instance" "pg" {
     availability_type = "ZONAL"
   }
 }
-resource "google_sql_database" "appdb" { name = "htxdb" instance = google_sql_database_instance.pg.name }
-resource "google_sql_user" "appuser" { name = "htx" instance = google_sql_database_instance.pg.name password = "htxpass" }
+
+resource "google_sql_database" "appdb" {
+  name     = var.db_name
+  instance = google_sql_database_instance.pg.name
+}
+
+resource "google_sql_user" "appuser" {
+  name     = var.db_user
+  instance = google_sql_database_instance.pg.name
+  password = var.db_password
+}
+
 output "instance_connection_name" { value = google_sql_database_instance.pg.connection_name }

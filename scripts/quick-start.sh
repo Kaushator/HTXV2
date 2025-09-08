@@ -21,10 +21,7 @@ if ! command -v python3 &> /dev/null; then
     exit 1
 fi
 
-if ! command -v docker &> /dev/null; then
-    echo "❌ Docker is required. Please install Docker"
-    exit 1
-fi
+## Docker no longer required
 
 echo "✅ All prerequisites found"
 
@@ -80,30 +77,14 @@ echo "✅ MCP server built"
 # Option selection
 echo ""
 echo "🎯 Choose startup option:"
-echo "1. Full Docker environment (recommended)"
-echo "2. Local development servers"
-echo "3. MCP server only"
-echo "4. Show status and exit"
+echo "1. Local development servers"
+echo "2. MCP server only"
+echo "3. Show status and exit"
 
-read -p "Enter your choice (1-4): " choice
+read -p "Enter your choice (1-3): " choice
 
 case $choice in
     1)
-        echo ""
-        echo "🐳 Starting full Docker environment..."
-        docker-compose up -d
-        echo ""
-        echo "✅ All services started!"
-        echo ""
-        echo "📱 Access points:"
-        echo "   Frontend:      http://localhost:3000"
-        echo "   Backend API:   http://localhost:8000/docs"
-        echo "   FinGPT:        http://localhost:8055"
-        echo ""
-        echo "📊 Service status:"
-        docker-compose ps
-        ;;
-    2)
         echo ""
         echo "🔧 Starting local development servers..."
         
@@ -144,12 +125,12 @@ case $choice in
         kill $MCP_PID $BACKEND_PID $FRONTEND_PID 2>/dev/null || true
         echo "🛑 All services stopped"
         ;;
-    3)
+    2)
         echo ""
         echo "🔗 Starting MCP server only..."
         npm start
         ;;
-    4)
+    3)
         echo ""
         echo "📊 System status:"
         echo ""

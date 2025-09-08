@@ -1,9 +1,9 @@
 # HTX Interface v2 - Setup Script for Windows
-# PowerShell скрипт для установки и запуска
+# PowerShell скрипт для установки и запуска (без Docker)
 
 param(
     [Parameter(Position=0)]
-    [ValidateSet("setup", "dev", "backend", "frontend", "fingpt", "mcp", "docker-up", "docker-down", "help")]
+    [ValidateSet("setup", "dev", "backend", "frontend", "fingpt", "mcp", "help")]
     [string]$Command = "help"
 )
 
@@ -19,10 +19,6 @@ function Show-Help {
     Write-Host "  .\scripts\setup.ps1 frontend    - Start Next.js frontend only"
     Write-Host "  .\scripts\setup.ps1 fingpt      - Start FinGPT service only"
     Write-Host "  .\scripts\setup.ps1 mcp         - Start MCP server only"
-    Write-Host ""
-    Write-Host "🐳 Docker:" -ForegroundColor Yellow
-    Write-Host "  .\scripts\setup.ps1 docker-up   - Start all services with Docker"
-    Write-Host "  .\scripts\setup.ps1 docker-down - Stop Docker services"
 }
 
 function Install-Dependencies {
@@ -95,24 +91,6 @@ function Start-All {
     Write-Host "   MCP Server:    Running in VS Code"
 }
 
-function Start-Docker {
-    Write-Host "🐳 Starting all services with Docker..." -ForegroundColor Green
-    docker-compose up -d
-    
-    Write-Host ""
-    Write-Host "✅ Docker services started!" -ForegroundColor Green
-    Write-Host ""
-    Write-Host "📱 Access points:" -ForegroundColor Yellow
-    Write-Host "   Frontend:      http://localhost:3000"
-    Write-Host "   Backend API:   http://localhost:8000/docs"
-    Write-Host "   FinGPT:        http://localhost:8055"
-}
-
-function Stop-Docker {
-    Write-Host "🛑 Stopping Docker services..." -ForegroundColor Yellow
-    docker-compose down
-}
-
 function Setup-Project {
     Write-Host "🏗️ Setting up HTX Interface v2..." -ForegroundColor Green
     
@@ -135,13 +113,7 @@ function Setup-Project {
         return
     }
     
-    try {
-        docker --version | Out-Null
-        Write-Host "✅ Docker found" -ForegroundColor Green
-    } catch {
-        Write-Host "❌ Docker not found. Please install Docker Desktop" -ForegroundColor Red
-        return
-    }
+    # Docker is not required for local development
     
     # Setup environment files
     if (-not (Test-Path ".env")) {
@@ -169,8 +141,7 @@ NEXT_PUBLIC_WS_URL=ws://localhost:8000/ws
     Write-Host ""
     Write-Host "📚 Next steps:" -ForegroundColor Yellow
     Write-Host "1. Configure your API keys in .env files"
-    Write-Host "2. Run '.\scripts\setup.ps1 dev' to start development"
-    Write-Host "3. Or run '.\scripts\setup.ps1 docker-up' for Docker"
+    Write-Host "2. Run '.\\scripts\\setup.ps1 dev' to start development"
 }
 
 # Main execution
@@ -181,8 +152,6 @@ switch ($Command) {
     "frontend" { Start-Frontend }
     "fingpt" { Start-FinGPT }
     "mcp" { Start-MCP }
-    "docker-up" { Start-Docker }
-    "docker-down" { Stop-Docker }
     "help" { Show-Help }
     default { Show-Help }
 }

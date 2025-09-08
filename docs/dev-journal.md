@@ -42,7 +42,7 @@
 #### Фаза 1: Core Setup ✅
 - [x] Terraform modules готовы для GCP
 - [x] Secret Manager для безопасного хранения ключей
-- [x] Docker Compose для локальной разработки
+- [ ] (Удалено) Docker Compose для локальной разработки — используем локальные сервисы и Terraform
 - [x] Makefile для удобного управления
 
 #### Фаза 2: Data Integration (в работе)
@@ -70,9 +70,6 @@ make setup
 
 # Локальная разработка
 make dev
-
-# Docker окружение
-make docker-up
 
 # Terraform infrastructure
 make tf-apply

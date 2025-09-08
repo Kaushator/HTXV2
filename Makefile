@@ -1,5 +1,5 @@
 # HTX Interface v2 - Development Commands
-.PHONY: help setup prepare ensure-submodules ci-local scan-secrets dev backend frontend fingpt mcp install-deps clean tf-init tf-plan tf-apply docker-up docker-down logs test
+.PHONY: help setup prepare ensure-submodules ci-local scan-secrets dev backend frontend fingpt mcp install-deps clean tf-init tf-plan tf-apply test
 
 help:
 	@echo "🚀 HTX Interface v2 - Development Commands"
@@ -16,10 +16,7 @@ help:
 	@echo "  fingpt          - Start FinGPT service only"
 	@echo "  mcp             - Start MCP server only"
 	@echo ""
-	@echo "🐳 Docker:"
-	@echo "  docker-up       - Start all services with Docker"
-	@echo "  docker-down     - Stop Docker services"
-	@echo "  logs            - Show Docker logs"
+	@echo "(Docker targets removed — use Terraform and local dev)"
 	@echo ""
 	@echo "☁️ Infrastructure:"
 	@echo "  tf-init         - Initialize Terraform"
@@ -73,30 +70,7 @@ mcp:
 	@echo "🔗 Starting MCP server..."
 	npm start &
 
-# Docker commands (legacy compatibility)
-up: docker-up
-down: docker-down
-
-docker-up:
-	@echo "🐳 Starting all services with Docker..."
-	docker compose up -d --build
-
-docker-down:
-	@echo "🛑 Stopping Docker services..."
-	docker compose down
-
-logs:
-	@echo "📋 Docker logs..."
-	docker compose logs -f
-
-migrate:
-	docker compose exec api alembic upgrade head || true
-
-fmt:
-	docker compose exec api black app || true
-
-lint:
-	docker compose exec api ruff check app || true
+## Docker commands removed
 
 # Infrastructure commands
 tf-init:
@@ -125,9 +99,6 @@ clean:
 	rm -rf node_modules/.cache/
 	cd frontend && rm -rf .next/ node_modules/.cache/
 	cd backend && rm -rf __pycache__ .pytest_cache
-test-docker:
-	docker compose exec api pytest -q || true
-
 ci-local:
 	@echo "🧪 Running backend tests..."
 	cd backend && pytest -q

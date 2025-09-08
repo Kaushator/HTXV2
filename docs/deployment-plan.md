@@ -12,7 +12,7 @@
   - Memorystore (Redis) для кэширования
   - GCS buckets для Data Lake
   - BigQuery datasets (raw, curated, features)
-  - Artifact Registry для Docker образов
+  - Artifact Registry для контейнерных образов
   - Secret Manager для безопасного хранения ключей
 
 #### 1.2 Security & DevOps
@@ -33,7 +33,7 @@
 - [ ] FastAPI backend в Cloud Run
 - [ ] SQLAlchemy ORM с Cloud SQL PostgreSQL
 - [ ] Redis integration через Memorystore
-- [ ] Dockerization в Artifact Registry
+- [ ] Сборка контейнерных образов в Artifact Registry (через Cloud Build)
 
 #### 2.2 ETL Pipeline
 - [ ] Cloud Scheduler → Pub/Sub триггеры
@@ -129,7 +129,7 @@ curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
 sudo apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
 sudo apt-get update && sudo apt-get install terraform
 
-# Docker
+# Контейнерные образы
 sudo apt-get install docker.io
 sudo usermod -aG docker $USER
 ```
@@ -198,7 +198,7 @@ npm run dev
 ```bash
 # Backend API
 cd backend
-docker build -t gcr.io/htx-interface-v2/backend:latest .
+# Рекомендуется использовать Cloud Build: `gcloud builds submit`
 docker push gcr.io/htx-interface-v2/backend:latest
 
 # Deploy to Cloud Run
@@ -215,7 +215,7 @@ gcloud run deploy backend-api \
 ```bash
 # ETL Job
 cd etl
-docker build -t gcr.io/htx-interface-v2/etl:latest .
+# Рекомендуется использовать Cloud Build: `gcloud builds submit`
 docker push gcr.io/htx-interface-v2/etl:latest
 
 # Create scheduled job
@@ -240,8 +240,7 @@ gcloud scheduler jobs create http htx-data-poll \
 9. **FinGPT local setup**:
 ```bash
 cd fingpt
-# Docker с GPU поддержкой
-docker build -t gcr.io/htx-interface-v2/fingpt:latest .
+# Сборка образа FinGPT с GPU через Cloud Build или nvidia-container-toolkit
 docker run --gpus all -p 8055:8055 gcr.io/htx-interface-v2/fingpt:latest
 ```
 
@@ -264,7 +263,7 @@ npm install
 npm run build
 
 # Docker build
-docker build -t gcr.io/htx-interface-v2/frontend:latest .
+# Рекомендуется использовать Cloud Build: `gcloud builds submit`
 docker push gcr.io/htx-interface-v2/frontend:latest
 
 # Deploy to Cloud Run

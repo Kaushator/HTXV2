@@ -63,11 +63,8 @@ cd ../frontend
 npm test
 ```
 
-## 5) Docker Compose (опционально)
-```bash
-docker compose up -d --build
-docker compose ps
-```
+## 5) (Опционально) Локальные профили
+Используйте `make dev` для одновременного запуска MCP, backend и frontend.
 
 ---
 

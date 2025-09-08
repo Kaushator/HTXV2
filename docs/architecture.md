@@ -111,7 +111,7 @@ HTX Interface v2 представляет собой комплексную фи
 ### Development Tools
 - **MCP Server** - интеграция с AI-ассистентами (Copilot, Claude)
 - **Jupyter Notebooks** - исследовательская аналитика
-- **Docker** - контейнеризация сервисов
+- Контейнеризация через Cloud Build/Run (без локального Docker Compose)
 
 ## Потоки данных
 
