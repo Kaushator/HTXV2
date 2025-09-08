@@ -1,57 +1,88 @@
 # 🚀 Быстрый старт HTX Interface v2
 
-## Минимальный набор для разработки (30 минут)
+Ниже краткий чек‑лист локального запуска (Python + Node.js) и развертывания в GCP.
 
-### 1. Локальная разработка
+## 1) Клонирование и подмодули
 ```bash
-# Клонируем и настраиваем
-git clone https://github.com/Kaushator/HTXV2.git
-cd HTXEnterface_v2
+# SSH (рекомендовано)
+git clone git@github.com:Kaushator/HTX_interfacev2.git
+cd HTX_interfacev2
 
-# MCP Server
+# Инициализация подмодуля HTXV2
+git submodule update --init --recursive
+```
+
+## 2) Настройка окружения
+```bash
+# MCP/сервер (Node.js)
 npm install
 cp .env.example .env
+
+# Backend (Python)
+cd backend
+python -m venv .venv
+source .venv/bin/activate  # Windows: .venv\\Scripts\\activate
+pip install -r requirements.txt
+cd ..
+
+# Frontend (Next.js)
+cd frontend
+npm install
+cd ..
+```
+
+## 3) Локальный запуск
+```bash
+# MCP сервер (Node)
 npm run build
 npm start
 
-# Backend (в новом терминале)
+# Backend (FastAPI)
 cd backend
-pip install -r requirements.txt
-uvicorn app.main:app --reload
+uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 
-# Frontend (в новом терминале)  
+# Frontend (Next.js)
 cd frontend
-npm install
 npm run dev
 ```
 
-### 2. Docker Compose (все сервисы сразу)
-```bash
-# Запуск всех сервисов
-docker-compose up -d
+Эндпоинты и порты:
+- MCP Server: настроен в VS Code/клиенте MCP
+- Backend API: http://localhost:8000/docs
+- Frontend: http://localhost:3000
+- FinGPT (локально): http://localhost:8055/predict
 
-# Проверка статуса
-docker-compose ps
+## 4) Тесты
+```bash
+# Backend
+cd backend
+pytest
+
+# Frontend (если тесты добавлены)
+cd ../frontend
+npm test
 ```
 
-### 3. Проверка работоспособности
-- **MCP Server**: http://localhost:8000 (настроен в VS Code)
-- **Backend API**: http://localhost:8000/docs
-- **Frontend**: http://localhost:3000
-- **FinGPT**: http://localhost:8055/predict
+## 5) Docker Compose (опционально)
+```bash
+docker compose up -d --build
+docker compose ps
+```
 
 ---
 
 ## GCP Production Deployment (1 день)
 
-### Предварительные требования
+---
+
+## Предварительные требования
 ```bash
 # Инструменты
 gcloud auth login
 terraform --version
 docker --version
 
-# GCP проект
+# Проект GCP
 export PROJECT_ID="htx-interface-v2"
 gcloud config set project $PROJECT_ID
 ```
