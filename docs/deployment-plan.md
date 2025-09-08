@@ -2,6 +2,14 @@
 
 ## 🎯 Цель: Создание production-ready финтех платформы в GCP
 
+## ✅ Статус (локальная разработка)
+- [x] Docker Desktop dev-стек (PostgreSQL, Redis, Backend, Frontend, FinGPT)
+- [x] VS Code Dev Container на базе docker-compose
+- [x] Backend: FastAPI базовые эндпоинты (health/coins/analysis)
+- [x] Backend: HTX тикер (alpha) + Redis-кэш + rate limiting + WebSocket стрим
+- [x] CI (GitHub Actions): backend pytest, frontend lint/type-check/tests, Secret Scan
+- [x] Публикация отчётов CI (pytest HTML/JUnit, Vitest coverage) как artifacts
+
 ### Фаза 1: Инфраструктура и Data Lake (1-2 недели)
 
 #### 1.1 Terraform Infrastructure
@@ -21,6 +29,7 @@
 - [ ] Secret Manager integration (HTX API, OpenAI keys)
 - [ ] VPC + Serverless VPC Access для приватного доступа
 - [ ] Cloud Build + GitHub Actions CI/CD
+  - [x] GitHub Actions CI (локальные тесты/линт/репорты)
 
 #### 1.3 Monitoring & Logging
 - [ ] Cloud Logging централизованные логи
@@ -34,6 +43,9 @@
 - [ ] SQLAlchemy ORM с Cloud SQL PostgreSQL
 - [ ] Redis integration через Memorystore
 - [ ] Сборка контейнерных образов в Artifact Registry (через Cloud Build)
+  
+Дополнительно (локальная разработка):
+- [x] HTX тикер (alpha) с кэшем и rate limiting
 
 #### 2.2 ETL Pipeline
 - [ ] Cloud Scheduler → Pub/Sub триггеры
@@ -89,7 +101,7 @@ GCS (raw) → Cloud Run Jobs → BigQuery (curated) → Cloud SQL (operational)
 ### Фаза 4: Frontend & Integration (1-2 недели)
 
 #### 4.1 Frontend Development
-- [ ] Next.js + React + shadcn/ui
+- [x] Next.js + React + shadcn/ui
 - [ ] WebSocket integration для real-time
 - [ ] File upload через Signed URLs
 - [ ] Deployment в Cloud Run
