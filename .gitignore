@@ -46,3 +46,7 @@ reports/
 tmp/
 *.swp
 *.swo
+ 
+# Local stray keys (do not commit)
+new
+new.pub
