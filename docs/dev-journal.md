@@ -90,3 +90,17 @@ make mcp        # MCP server
 - [ ] Развертывание FinGPT с GPU поддержкой
 - [ ] Создание ETL пайплайнов для 4 источников
 - [ ] Интеграция ML обучения для анализа сигналов
+
+## 2025-09-08 — Push, CI и базовые тесты
+
+### Что сделано
+- [x] Ветка `main` синхронизирована с `origin/main` (SSH remote настроен)
+- [x] Добавлен CI: backend pytest, frontend lint, TruffleHog secret scan
+- [x] Добавлены базовые тесты backend (health/coins/analysis)
+- [x] Frontend: добавлены провайдеры (query/theme), globals.css, фиксы health и App Router
+- [x] Makefile: цели `prepare`, `ensure-submodules`, `ci-local`, `scan-secrets`
+
+### Проверка
+- Запуск локальных тестов: `make ci-local`
+- Инициализация подмодуля: `git submodule update --init --recursive`
+- Пуш выполнен: `git push -u origin main`
