@@ -38,7 +38,7 @@ export default function HomePage() {
 
   const checkApiHealth = async () => {
     try {
-      const response = await fetch('/api/health')
+      const response = await fetch('/health')
       if (response.ok) {
         setApiStatus('connected')
       } else {

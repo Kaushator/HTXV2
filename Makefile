@@ -1,11 +1,12 @@
 # HTX Interface v2 - Development Commands
-.PHONY: help setup dev backend frontend fingpt mcp install-deps clean tf-init tf-plan tf-apply docker-up docker-down logs test
+.PHONY: help setup prepare ensure-submodules ci-local scan-secrets dev backend frontend fingpt mcp install-deps clean tf-init tf-plan tf-apply docker-up docker-down logs test
 
 help:
 	@echo "🚀 HTX Interface v2 - Development Commands"
 	@echo ""
 	@echo "📦 Setup & Installation:"
 	@echo "  setup           - Complete project setup"
+	@echo "  prepare         - Bootstrap env + deps + submodules"
 	@echo "  install-deps    - Install all dependencies"
 	@echo ""
 	@echo "🔧 Development:"
@@ -27,6 +28,8 @@ help:
 	@echo ""
 	@echo "🧹 Utilities:"
 	@echo "  test            - Run all tests"
+	@echo "  ci-local        - Run local CI (pytest + lint/test)"
+	@echo "  scan-secrets    - Run TruffleHog filesystem scan (if installed)"
 	@echo "  clean           - Clean build artifacts"
 
 # Setup commands
@@ -35,6 +38,13 @@ setup: install-deps
 	@echo "Next steps:"
 	@echo "1. Configure .env files"
 	@echo "2. Run 'make dev' to start development"
+
+prepare: ensure-submodules install-deps
+	@echo "✅ Preparation complete (submodules + dependencies)"
+
+ensure-submodules:
+	@echo "🔁 Ensuring submodules..."
+	git submodule update --init --recursive || true
 
 install-deps:
 	@echo "📦 Installing MCP server dependencies..."
@@ -117,3 +127,19 @@ clean:
 	cd backend && rm -rf __pycache__ .pytest_cache
 test:
 	docker compose exec api pytest -q || true
+
+ci-local:
+	@echo "🧪 Running backend tests..."
+	cd backend && pytest -q
+	@echo "🔍 Linting frontend..."
+	cd frontend && npm run lint || true
+	@echo "🧪 Running frontend tests..."
+	cd frontend && npm test --if-present || true
+
+scan-secrets:
+	@echo "🔐 Running TruffleHog (filesystem scan) ..."
+	@if command -v trufflehog >/dev/null 2>&1; then \
+		trufflehog filesystem --no-update --only-verified . || true; \
+	else \
+		echo "TruffleHog not found. Install: https://github.com/trufflesecurity/trufflehog#installation"; \
+	fi
