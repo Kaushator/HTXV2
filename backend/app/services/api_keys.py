@@ -163,3 +163,61 @@ async def set_api_key_active(key_id: str, active: bool) -> bool:
             await conn.close()
     except Exception:
         return False
+
+
+async def rotate_api_key(key_id: str) -> Optional[tuple[ApiKeyMeta, str]]:
+    """Rotate an API key: deactivate existing key and create a new one with same settings.
+
+    Returns (meta, plaintext) for the new key, or None if key_id not found.
+    """
+    if not settings.database_url:
+        raise RuntimeError("DATABASE_URL is not configured")
+
+    conn = await _connect()
+    try:
+        row = await conn.fetchrow(
+            """
+            SELECT id, name, description, rate_limit_per_minute, rate_limit_window_sec, is_active
+            FROM api_keys WHERE id = $1
+            """,
+            key_id,
+        )
+        if not row:
+            await conn.close()
+            return None
+
+        # Deactivate old key
+        await conn.execute("UPDATE api_keys SET is_active = FALSE WHERE id = $1", key_id)
+
+        # Create new with same settings
+        plaintext = _generate_plaintext_key()
+        key_prefix = plaintext.split('.', 1)[0]
+        key_hash = _hash_key(plaintext)
+        new_id = str(uuid.uuid4())
+
+        await conn.execute(
+            """
+            INSERT INTO api_keys (id, key_hash, key_prefix, name, description, rate_limit_per_minute, rate_limit_window_sec, is_active)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, TRUE)
+            """,
+            new_id,
+            key_hash,
+            key_prefix,
+            row["name"],
+            row["description"],
+            row["rate_limit_per_minute"],
+            row["rate_limit_window_sec"],
+        )
+    finally:
+        await conn.close()
+
+    meta = ApiKeyMeta(
+        id=new_id,
+        key_prefix=key_prefix,
+        name=row["name"],
+        description=row["description"],
+        rate_limit_per_minute=row["rate_limit_per_minute"],
+        rate_limit_window_sec=row["rate_limit_window_sec"],
+        is_active=True,
+    )
+    return meta, plaintext

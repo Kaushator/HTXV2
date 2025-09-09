@@ -82,3 +82,19 @@ async def enable_key(key_id: str):
     if not ok:
         raise HTTPException(status_code=404, detail="Key not found")
     return ToggleResponse(ok=True)
+
+
+class RotateResponse(BaseModel):
+    meta: KeyMetaResponse
+    key: str
+
+
+@router.post("/{key_id}/rotate", response_model=RotateResponse)
+async def rotate_key(key_id: str):
+    if not settings.database_url:
+        raise HTTPException(status_code=501, detail="API keys require DATABASE_URL configuration")
+    res = await svc.rotate_api_key(key_id)
+    if not res:
+        raise HTTPException(status_code=404, detail="Key not found")
+    meta, plaintext = res
+    return RotateResponse(meta=KeyMetaResponse(**meta.__dict__), key=plaintext)

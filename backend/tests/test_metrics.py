@@ -28,3 +28,11 @@ def test_api_key_counter_with_prefix(client: TestClient):
     r = client.get("/metrics")
     assert r.status_code == 200
     assert "api_key_requests_total" in r.text
+
+
+def test_api_key_errors_counter_on_404(client: TestClient):
+    key = "abcD1234.somesecretvalue"
+    client.get(f"/not-found?api_key={key}")
+    r = client.get("/metrics")
+    assert r.status_code == 200
+    assert "api_key_errors_total" in r.text

@@ -17,6 +17,7 @@
  - GET `/api/keys/`, POST `/api/keys/` — API Keys management (requires DB; returns 501 if DATABASE_URL not set)
  - POST `/api/keys/{key_id}/disable` — deactivate key (requires DB)
  - POST `/api/keys/{key_id}/enable` — activate key (requires DB)
+  - POST `/api/keys/{key_id}/rotate` — rotate key (deactivate old, issue new; requires DB)
 
 Notes
 - Stubs are wired via FastAPI routers with status 501 Not Implemented to reserve paths for later integration.

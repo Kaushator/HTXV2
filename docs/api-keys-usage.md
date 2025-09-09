@@ -17,6 +17,8 @@ This guide explains how to manage and use API keys in the backend.
 - Disable/enable key:
   - `POST /api/keys/{key_id}/disable`
   - `POST /api/keys/{key_id}/enable`
+ - Rotate key (reissue):
+   - `POST /api/keys/{key_id}/rotate` — деактивирует старый и возвращает новый plaintext ключ
 
 Notes
 - Endpoints return 501 if `DATABASE_URL` is not configured (local dev without DB).
@@ -35,4 +37,3 @@ Notes
   - Access JSON includes `api_key_prefix` (optional) and `request_id`.
 - Last usage:
   - Backend updates `last_used_at` best‑effort for any request carrying a key.
-

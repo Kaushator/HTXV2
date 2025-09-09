@@ -37,6 +37,12 @@ API_KEY_REQUESTS = Counter(
     labelnames=("key_prefix", "method", "status"),
 )
 
+API_KEY_ERRORS = Counter(
+    "api_key_errors_total",
+    "API key scoped errors",
+    labelnames=("key_prefix", "method", "status"),
+)
+
 
 class MetricsMiddleware:
     def __init__(self, app):
@@ -99,6 +105,8 @@ class MetricsMiddleware:
                     ERRORS.labels(method=method, path=path, status=status).inc()
                 if key_prefix:
                     API_KEY_REQUESTS.labels(key_prefix=key_prefix, method=method, status=status).inc()
+                    if status_holder["value"] >= 400:
+                        API_KEY_ERRORS.labels(key_prefix=key_prefix, method=method, status=status).inc()
                 INPROGRESS.dec()
             await send(message)
 

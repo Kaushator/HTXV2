@@ -18,3 +18,5 @@ def test_api_keys_not_implemented_without_db(client: TestClient):
     assert r3.status_code == 501
     r4 = client.post("/api/keys/abc/enable")
     assert r4.status_code == 501
+    r5 = client.post("/api/keys/abc/rotate")
+    assert r5.status_code == 501
