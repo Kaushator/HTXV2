@@ -192,3 +192,8 @@ output "fingpt_url" {
   value = google_cloud_run_v2_service.fingpt.uri
   description = "URL сервиса fingpt"
 }
+
+output "artifact_registry_url" {
+  value = google_artifact_registry_repository.htx_interface.name
+  description = "URL Artifact Registry репозитория"
+}
