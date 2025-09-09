@@ -25,6 +25,7 @@ Notes
 
 ## Implemented (alpha)
 - GET `/api/data/htx/ticker/{symbol}` — HTX ticker (with optional Redis caching)
- - GET `/ws/ticker?symbols=BTC,ETH&interval_ms=1000` — WebSocket ticker stream
- - POST `/api/data/upload/request-signed-url` — CSV/XLSX signed URL (validations; GCS when `UPLOADS_GCS_BUCKET` set, else stub)
- - GET `/metrics` — Prometheus metrics endpoint
+- GET `/ws/ticker?symbols=BTC,ETH&interval_ms=1000` — WebSocket ticker stream
+- POST `/api/data/upload/request-signed-url` — CSV/XLSX signed URL (validations; GCS when `UPLOADS_GCS_BUCKET` set, else stub)
+- GET `/metrics` — Prometheus metrics endpoint
+ - GET `/api/data/coingecko/coin/{coin_id}` — CoinGecko coin info (compact fields)

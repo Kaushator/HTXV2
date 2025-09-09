@@ -1,9 +1,22 @@
 {
-  "extends": ["next", "next/core-web-vitals"],
+  "extends": [
+    "next",
+    "next/core-web-vitals",
+    "plugin:jsx-a11y/recommended",
+    "plugin:storybook/recommended"
+  ],
+  "plugins": [
+    "jsx-a11y"
+  ],
   "rules": {
-    "no-unused-vars": ["warn", { "argsIgnorePattern": "^_", "varsIgnorePattern": "^_" }],
+    "no-unused-vars": [
+      "warn",
+      {
+        "argsIgnorePattern": "^_",
+        "varsIgnorePattern": "^_"
+      }
+    ],
     "@next/next/no-img-element": "off",
     "react-hooks/exhaustive-deps": "warn"
   }
 }
-

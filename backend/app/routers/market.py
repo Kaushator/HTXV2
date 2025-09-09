@@ -2,6 +2,7 @@ from fastapi import APIRouter, HTTPException, Request
 import httpx
 
 from ..clients import htx as htx_client
+from ..clients import coingecko as cg_client
 from ..utils.ratelimit import RateLimiter
 from ..utils.api_keys import extract_api_key
 from ..config import settings
@@ -56,17 +57,15 @@ async def htx_ticker(request: Request, symbol: str, ttl: int | None = None, api_
 
 @router.get("/coingecko/coin/{coin_id}")
 async def coingecko_coin(coin_id: str):
-    """CoinGecko market data (pending integration)."""
-    return JSONResponse(
-        status_code=501,
-        content={
-            "status": "not_implemented",
-            "provider": "CoinGecko",
-            "endpoint": "coin",
-            "id": coin_id,
-            "todo": "Integrate CoinGecko client with caching",
-        },
-    )
+    """CoinGecko market data for a given coin id."""
+    try:
+        return await cg_client.get_coin(coin_id)
+    except httpx.HTTPStatusError as e:
+        if e.response is not None and e.response.status_code == 404:
+            raise HTTPException(status_code=404, detail="Coin not found")
+        raise HTTPException(status_code=502, detail=f"CoinGecko upstream error: {e.response.status_code if e.response else 'unknown'}")
+    except Exception as e:
+        raise HTTPException(status_code=502, detail=f"CoinGecko upstream unavailable: {e}")
 
 
 @router.get("/sources")

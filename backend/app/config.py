@@ -21,6 +21,15 @@ class Settings(BaseSettings):
     htx_rate_limit_max: int = int(os.getenv("HTX_RATE_LIMIT_MAX", "60"))
     htx_rate_limit_window: int = int(os.getenv("HTX_RATE_LIMIT_WINDOW", "60"))  # seconds
 
+    # Global rate limiting (middleware, disabled by default)
+    rate_limit_enabled: bool = os.getenv("RATE_LIMIT_ENABLED", "false").lower() in ("1", "true", "yes")
+    rate_limit_default_max: int = int(os.getenv("RATE_LIMIT_DEFAULT_MAX", "120"))
+    rate_limit_default_window: int = int(os.getenv("RATE_LIMIT_DEFAULT_WINDOW", "60"))
+    rate_limit_exclude_prefixes_raw: str = os.getenv(
+        "RATE_LIMIT_EXCLUDE_PREFIXES",
+        "/health,/metrics,/docs,/openapi.json,/redoc",
+    )
+
     # Uploads (CSV/XLSX signed URL stub)
     uploads_max_size_mb: int = int(os.getenv("UPLOADS_MAX_SIZE_MB", "10"))
     uploads_allowed_ext_raw: str = os.getenv("UPLOADS_ALLOWED_EXT", "csv,xlsx")
@@ -58,6 +67,10 @@ class Settings(BaseSettings):
     @property
     def uploads_allowed_ct(self) -> list[str]:
         return [c.strip().lower() for c in self.uploads_allowed_ct_raw.split(",") if c.strip()]
+
+    @property
+    def rate_limit_exclude_prefixes(self) -> list[str]:
+        return [p.strip() for p in self.rate_limit_exclude_prefixes_raw.split(",") if p.strip()]
 
 
 settings = Settings()

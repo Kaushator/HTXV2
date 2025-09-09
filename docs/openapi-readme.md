@@ -66,10 +66,15 @@ npx @apidevtools/swagger-parser validate docs/openapi.json
 
 ### Frontend Client Generation
 ```bash
-npx @openapitools/openapi-generator-cli generate \
-  -i docs/openapi.json \
-  -g typescript-fetch \
-  -o frontend/src/api/generated
+# Generate TypeScript types
+npm run api:generate
+
+# Use typed client
+import { createApiClient } from '@/types/client'
+const api = createApiClient()
+const ticker = await api.get('/api/data/htx/ticker/{symbol}', {
+  path: { symbol: 'BTCUSDT' }
+})
 ```
 
 ### Postman Collection

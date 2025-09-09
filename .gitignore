@@ -51,3 +51,6 @@ tmp/
 new
 new.pub
 github-actions-key.json
+
+*storybook.log
+storybook-static

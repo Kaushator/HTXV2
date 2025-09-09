@@ -16,6 +16,7 @@ from .middleware import RequestContextMiddleware
 from .errors import register_exception_handlers
 from .metrics import MetricsMiddleware, router as metrics_router
 from .middleware_api_keys import ApiKeyUsageMiddleware
+from .middleware_ratelimit import GlobalRateLimitMiddleware
 
 logger = logging.getLogger("htx.api")
 
@@ -59,6 +60,10 @@ app.add_middleware(MetricsMiddleware)
 app.add_middleware(RequestContextMiddleware)
 # API key usage tracking
 app.add_middleware(ApiKeyUsageMiddleware)
+
+# Global rate limiting (optional, disabled by default)
+if settings.rate_limit_enabled:
+    app.add_middleware(GlobalRateLimitMiddleware)
 
 # Error handling
 register_exception_handlers(app)
