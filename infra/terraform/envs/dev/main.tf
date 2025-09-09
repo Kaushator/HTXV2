@@ -16,3 +16,9 @@ module "pubsub"    { source = "../../modules/pubsub",    project_id = var.projec
 module "scheduler" { source = "../../modules/scheduler", project_id = var.project_id, region = var.region, topics = module.pubsub.topics }
 module "secrets"   { source = "../../modules/secrets",   project_id = var.project_id }
 module "runjobs"   { source = "../../modules/runjobs",   project_id = var.project_id, region = var.region, repo_id = module.artifact.repo_id }
+module "cicd"      {
+  source     = "../../modules/cicd"
+  project_id = var.project_id
+  region     = var.region
+  repo_id    = module.artifact.repo_id
+}

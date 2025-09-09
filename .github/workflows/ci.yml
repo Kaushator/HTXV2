@@ -89,7 +89,8 @@ jobs:
           fetch-depth: 0
           submodules: false
       - name: Run TruffleHog filesystem scan
-        uses: trufflesecurity/trufflehog-actions@v0.0.8
+        uses: trufflesecurity/trufflehog@v3
         with:
+          scan: filesystem
           path: .
           extra_args: --only-verified

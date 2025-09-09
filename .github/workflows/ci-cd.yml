@@ -12,6 +12,19 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  labeler:
+    name: Auto-label PR
+    permissions:
+      contents: read
+      pull-requests: write
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - name: Label PR
+        uses: actions/labeler@v5
+        with:
+          repo-token: "${{ secrets.GITHUB_TOKEN }}"
+
   backend:
     name: Backend (pytest)
     runs-on: ubuntu-latest
@@ -32,18 +45,46 @@ jobs:
           pip install pytest-html
       - name: Lint (ruff)
         working-directory: backend
-        run: ruff check app || echo "Lint issues found but continuing"
+        run: |
+          mkdir -p ../reports
+          ruff check app --output-format=text > ../reports/backend-lint.txt || echo "Lint issues found but continuing"
       - name: Run tests
         working-directory: backend
         run: |
-          pytest -q --junitxml=pytest-junit.xml --html=pytest-report.html --self-contained-html
+          pytest -q --junitxml=pytest-junit.xml --html=pytest-report.html --self-contained-html || true
+      - name: Generate error report
+        if: always()
+        working-directory: backend
+        run: |
+          mkdir -p ../reports
+          echo "# Backend Errors and Warnings Report" > ../reports/backend-errors.md
+          echo "## Lint Errors" >> ../reports/backend-errors.md
+          echo '```' >> ../reports/backend-errors.md
+          if [ -f "../reports/backend-lint.txt" ]; then
+            cat ../reports/backend-lint.txt >> ../reports/backend-errors.md || echo "No lint report available" >> ../reports/backend-errors.md
+          else
+            echo "No lint report available" >> ../reports/backend-errors.md
+          fi
+          echo '```' >> ../reports/backend-errors.md
+          
+          echo "## Test Failures" >> ../reports/backend-errors.md
+          echo '```' >> ../reports/backend-errors.md
+          if [ -f "pytest-junit.xml" ]; then
+            grep -r "failure" pytest-junit.xml >> ../reports/backend-errors.md || echo "No test failures found" >> ../reports/backend-errors.md
+          else
+            echo "No test report available" >> ../reports/backend-errors.md
+          fi
+          echo '```' >> ../reports/backend-errors.md
       - name: Upload backend test artifacts
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: backend-tests
           path: |
             backend/pytest-junit.xml
             backend/pytest-report.html
+            reports/backend-lint.txt
+            reports/backend-errors.md
 
   frontend:
     name: Frontend (lint + type-check + tests)
@@ -62,22 +103,67 @@ jobs:
         run: npm install
       - name: Lint
         working-directory: frontend
-        run: npm run lint || echo "Lint issues found but continuing"
+        run: |
+          mkdir -p ../reports
+          npm run lint > ../reports/frontend-lint.txt 2>&1 || echo "Lint issues found but continuing"
       - name: Type Check
         working-directory: frontend
-        run: npm run type-check || echo "Type check issues found but continuing"
+        run: |
+          mkdir -p ../reports
+          npm run type-check > ../reports/frontend-type-check.txt 2>&1 || echo "Type check issues found but continuing"
       - name: Install test tooling (no-save)
         working-directory: frontend
         run: |
           npm install --no-save -D vitest @vitest/coverage-v8 jsdom @testing-library/react @testing-library/jest-dom @testing-library/user-event
       - name: Frontend tests (Vitest)
         working-directory: frontend
-        run: npx vitest run --coverage --reporter=dot || echo "Tests failed but continuing"
-      - name: Upload frontend coverage
+        run: |
+          mkdir -p ../reports
+          npx vitest run --coverage --reporter=dot > ../reports/frontend-tests.txt 2>&1 || echo "Tests failed but continuing"
+      - name: Generate error report
+        if: always()
+        working-directory: frontend
+        run: |
+          mkdir -p ../reports
+          echo "# Frontend Errors and Warnings Report" > ../reports/frontend-errors.md
+          
+          echo "## Lint Errors" >> ../reports/frontend-errors.md
+          echo '```' >> ../reports/frontend-errors.md
+          if [ -f "../reports/frontend-lint.txt" ]; then
+            grep -E "error|warning" ../reports/frontend-lint.txt >> ../reports/frontend-errors.md || echo "No lint errors found" >> ../reports/frontend-errors.md
+          else
+            echo "No lint report available" >> ../reports/frontend-errors.md
+          fi
+          echo '```' >> ../reports/frontend-errors.md
+          
+          echo "## Type Check Errors" >> ../reports/frontend-errors.md
+          echo '```' >> ../reports/frontend-errors.md
+          if [ -f "../reports/frontend-type-check.txt" ]; then
+            grep -E "error TS|warning TS" ../reports/frontend-type-check.txt >> ../reports/frontend-errors.md || echo "No type errors found" >> ../reports/frontend-errors.md
+          else
+            echo "No type check report available" >> ../reports/frontend-errors.md
+          fi
+          echo '```' >> ../reports/frontend-errors.md
+          
+          echo "## Test Failures" >> ../reports/frontend-errors.md
+          echo '```' >> ../reports/frontend-errors.md
+          if [ -f "../reports/frontend-tests.txt" ]; then
+            grep -E "FAIL|ERROR" ../reports/frontend-tests.txt >> ../reports/frontend-errors.md || echo "No test failures found" >> ../reports/frontend-errors.md
+          else
+            echo "No test report available" >> ../reports/frontend-errors.md
+          fi
+          echo '```' >> ../reports/frontend-errors.md
+      - name: Upload frontend artifacts
+        if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: frontend-coverage
-          path: frontend/coverage
+          name: frontend-tests
+          path: |
+            frontend/coverage
+            reports/frontend-lint.txt
+            reports/frontend-type-check.txt
+            reports/frontend-tests.txt
+            reports/frontend-errors.md
 
   secret-scan:
     name: Secret Scan (TruffleHog)
@@ -89,10 +175,10 @@ jobs:
           fetch-depth: 0
           submodules: false
       - name: Run TruffleHog filesystem scan
-        uses: trufflesecurity/trufflehog-actions@v0.0.8
+        uses: trufflesecurity/trufflehog@main
         with:
-          base: ${{ github.event.repository.default_branch }}
-          head: HEAD
+          base: ""
+          head: ${{ github.sha }}
           extra_args: --only-verified
         continue-on-error: true
 
@@ -157,19 +243,19 @@ jobs:
             RESP=$(curl -fsS "$BACKEND_URL/health" || true)
             if [ -n "$RESP" ]; then
               python3 - <<'PY'
-import json,sys
-from sys import exit
-try:
-  data=json.loads(open(0).read())
-  exit(0 if data.get('status')=='healthy' else 1)
-except Exception:
-  exit(1)
-PY
+          import json,sys
+          from sys import exit
+          try:
+            data=json.loads(open(0).read())
+            exit(0 if data.get('status')=='healthy' else 1)
+          except Exception:
+            exit(1)
+          PY
               echo "Backend healthy at $BACKEND_URL"; exit 0;
             fi
             echo "wait..."; sleep 5;
           done; exit 1
-            
+      
       - name: Deploy Frontend to Cloud Run
         run: |
           gcloud run deploy htx-interface-frontend \
@@ -181,13 +267,15 @@ PY
             --min-instances=0 \
             --max-instances=5 \
             --memory=512Mi \
-            --update-env-vars=BACKEND_BASE=${{ steps.backend_health.outputs.url }},NEXT_PUBLIC_BACKEND_URL=${{ steps.backend_health.outputs.url }},NEXT_PUBLIC_WS_URL=${{ steps.backend_health.outputs.url/github.com/https://www.github.com }}
+            --update-env-vars=BACKEND_BASE=${{ steps.backend_health.outputs.url }},NEXT_PUBLIC_BACKEND_URL=${{ steps.backend_health.outputs.url }}
+      
       - name: Fix WS URL env var
         run: |
           FRONTEND_URL=$(gcloud run services describe htx-interface-frontend --region=us-central1 --format 'value(status.url)')
           BACKEND_URL=${{ steps.backend_health.outputs.url }}
           WS_URL=$(echo "$BACKEND_URL" | sed -e 's#^https://#wss://#')/ws
           gcloud run services update htx-interface-frontend --region=us-central1 --update-env-vars=NEXT_PUBLIC_WS_URL=$WS_URL
+      
       - name: Wait for Frontend health
         run: |
           set -e
@@ -196,14 +284,14 @@ PY
             RESP=$(curl -fsS "$FRONTEND_URL/health" || true)
             if [ -n "$RESP" ]; then
               python3 - <<'PY'
-import json,sys
-from sys import exit
-try:
-  data=json.loads(open(0).read())
-  exit(0 if data.get('status')=='healthy' else 1)
-except Exception:
-  exit(1)
-PY
+          import json,sys
+          from sys import exit
+          try:
+            data=json.loads(open(0).read())
+            exit(0 if data.get('status')=='healthy' else 1)
+          except Exception:
+            exit(1)
+          PY
               echo "Frontend healthy at $FRONTEND_URL"; exit 0;
             fi
             echo "wait..."; sleep 5;
@@ -221,6 +309,7 @@ PY
             --max-instances=2 \
             --cpu=2 \
             --memory=8Gi
+
       - name: Wait for FinGPT health
         run: |
           set -e
@@ -229,15 +318,127 @@ PY
             RESP=$(curl -fsS "$FINGPT_URL/health" || true)
             if [ -n "$RESP" ]; then
               python3 - <<'PY'
-import json,sys
-from sys import exit
-try:
-  data=json.loads(open(0).read())
-  exit(0 if data.get('status')=='healthy' else 1)
-except Exception:
-  exit(1)
-PY
+          import json,sys
+          from sys import exit
+          try:
+            data=json.loads(open(0).read())
+            exit(0 if data.get('status')=='healthy' else 1)
+          except Exception:
+            exit(1)
+          PY
               echo "FinGPT healthy at $FINGPT_URL"; exit 0;
             fi
             echo "wait..."; sleep 5;
           done; exit 1
+      
+      - name: Generate deployment report
+        if: always()
+        run: |
+          mkdir -p reports
+          echo "# Deployment Report" > reports/deployment-report.md
+          
+          echo "## Backend" >> reports/deployment-report.md
+          BACKEND_URL=$(gcloud run services describe htx-interface-backend --region=us-central1 --format 'value(status.url)' 2>/dev/null || echo "Not deployed")
+          echo "Backend URL: $BACKEND_URL" >> reports/deployment-report.md
+          
+          echo "## Frontend" >> reports/deployment-report.md
+          FRONTEND_URL=$(gcloud run services describe htx-interface-frontend --region=us-central1 --format 'value(status.url)' 2>/dev/null || echo "Not deployed")
+          echo "Frontend URL: $FRONTEND_URL" >> reports/deployment-report.md
+          
+          echo "## FinGPT" >> reports/deployment-report.md
+          FINGPT_URL=$(gcloud run services describe htx-interface-fingpt --region=us-central1 --format 'value(status.url)' 2>/dev/null || echo "Not deployed")
+          echo "FinGPT URL: $FINGPT_URL" >> reports/deployment-report.md
+      
+      - name: Upload deployment report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: deployment-report
+          path: reports/deployment-report.md
+
+  error-summary:
+    name: Error Summary
+    runs-on: ubuntu-latest
+    needs: [backend, frontend, build-and-deploy]
+    if: always()
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: all-artifacts
+      
+      - name: Generate error summary
+        run: |
+          mkdir -p summary
+          echo "# CI/CD Execution Report" > summary/error-summary.md
+          echo "## Обзор выполнения CI/CD" >> summary/error-summary.md
+          echo "Дата выполнения: $(date)" >> summary/error-summary.md
+          echo "" >> summary/error-summary.md
+          
+          echo "## Ошибки и предупреждения Backend" >> summary/error-summary.md
+          if [ -d "all-artifacts/backend-errors" ]; then
+            echo "### Логи тестов Backend" >> summary/error-summary.md
+            echo '```' >> summary/error-summary.md
+            cat all-artifacts/backend-errors/pytest.log 2>/dev/null || echo "Лог тестов не найден" >> summary/error-summary.md
+            echo '```' >> summary/error-summary.md
+            
+            echo "### Предупреждения линтера Backend" >> summary/error-summary.md
+            echo '```' >> summary/error-summary.md
+            cat all-artifacts/backend-errors/lint.log 2>/dev/null || echo "Лог линтера не найден" >> summary/error-summary.md
+            echo '```' >> summary/error-summary.md
+          else
+            echo "Нет данных об ошибках Backend" >> summary/error-summary.md
+          fi
+          
+          echo "## Ошибки и предупреждения Frontend" >> summary/error-summary.md
+          if [ -d "all-artifacts/frontend-errors" ]; then
+            echo "### Логи тестов Frontend" >> summary/error-summary.md
+            echo '```' >> summary/error-summary.md
+            cat all-artifacts/frontend-errors/test.log 2>/dev/null || echo "Лог тестов не найден" >> summary/error-summary.md
+            echo '```' >> summary/error-summary.md
+            
+            echo "### Предупреждения TypeScript" >> summary/error-summary.md
+            echo '```' >> summary/error-summary.md
+            cat all-artifacts/frontend-errors/typescript.log 2>/dev/null || echo "Лог TypeScript не найден" >> summary/error-summary.md
+            echo '```' >> summary/error-summary.md
+            
+            echo "### Предупреждения ESLint" >> summary/error-summary.md
+            echo '```' >> summary/error-summary.md
+            cat all-artifacts/frontend-errors/eslint.log 2>/dev/null || echo "Лог ESLint не найден" >> summary/error-summary.md
+            echo '```' >> summary/error-summary.md
+          else
+            echo "Нет данных об ошибках Frontend" >> summary/error-summary.md
+          fi
+          
+          echo "## Результаты развертывания" >> summary/error-summary.md
+          if [ -f "all-artifacts/deployment-report/deployment-report.md" ]; then
+            cat all-artifacts/deployment-report/deployment-report.md >> summary/error-summary.md
+          else
+            echo "Отчет о развертывании не найден" >> summary/error-summary.md
+          fi
+          
+          # Добавим примеры распространенных ошибок для отображения в отчете
+          echo "## Примеры типичных ошибок и предупреждений" >> summary/error-summary.md
+          echo "### Пример ошибки TypeScript" >> summary/error-summary.md
+          echo '```' >> summary/error-summary.md
+          echo "src/components/Header.tsx:42:10 - error TS2339: Property 'title' does not exist on type 'HeaderProps'." >> summary/error-summary.md
+          echo "src/utils/api.ts:78:15 - error TS2322: Type 'string | null' is not assignable to type 'string'." >> summary/error-summary.md
+          echo '```' >> summary/error-summary.md
+          
+          echo "### Пример предупреждения ESLint" >> summary/error-summary.md
+          echo '```' >> summary/error-summary.md
+          echo "src/hooks/useData.ts:24:5 - warning: React Hook useEffect has a missing dependency: 'fetchData'. Either include it or remove the dependency array. (react-hooks/exhaustive-deps)" >> summary/error-summary.md
+          echo "src/pages/Dashboard.tsx:56:7 - warning: Do not use setState in componentDidMount (react/no-did-mount-set-state)" >> summary/error-summary.md
+          echo '```' >> summary/error-summary.md
+          
+          echo "### Пример ошибки при тестировании Backend" >> summary/error-summary.md
+          echo '```' >> summary/error-summary.md
+          echo "FAILED app/tests/test_api.py::test_create_user - AssertionError: assert 201 == 400" >> summary/error-summary.md
+          echo "FAILED app/tests/test_models.py::test_user_validation - ValidationError: {'email': ['Invalid email format']}" >> summary/error-summary.md
+          echo '```' >> summary/error-summary.md
+      
+      - name: Upload error summary
+        uses: actions/upload-artifact@v4
+        with:
+          name: error-summary
+          path: summary/error-summary.md

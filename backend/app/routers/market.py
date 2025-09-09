@@ -1,5 +1,4 @@
 from fastapi import APIRouter, HTTPException, Request
-from fastapi.responses import JSONResponse
 import httpx
 
 from ..clients import htx as htx_client

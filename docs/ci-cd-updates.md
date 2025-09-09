@@ -50,3 +50,10 @@
 ## Дальше по плану
 - Добавить деплой переменных окружения через `--set-env-vars`/`--update-env-vars` из GitHub Secrets.
 - Добавить триггер по релизным тегам (`on: push: tags: 'v*'`).
+
+## Дополнительно в CI/CD
+- Health‑проверки после деплоя:
+  - Бэкенд/Фронтенд/FinGPT — curl с ретраями до доступности `/health`.
+- Динамические переменные фронтенда на деплое:
+  - URL бэкенда читается из Cloud Run (`gcloud run services describe …`) и прокидывается в `BACKEND_BASE`/`NEXT_PUBLIC_BACKEND_URL`.
+  - `NEXT_PUBLIC_WS_URL` формируется автоматически (wss://…/ws) отдельным шагом.

@@ -1,6 +1,5 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
 from datetime import datetime
 import asyncio
 import contextlib
@@ -12,6 +11,9 @@ import asyncpg
 from redis import asyncio as aioredis
 
 from .config import settings
+from .logging_setup import setup_logging
+from .middleware import RequestContextMiddleware
+from .errors import register_exception_handlers
 
 logger = logging.getLogger("htx.api")
 
@@ -20,6 +22,10 @@ from .routers import market as market_router
 from .routers import uploads as uploads_router
 from .routers import news as news_router
 from .routers import llm as llm_router
+from .routers import ws as ws_router
+
+# Configure logging early
+setup_logging()
 
 app = FastAPI(
     title=settings.app_name,
@@ -41,6 +47,13 @@ app.include_router(market_router.router)
 app.include_router(uploads_router.router)
 app.include_router(news_router.router)
 app.include_router(llm_router.router)
+app.include_router(ws_router.router)
+
+# Request context and access logging
+app.add_middleware(RequestContextMiddleware)
+
+# Error handling
+register_exception_handlers(app)
 
 @app.get("/")
 async def root():

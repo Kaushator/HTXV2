@@ -1,5 +1,5 @@
 # HTX Interface v2 - Development Commands
-.PHONY: help setup prepare ensure-submodules ci-local scan-secrets dev backend frontend fingpt mcp install-deps clean tf-init tf-plan tf-apply test
+.PHONY: help setup prepare ensure-submodules ci-local scan-secrets dev backend frontend fingpt mcp install-deps clean tf-init tf-plan tf-apply test lint-backend lint-frontend typecheck-frontend
 
 help:
 	@echo "🚀 HTX Interface v2 - Development Commands"
@@ -25,6 +25,9 @@ help:
 	@echo ""
 	@echo "🧹 Utilities:"
 	@echo "  test            - Run all tests"
+	@echo "  lint-backend    - Run Ruff on backend"
+	@echo "  lint-frontend   - Run ESLint on frontend"
+	@echo "  typecheck-frontend - Run TypeScript type check"
 	@echo "  ci-local        - Run local CI (pytest + lint/test)"
 	@echo "  scan-secrets    - Run TruffleHog filesystem scan (if installed)"
 	@echo "  clean           - Clean build artifacts"
@@ -106,6 +109,15 @@ ci-local:
 	cd frontend && npm run lint || true
 	@echo "🧪 Running frontend tests..."
 	cd frontend && npm test --if-present || true
+
+lint-backend:
+	cd backend && ruff check app
+
+lint-frontend:
+	cd frontend && npm run lint
+
+typecheck-frontend:
+	cd frontend && npm run type-check
 
 scan-secrets:
 	@echo "🔐 Running TruffleHog (filesystem scan) ..."
