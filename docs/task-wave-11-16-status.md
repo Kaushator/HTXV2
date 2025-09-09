@@ -41,11 +41,16 @@
   - One-command deployment с Docker Compose
   - Comprehensive документация: `docs/task-13-grafana-dashboards-completed.md`
 
-### ⏳ Task 14: Диаграммы потоков
-**Статус**: PENDING
+### ✅ Task 14: Диаграммы потоков
+**Статус**: COMPLETED
 - **Что**: дополнить `docs/flows.md` mermaid‑диаграммами: GCS uploads, WS поток, ошибки/ретраи
 - **DoD**: диаграммы рендерятся в GitHub, ссылки из `docs/architecture.md`
-- **Статус**: Готов к выполнению
+- **Результат**:
+  - 5 новых comprehensive mermaid диаграмм: GCS uploads, enhanced WebSocket, advanced error handling
+  - Enhanced WebSocket flow с exponential backoff и UX improvements
+  - Complete system architecture и integration diagrams
+  - Обновленная навигация в architecture.md с категоризированными ссылками
+  - Документация: `docs/task-14-flow-diagrams-completed.md`
 
 ---
 
@@ -69,17 +74,16 @@
 
 ### По приоритетам:
 - **P0 Tasks**: ✅ 2/2 COMPLETED (100%)
-- **P1 Tasks**: ✅ 1/2 COMPLETED (50%) - Task 13 ✅, Task 14 ⏳
+- **P1 Tasks**: ✅ 2/2 COMPLETED (100%) - Task 13 ✅, Task 14 ✅
 - **P2 Tasks**: ⏳ 0/2 COMPLETED (0%) - Task 15 ⏳, Task 16 ⏳
 
 ### Общий прогресс:
-- **Завершено**: 3/6 задач (50%)
-- **В ожидании**: 3/6 задач (50%)
+- **Завершено**: 4/6 задач (67%)
+- **В ожидании**: 2/6 задач (33%)
 
 ### Следующие шаги:
-1. **Task 14**: Создание mermaid диаграмм для flows.md
-2. **Task 15**: Issue/PR templates для улучшения DevEx  
-3. **Task 16**: OpenAPI документация и синхронизация
+1. **Task 15**: Issue/PR templates для улучшения DevEx  
+2. **Task 16**: OpenAPI документация и синхронизация
 
 ---
 
@@ -101,6 +105,15 @@
 - Auto-provisioning и one-command deployment
 - Production-ready configuration с HA и security
 
+### Task 14: Flow Diagrams
+**Ключевые достижения**:
+- 5 новых comprehensive mermaid диаграмм covering all major flows
+- Enhanced WebSocket flow с UX improvements и reconnection logic
+- GCS upload flow с signed URLs и validation pipeline
+- Advanced error handling с multi-layer recovery strategies
+- Complete system architecture и integration overview
+- Enhanced navigation в architecture.md с categorized links
+
 ---
 
 ## Definition of Done Check
@@ -118,4 +131,4 @@
 ---
 
 **Последнее обновление**: 9 сентября 2025 г.  
-**Следующая задача к выполнению**: P1 Task 14 (Диаграммы потоков)
+**Следующая задача к выполнению**: P2 Task 15 (Issue/PR templates)

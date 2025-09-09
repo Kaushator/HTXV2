@@ -22,6 +22,8 @@ class ApiKeyMeta:
     rate_limit_per_minute: int
     rate_limit_window_sec: int
     is_active: bool
+    revoked_at: Optional[str] = None
+    revocation_reason: Optional[str] = None
 
 
 def _hash_key(plaintext: str) -> str:
@@ -221,3 +223,22 @@ async def rotate_api_key(key_id: str) -> Optional[tuple[ApiKeyMeta, str]]:
         is_active=True,
     )
     return meta, plaintext
+
+
+async def revoke_api_key(key_id: str, reason: Optional[str] = None) -> bool:
+    """Revoke (disable) API key by id with a reason."""
+    if not settings.database_url:
+        raise RuntimeError("DATABASE_URL is not configured")
+    try:
+        conn = await _connect()
+        try:
+            res = await conn.execute(
+                "UPDATE api_keys SET is_active = FALSE, revoked_at = NOW(), revocation_reason = $1 WHERE id = $2",
+                reason,
+                key_id,
+            )
+            return res.endswith(" 1")
+        finally:
+            await conn.close()
+    except Exception:
+        return False

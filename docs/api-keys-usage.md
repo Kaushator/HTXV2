@@ -17,8 +17,10 @@ This guide explains how to manage and use API keys in the backend.
 - Disable/enable key:
   - `POST /api/keys/{key_id}/disable`
   - `POST /api/keys/{key_id}/enable`
- - Rotate key (reissue):
-   - `POST /api/keys/{key_id}/rotate` — деактивирует старый и возвращает новый plaintext ключ
+- Rotate key (reissue):
+  - `POST /api/keys/{key_id}/rotate` — деактивирует старый и возвращает новый plaintext ключ
+ - Revoke key:
+   - `POST /api/keys/{key_id}/revoke` — помечает ключ как неактивный и сохраняет причину
 
 Notes
 - Endpoints return 501 if `DATABASE_URL` is not configured (local dev without DB).

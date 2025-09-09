@@ -27,6 +27,8 @@ class KeyMetaResponse(BaseModel):
     rate_limit_per_minute: int
     rate_limit_window_sec: int
     is_active: bool
+    revoked_at: Optional[str] = None
+    revocation_reason: Optional[str] = None
 
 
 class CreateKeyResponse(BaseModel):
@@ -53,10 +55,12 @@ async def create_key(payload: CreateKeyRequest):
 
 
 @router.get("/", response_model=list[KeyMetaResponse])
-async def list_keys():
+async def list_keys(active: Optional[bool] = None):
     if not settings.database_url:
         raise HTTPException(status_code=501, detail="API keys require DATABASE_URL configuration")
     rows = await svc.list_api_keys()
+    if active is not None:
+        rows = [r for r in rows if r.is_active is active]
     return [KeyMetaResponse(**r.__dict__) for r in rows]
 
 
@@ -98,3 +102,17 @@ async def rotate_key(key_id: str):
         raise HTTPException(status_code=404, detail="Key not found")
     meta, plaintext = res
     return RotateResponse(meta=KeyMetaResponse(**meta.__dict__), key=plaintext)
+
+
+class RevokeRequest(BaseModel):
+    reason: Optional[str] = Field(None, max_length=500)
+
+
+@router.post("/{key_id}/revoke", response_model=ToggleResponse)
+async def revoke_key(key_id: str, payload: RevokeRequest):
+    if not settings.database_url:
+        raise HTTPException(status_code=501, detail="API keys require DATABASE_URL configuration")
+    ok = await svc.revoke_api_key(key_id, payload.reason)
+    if not ok:
+        raise HTTPException(status_code=404, detail="Key not found")
+    return ToggleResponse(ok=True)

@@ -145,6 +145,21 @@ HTX Interface v2 представляет собой комплексную фи
 
 ## Detailed Flow Diagrams
 
-For detailed data flow diagrams and system interactions, see:
-- **[Data Flow Diagrams](flows.md)** - WebSocket, HTTP API, health checks, and error handling flows
-- Covers WebSocket ticker subscriptions, HTTP API patterns, caching strategies, and component interactions
+For comprehensive data flow diagrams and system interactions, see:
+
+### **[Data Flow Diagrams](flows.md)** - Complete System Flow Documentation
+- **WebSocket Flows**: Real-time ticker subscriptions with enhanced UX and reconnection logic
+- **HTTP API Flows**: Request-response patterns with rate limiting and caching
+- **GCS Upload Flows**: Secure file upload process with signed URLs and validation
+- **Error Handling**: Advanced error recovery and retry mechanisms with fallback strategies
+- **Connection Management**: WebSocket state machines and connection lifecycle
+- **System Integration**: Complete architecture diagrams and data flow patterns
+
+### Key Diagrams Available:
+- 🔄 **Enhanced WebSocket Flow** - exponential backoff, connection status, manual reconnect
+- 📁 **GCS Upload Flow** - signed URLs, validation, direct-to-cloud transfers
+- ⚠️ **Advanced Error Handling** - multi-layer error recovery with fallback strategies
+- 🔌 **Connection State Machine** - all WebSocket states and transitions
+- 🏗️ **System Architecture** - complete integration and data flow overview
+
+All diagrams use **Mermaid syntax** and render directly in GitHub for easy viewing and maintenance.
