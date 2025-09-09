@@ -67,11 +67,17 @@
   - Verified CODEOWNERS с comprehensive ownership structure
   - Документация: `docs/task-15-issue-pr-templates-completed.md`
 
-### ⏳ Task 16: OpenAPI артефакты
-**Статус**: PENDING
+### ✅ Task 16: OpenAPI артефакты
+**Статус**: COMPLETED
 - **Что**: экспортировать `/openapi.json` в `docs/openapi.json` и мини‑гайд как синхронизировать
 - **DoD**: файл в репозитории, обновлённый
-- **Статус**: Готов к выполнению
+- **Результат**:
+  - OpenAPI 3.1.0 specification (31KB) с 20 endpoints и 11 schemas
+  - Dual export scripts: basic (`export_openapi.py`) и advanced (`sync_openapi.py`)
+  - Comprehensive sync guide с CI/CD integration examples
+  - Quick reference guide для common tasks
+  - Change detection и validation infrastructure
+  - Документация: `docs/task-16-openapi-artifacts-completed.md`
 
 ---
 
@@ -80,14 +86,14 @@
 ### По приоритетам:
 - **P0 Tasks**: ✅ 2/2 COMPLETED (100%)
 - **P1 Tasks**: ✅ 2/2 COMPLETED (100%) - Task 13 ✅, Task 14 ✅
-- **P2 Tasks**: ✅ 1/2 COMPLETED (50%) - Task 15 ✅, Task 16 ⏳
+- **P2 Tasks**: ✅ 2/2 COMPLETED (100%) - Task 15 ✅, Task 16 ✅
 
 ### Общий прогресс:
-- **Завершено**: 5/6 задач (83%)
-- **В ожидании**: 1/6 задач (17%)
+- **Завершено**: 6/6 задач (100%)
+- **В ожидании**: 0/6 задач (0%)
 
 ### Следующие шаги:
-1. **Task 16**: OpenAPI документация и синхронизация
+🎉 **Волна задач 11-16 ПОЛНОСТЬЮ ЗАВЕРШЕНА!**
 
 ---
 
@@ -127,6 +133,15 @@
 - Enhanced developer experience с guided issue creation
 - Verified CODEOWNERS structure для proper code ownership
 
+### Task 16: OpenAPI Artifacts
+**Ключевые достижения**:
+- OpenAPI 3.1.0 specification (31KB) с 20 endpoints и 11 schemas
+- Dual export scripts с change detection и validation
+- Comprehensive synchronization guide с CI/CD integration
+- Quick reference guide для daily development tasks
+- Automated metadata generation с git hash и timestamps
+- Production-ready infrastructure для API documentation
+
 ---
 
 ## Definition of Done Check
@@ -144,4 +159,14 @@
 ---
 
 **Последнее обновление**: 9 сентября 2025 г.  
-**Следующая задача к выполнению**: P2 Task 16 (OpenAPI артефакты)
+**Статус волны**: ✅ ПОЛНОСТЬЮ ЗАВЕРШЕНА (6/6 задач)
+
+---
+
+## Инструкции по экономии токенов (для Claude)
+- Короткие ответы (до 3–4 строк), без развёрнутых отчётов/резюме.
+- Никаких отчётов — только отметка в журнале: добавить файл в `docs/journal/YYYY-MM-DD.md` с 1–3 пунктами и ссылкой на PR/коммит.
+- Не вставлять большие блоки кода и логи в ответы; давать ссылки на изменённые файлы/коммиты/артефакты.
+- Не дублировать контекст/спеки; сообщать только сделанный результат и следующий шаг.
+- Объединять мелкие правки в один коммит; краткое описание в 1 строку.
+- Для тестов/скриншотов — не прикладывать в ответы; сохранять как артефакты/файлы в репозитории и ссылаться.

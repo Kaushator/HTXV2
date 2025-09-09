@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+# Local pre-push hook (sample). Copy to .git/hooks/pre-push and make executable.
+set -euo pipefail
+
+if [[ -x scripts/ci/llm-usage-check.sh ]]; then
+  scripts/ci/llm-usage-check.sh
+fi
+
+echo "pre-push: token guard passed"
+
