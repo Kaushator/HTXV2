@@ -1,5 +1,7 @@
 # HTXV2 - Cryptocurrency Trading Platform
 
+[![CI/CD Pipeline](https://github.com/Kaushator/HTXV2/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/Kaushator/HTXV2/actions/workflows/ci-cd.yml)
+
 A comprehensive GCP-based cryptocurrency trading platform with ML/AI capabilities.
 
 ## Architecture Overview

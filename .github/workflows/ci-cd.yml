@@ -3,6 +3,7 @@ name: CI/CD Pipeline
 on:
   push:
     branches: [ main, develop ]
+    tags: [ 'v*' ]  # Trigger on version tags
   pull_request:
     branches: [ main ]
 
@@ -120,6 +121,16 @@ jobs:
     
     steps:
     - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # Needed for TruffleHog to scan all history
+    
+    - name: Run TruffleHog secrets scanner
+      uses: trufflesecurity/trufflehog@main
+      with:
+        path: ./
+        base: main
+        head: HEAD
+        extra_args: --debug --only-verified
     
     - name: Run Trivy vulnerability scanner
       uses: aquasecurity/trivy-action@master
@@ -157,9 +168,10 @@ jobs:
         terraform validate
 
   build-and-deploy:
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v')
     needs: [test-backend, test-frontend, security-scan, terraform-validate]
     runs-on: ubuntu-latest
+    environment: ${{ startsWith(github.ref, 'refs/tags/v') && 'production' || 'staging' }}
     
     steps:
     - uses: actions/checkout@v4
@@ -176,42 +188,64 @@ jobs:
       run: |
         gcloud auth configure-docker $REGION-docker.pkg.dev
     
+    - name: Set deployment environment
+      id: env
+      run: |
+        if [[ $GITHUB_REF == refs/tags/v* ]]; then
+          echo "ENV_NAME=production" >> $GITHUB_OUTPUT
+          echo "TAG_SUFFIX=prod" >> $GITHUB_OUTPUT
+        else
+          echo "ENV_NAME=staging" >> $GITHUB_OUTPUT
+          echo "TAG_SUFFIX=staging" >> $GITHUB_OUTPUT
+        fi
+    
     - name: Build and push backend image
       run: |
         docker build -f docker/backend.Dockerfile -t $REGION-docker.pkg.dev/$PROJECT_ID/$ARTIFACT_REGISTRY/backend:${{ github.sha }} .
+        docker tag $REGION-docker.pkg.dev/$PROJECT_ID/$ARTIFACT_REGISTRY/backend:${{ github.sha }} $REGION-docker.pkg.dev/$PROJECT_ID/$ARTIFACT_REGISTRY/backend:${{ steps.env.outputs.TAG_SUFFIX }}
         docker push $REGION-docker.pkg.dev/$PROJECT_ID/$ARTIFACT_REGISTRY/backend:${{ github.sha }}
+        docker push $REGION-docker.pkg.dev/$PROJECT_ID/$ARTIFACT_REGISTRY/backend:${{ steps.env.outputs.TAG_SUFFIX }}
     
     - name: Build and push frontend image
       run: |
         docker build -f docker/frontend.Dockerfile -t $REGION-docker.pkg.dev/$PROJECT_ID/$ARTIFACT_REGISTRY/frontend:${{ github.sha }} .
+        docker tag $REGION-docker.pkg.dev/$PROJECT_ID/$ARTIFACT_REGISTRY/frontend:${{ github.sha }} $REGION-docker.pkg.dev/$PROJECT_ID/$ARTIFACT_REGISTRY/frontend:${{ steps.env.outputs.TAG_SUFFIX }}
         docker push $REGION-docker.pkg.dev/$PROJECT_ID/$ARTIFACT_REGISTRY/frontend:${{ github.sha }}
+        docker push $REGION-docker.pkg.dev/$PROJECT_ID/$ARTIFACT_REGISTRY/frontend:${{ steps.env.outputs.TAG_SUFFIX }}
     
     - name: Build and push ETL image
       run: |
         docker build -f docker/etl.Dockerfile -t $REGION-docker.pkg.dev/$PROJECT_ID/$ARTIFACT_REGISTRY/etl:${{ github.sha }} .
+        docker tag $REGION-docker.pkg.dev/$PROJECT_ID/$ARTIFACT_REGISTRY/etl:${{ github.sha }} $REGION-docker.pkg.dev/$PROJECT_ID/$ARTIFACT_REGISTRY/etl:${{ steps.env.outputs.TAG_SUFFIX }}
         docker push $REGION-docker.pkg.dev/$PROJECT_ID/$ARTIFACT_REGISTRY/etl:${{ github.sha }}
+        docker push $REGION-docker.pkg.dev/$PROJECT_ID/$ARTIFACT_REGISTRY/etl:${{ steps.env.outputs.TAG_SUFFIX }}
     
     - name: Deploy to Cloud Run
       run: |
         # Deploy backend
-        gcloud run deploy htxv2-backend \
+        gcloud run deploy htxv2-backend-${{ steps.env.outputs.ENV_NAME }} \
           --image $REGION-docker.pkg.dev/$PROJECT_ID/$ARTIFACT_REGISTRY/backend:${{ github.sha }} \
           --region $REGION \
           --platform managed \
           --allow-unauthenticated \
-          --set-env-vars="ENVIRONMENT=production"
+          --set-env-vars="ENVIRONMENT=${{ steps.env.outputs.ENV_NAME }}" \
+          --set-env-vars="DATABASE_URL=${{ secrets.DATABASE_URL }}" \
+          --set-env-vars="REDIS_URL=${{ secrets.REDIS_URL }}" \
+          --set-env-vars="SECRET_KEY=${{ secrets.SECRET_KEY }}"
         
         # Deploy frontend
-        gcloud run deploy htxv2-frontend \
+        gcloud run deploy htxv2-frontend-${{ steps.env.outputs.ENV_NAME }} \
           --image $REGION-docker.pkg.dev/$PROJECT_ID/$ARTIFACT_REGISTRY/frontend:${{ github.sha }} \
           --region $REGION \
           --platform managed \
-          --allow-unauthenticated
+          --allow-unauthenticated \
+          --set-env-vars="NEXT_PUBLIC_API_URL=${{ secrets.API_URL }}"
 
   deploy-infrastructure:
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v')
     needs: [terraform-validate]
     runs-on: ubuntu-latest
+    environment: ${{ startsWith(github.ref, 'refs/tags/v') && 'production' || 'staging' }}
     
     steps:
     - uses: actions/checkout@v4
@@ -226,6 +260,15 @@ jobs:
       with:
         terraform_version: 1.5.0
     
+    - name: Set deployment environment
+      id: env
+      run: |
+        if [[ $GITHUB_REF == refs/tags/v* ]]; then
+          echo "ENV_NAME=production" >> $GITHUB_OUTPUT
+        else
+          echo "ENV_NAME=staging" >> $GITHUB_OUTPUT
+        fi
+    
     - name: Terraform Init
       run: |
         cd infrastructure
@@ -234,11 +277,41 @@ jobs:
     - name: Terraform Plan
       run: |
         cd infrastructure
-        terraform plan -var="project_id=$PROJECT_ID"
+        terraform plan -var="project_id=$PROJECT_ID" -var="environment=${{ steps.env.outputs.ENV_NAME }}"
     
     - name: Terraform Apply
       run: |
         cd infrastructure
-        terraform apply -auto-approve -var="project_id=$PROJECT_ID"
+        terraform apply -auto-approve -var="project_id=$PROJECT_ID" -var="environment=${{ steps.env.outputs.ENV_NAME }}"
       env:
         TF_VAR_project_id: ${{ env.PROJECT_ID }}
+        TF_VAR_environment: ${{ steps.env.outputs.ENV_NAME }}
+
+  create-release:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: [build-and-deploy]
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Create Release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref_name }}
+        release_name: Release ${{ github.ref_name }}
+        body: |
+          ## Changes in this Release
+          
+          Automatic release created from tag ${{ github.ref_name }}
+          
+          ### Deployed Services
+          - Backend: `htxv2-backend-production`
+          - Frontend: `htxv2-frontend-production`
+          
+          ### CI/CD Status
+          ![CI/CD Status](https://github.com/${{ github.repository }}/actions/workflows/ci-cd.yml/badge.svg?branch=main)
+        draft: false
+        prerelease: ${{ contains(github.ref_name, 'alpha') || contains(github.ref_name, 'beta') || contains(github.ref_name, 'rc') }}

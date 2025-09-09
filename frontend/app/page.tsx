@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { TrendingUp, Shield, Zap, BarChart3 } from 'lucide-react'
+import { TickerDisplay } from '@/components/ticker-display'
 
 export default function HomePage() {
   return (
@@ -51,6 +52,16 @@ export default function HomePage() {
           <Button size="lg" variant="outline" asChild>
             <Link href="/demo">View Demo</Link>
           </Button>
+        </div>
+      </section>
+
+      {/* Real-time Ticker Section */}
+      <section className="container mx-auto px-4 py-16">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+          <TickerDisplay 
+            symbols={['BTC', 'ETH']}
+            wsUrl={process.env.NODE_ENV === 'development' ? 'ws://localhost:8000/api/v1/ws/ticker' : `wss://${process.env.NEXT_PUBLIC_API_URL?.replace('https://', '')}/api/v1/ws/ticker`}
+          />
         </div>
       </section>
 

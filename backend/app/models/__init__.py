@@ -1,6 +1,7 @@
 # Import all models for easy access
 from app.models.user import User
 from app.models.trading import CryptoPriceData, Portfolio, Position, TradingSignal
+from app.models.api_keys import ApiKey
 
 # Export Base for migrations
 from app.db.session import Base
@@ -11,5 +12,6 @@ __all__ = [
     "CryptoPriceData", 
     "Portfolio", 
     "Position", 
-    "TradingSignal"
+    "TradingSignal",
+    "ApiKey"
 ]
