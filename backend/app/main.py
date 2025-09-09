@@ -68,10 +68,21 @@ async def lifespan(app: FastAPI):
     
     logger.info("Database tables created successfully")
     
+    # Start ticker broadcaster
+    from app.api.api_v1.endpoints.websocket import start_ticker_broadcaster
+    await start_ticker_broadcaster()
+    logger.info("Ticker broadcaster started")
+    
     yield
     
     # Shutdown
     logger.info("Shutting down HTXV2 backend...")
+    
+    # Stop ticker broadcaster
+    from app.api.api_v1.endpoints.websocket import stop_ticker_broadcaster
+    await stop_ticker_broadcaster()
+    logger.info("Ticker broadcaster stopped")
+    
     await engine.dispose()
 
 

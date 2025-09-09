@@ -139,19 +139,25 @@ async def ticker_broadcaster():
             if db:
                 db.close()
 
-# Start the broadcaster task
+# Start the broadcaster task globally
 ticker_task = None
 
-@router.on_event("startup")
-async def startup_event():
+async def start_ticker_broadcaster():
+    """Start the ticker broadcaster task"""
     global ticker_task
-    ticker_task = asyncio.create_task(ticker_broadcaster())
+    if not ticker_task:
+        ticker_task = asyncio.create_task(ticker_broadcaster())
 
-@router.on_event("shutdown")
-async def shutdown_event():
+async def stop_ticker_broadcaster():
+    """Stop the ticker broadcaster task"""
     global ticker_task
     if ticker_task:
         ticker_task.cancel()
+        try:
+            await ticker_task
+        except asyncio.CancelledError:
+            pass
+        ticker_task = None
 
 @router.websocket("/ticker")
 async def websocket_ticker_endpoint(websocket: WebSocket, symbol: str = "all"):

@@ -41,6 +41,7 @@ numpy==1.24.3
 pandas==2.1.4
 scikit-learn==1.3.2
 openai==1.3.7
+openpyxl==3.1.2  # For Excel file support
 
 # Vector database
 pgvector==0.2.4
