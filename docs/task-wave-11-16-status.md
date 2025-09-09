@@ -56,11 +56,16 @@
 
 ## P2 Priority Tasks (DevEx/процессы)
 
-### ⏳ Task 15: Issue/PR templates
-**Статус**: PENDING
+### ✅ Task 15: Issue/PR templates
+**Статус**: COMPLETED
 - **Что**: добавить `.github/ISSUE_TEMPLATE/*` и обновить CODEOWNERS при необходимости
 - **DoD**: шаблоны доступны при создании issue/PR
-- **Статус**: Готов к выполнению
+- **Результат**:
+  - 6 comprehensive issue templates: bug report, feature request, documentation, performance, infrastructure, question
+  - GitHub YAML format с структурированными формами
+  - Template configuration с contact links и disabled blank issues
+  - Verified CODEOWNERS с comprehensive ownership structure
+  - Документация: `docs/task-15-issue-pr-templates-completed.md`
 
 ### ⏳ Task 16: OpenAPI артефакты
 **Статус**: PENDING
@@ -75,15 +80,14 @@
 ### По приоритетам:
 - **P0 Tasks**: ✅ 2/2 COMPLETED (100%)
 - **P1 Tasks**: ✅ 2/2 COMPLETED (100%) - Task 13 ✅, Task 14 ✅
-- **P2 Tasks**: ⏳ 0/2 COMPLETED (0%) - Task 15 ⏳, Task 16 ⏳
+- **P2 Tasks**: ✅ 1/2 COMPLETED (50%) - Task 15 ✅, Task 16 ⏳
 
 ### Общий прогресс:
-- **Завершено**: 4/6 задач (67%)
-- **В ожидании**: 2/6 задач (33%)
+- **Завершено**: 5/6 задач (83%)
+- **В ожидании**: 1/6 задач (17%)
 
 ### Следующие шаги:
-1. **Task 15**: Issue/PR templates для улучшения DevEx  
-2. **Task 16**: OpenAPI документация и синхронизация
+1. **Task 16**: OpenAPI документация и синхронизация
 
 ---
 
@@ -114,6 +118,15 @@
 - Complete system architecture и integration overview
 - Enhanced navigation в architecture.md с categorized links
 
+### Task 15: Issue/PR Templates
+**Ключевые достижения**:
+- 6 comprehensive issue templates для всех типов задач
+- GitHub YAML format с structured forms и progressive disclosure
+- Consistent labeling system и priority assessment
+- Template configuration с contact links и workflow optimization
+- Enhanced developer experience с guided issue creation
+- Verified CODEOWNERS structure для proper code ownership
+
 ---
 
 ## Definition of Done Check
@@ -131,4 +144,4 @@
 ---
 
 **Последнее обновление**: 9 сентября 2025 г.  
-**Следующая задача к выполнению**: P2 Task 15 (Issue/PR templates)
+**Следующая задача к выполнению**: P2 Task 16 (OpenAPI артефакты)

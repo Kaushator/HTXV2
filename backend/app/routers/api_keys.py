@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Optional
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Query
 from pydantic import BaseModel, Field
 
 from ..config import settings
@@ -55,12 +55,14 @@ async def create_key(payload: CreateKeyRequest):
 
 
 @router.get("/", response_model=list[KeyMetaResponse])
-async def list_keys(active: Optional[bool] = None):
+async def list_keys(
+    active: Optional[bool] = None,
+    limit: int = Query(50, ge=1, le=200),
+    offset: int = Query(0, ge=0),
+):
     if not settings.database_url:
         raise HTTPException(status_code=501, detail="API keys require DATABASE_URL configuration")
-    rows = await svc.list_api_keys()
-    if active is not None:
-        rows = [r for r in rows if r.is_active is active]
+    rows = await svc.list_api_keys_paged(active=active, limit=limit, offset=offset)
     return [KeyMetaResponse(**r.__dict__) for r in rows]
 
 
@@ -113,6 +115,31 @@ async def revoke_key(key_id: str, payload: RevokeRequest):
     if not settings.database_url:
         raise HTTPException(status_code=501, detail="API keys require DATABASE_URL configuration")
     ok = await svc.revoke_api_key(key_id, payload.reason)
+    if not ok:
+        raise HTTPException(status_code=404, detail="Key not found")
+    return ToggleResponse(ok=True)
+
+
+class UpdateLimitsRequest(BaseModel):
+    rate_limit_per_minute: Optional[int] = Field(None, ge=1)
+    rate_limit_window_sec: Optional[int] = Field(None, ge=1)
+
+
+@router.patch("/{key_id}", response_model=ToggleResponse)
+async def update_limits(key_id: str, payload: UpdateLimitsRequest):
+    if not settings.database_url:
+        raise HTTPException(status_code=501, detail="API keys require DATABASE_URL configuration")
+    ok = await svc.update_rate_limits(key_id, payload.rate_limit_per_minute, payload.rate_limit_window_sec)
+    if not ok:
+        raise HTTPException(status_code=404, detail="Key not found")
+    return ToggleResponse(ok=True)
+
+
+@router.delete("/{key_id}", response_model=ToggleResponse)
+async def delete_key(key_id: str, hard: bool = False, reason: Optional[str] = None):
+    if not settings.database_url:
+        raise HTTPException(status_code=501, detail="API keys require DATABASE_URL configuration")
+    ok = await svc.delete_api_key(key_id, hard=hard, reason=reason)
     if not ok:
         raise HTTPException(status_code=404, detail="Key not found")
     return ToggleResponse(ok=True)

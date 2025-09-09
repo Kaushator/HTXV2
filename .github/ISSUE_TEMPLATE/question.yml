@@ -1,0 +1,58 @@
+---
+name: 🎓 Question
+about: Ask a question about the project
+title: '[QUESTION] '
+labels: ['question', 'help wanted']
+assignees: ''
+---
+
+## ❓ Question Summary
+<!-- Brief summary of your question -->
+
+## 🏷️ Question Category
+- [ ] How to use a feature
+- [ ] Development setup
+- [ ] Architecture/Design
+- [ ] Best practices
+- [ ] Troubleshooting
+- [ ] API usage
+- [ ] Configuration
+- [ ] Testing
+- [ ] Deployment
+
+## 📋 Detailed Question
+<!-- Provide detailed information about what you want to know -->
+
+## 🎯 What I'm Trying to Achieve
+<!-- Describe your goal or what you're trying to accomplish -->
+
+## 🔧 What I've Tried
+<!-- Describe any attempts you've made to solve this yourself -->
+- 
+- 
+- 
+
+## 🌐 Environment/Context
+- **Component**: [Backend/Frontend/Infrastructure]
+- **Version**: 
+- **OS**: 
+- **Environment**: [Development/Staging/Production]
+
+## 📚 Resources Consulted
+<!-- What documentation or resources have you already checked? -->
+- [ ] README.md
+- [ ] docs/ folder
+- [ ] API documentation
+- [ ] GitHub issues
+- [ ] External documentation
+
+## 💡 Additional Context
+<!-- Any other information that might be helpful -->
+
+## 🔗 Related Code/Configuration
+```
+<!-- If relevant, include code snippets or configuration -->
+```
+
+## 📸 Screenshots (if applicable)
+<!-- Include screenshots if they help explain your question -->

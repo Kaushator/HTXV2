@@ -22,3 +22,7 @@ def test_api_keys_not_implemented_without_db(client: TestClient):
     assert r5.status_code == 501
     r6 = client.post("/api/keys/abc/revoke", json={"reason": "test"})
     assert r6.status_code == 501
+    r7 = client.patch("/api/keys/abc", json={"rate_limit_per_minute": 10})
+    assert r7.status_code == 501
+    r8 = client.delete("/api/keys/abc")
+    assert r8.status_code == 501

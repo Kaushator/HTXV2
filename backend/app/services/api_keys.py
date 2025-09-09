@@ -75,17 +75,35 @@ async def create_api_key(name: str, description: Optional[str] = None, rate_limi
     return meta, plaintext
 
 
-async def list_api_keys() -> Sequence[ApiKeyMeta]:
+async def list_api_keys_paged(active: Optional[bool], limit: int, offset: int) -> Sequence[ApiKeyMeta]:
     if not settings.database_url:
         raise RuntimeError("DATABASE_URL is not configured")
     conn = await _connect()
     try:
-        rows = await conn.fetch(
-            """
-            SELECT id, key_prefix, name, description, rate_limit_per_minute, rate_limit_window_sec, is_active
-            FROM api_keys ORDER BY created_at DESC NULLS LAST
-            """
-        )
+        if active is None:
+            rows = await conn.fetch(
+                """
+                SELECT id, key_prefix, name, description, rate_limit_per_minute, rate_limit_window_sec, is_active, revoked_at, revocation_reason
+                FROM api_keys
+                ORDER BY created_at DESC NULLS LAST
+                LIMIT $1 OFFSET $2
+                """,
+                limit,
+                offset,
+            )
+        else:
+            rows = await conn.fetch(
+                """
+                SELECT id, key_prefix, name, description, rate_limit_per_minute, rate_limit_window_sec, is_active, revoked_at, revocation_reason
+                FROM api_keys
+                WHERE is_active = $1
+                ORDER BY created_at DESC NULLS LAST
+                LIMIT $2 OFFSET $3
+                """,
+                active,
+                limit,
+                offset,
+            )
     finally:
         await conn.close()
     return [
@@ -97,6 +115,8 @@ async def list_api_keys() -> Sequence[ApiKeyMeta]:
             rate_limit_per_minute=r["rate_limit_per_minute"],
             rate_limit_window_sec=r["rate_limit_window_sec"],
             is_active=r["is_active"],
+            revoked_at=r.get("revoked_at"),
+            revocation_reason=r.get("revocation_reason"),
         ) for r in rows
     ]
 
@@ -223,6 +243,56 @@ async def rotate_api_key(key_id: str) -> Optional[tuple[ApiKeyMeta, str]]:
         is_active=True,
     )
     return meta, plaintext
+
+
+async def update_rate_limits(key_id: str, per_minute: Optional[int], window_sec: Optional[int]) -> bool:
+    if not settings.database_url:
+        raise RuntimeError("DATABASE_URL is not configured")
+    if per_minute is None and window_sec is None:
+        return True
+    conn = await _connect()
+    try:
+        if per_minute is not None and window_sec is not None:
+            res = await conn.execute(
+                "UPDATE api_keys SET rate_limit_per_minute=$1, rate_limit_window_sec=$2 WHERE id=$3",
+                per_minute,
+                window_sec,
+                key_id,
+            )
+        elif per_minute is not None:
+            res = await conn.execute(
+                "UPDATE api_keys SET rate_limit_per_minute=$1 WHERE id=$2",
+                per_minute,
+                key_id,
+            )
+        else:
+            res = await conn.execute(
+                "UPDATE api_keys SET rate_limit_window_sec=$1 WHERE id=$2",
+                window_sec,
+                key_id,
+            )
+        return res.endswith(" 1")
+    finally:
+        await conn.close()
+
+
+async def delete_api_key(key_id: str, hard: bool = False, reason: Optional[str] = None) -> bool:
+    if not settings.database_url:
+        raise RuntimeError("DATABASE_URL is not configured")
+    conn = await _connect()
+    try:
+        if hard:
+            res = await conn.execute("DELETE FROM api_keys WHERE id=$1", key_id)
+            return res.endswith(" 1")
+        # soft delete (reuse revoke)
+        res = await conn.execute(
+            "UPDATE api_keys SET is_active=FALSE, revoked_at=NOW(), revocation_reason=$1 WHERE id=$2",
+            reason,
+            key_id,
+        )
+        return res.endswith(" 1")
+    finally:
+        await conn.close()
 
 
 async def revoke_api_key(key_id: str, reason: Optional[str] = None) -> bool:
