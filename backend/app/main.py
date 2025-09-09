@@ -15,6 +15,7 @@ from .logging_setup import setup_logging
 from .middleware import RequestContextMiddleware
 from .errors import register_exception_handlers
 from .metrics import MetricsMiddleware, router as metrics_router
+from .middleware_api_keys import ApiKeyUsageMiddleware
 
 logger = logging.getLogger("htx.api")
 
@@ -56,6 +57,8 @@ app.include_router(metrics_router)
 # Metrics and access logging
 app.add_middleware(MetricsMiddleware)
 app.add_middleware(RequestContextMiddleware)
+# API key usage tracking
+app.add_middleware(ApiKeyUsageMiddleware)
 
 # Error handling
 register_exception_handlers(app)

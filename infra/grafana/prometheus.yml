@@ -1,0 +1,52 @@
+# Prometheus configuration for HTX Interface monitoring
+# This file defines scrape targets and rules for the Grafana dashboards
+
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+# Scrape configuration for HTX services
+scrape_configs:
+  # HTX Backend API
+  - job_name: 'htx-backend'
+    static_configs:
+      - targets: ['localhost:8000']
+    metrics_path: '/metrics'
+    scrape_interval: 5s
+    scrape_timeout: 4s
+
+  # Node Exporter for system metrics
+  - job_name: 'node-exporter'
+    static_configs:
+      - targets: ['localhost:9100']
+    scrape_interval: 15s
+
+  # PostgreSQL Exporter
+  - job_name: 'postgres-exporter'
+    static_configs:
+      - targets: ['localhost:9187']
+    scrape_interval: 15s
+
+  # Redis Exporter
+  - job_name: 'redis-exporter'
+    static_configs:
+      - targets: ['localhost:9121']
+    scrape_interval: 15s
+
+  # Nginx Exporter (if using nginx)
+  - job_name: 'nginx-exporter'
+    static_configs:
+      - targets: ['localhost:9113']
+    scrape_interval: 15s
+
+# Recording rules for better dashboard performance
+rule_files:
+  - "htx_rules.yml"
+  - "htx_alerts.yml"
+
+# Alerting configuration
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+          - alertmanager:9093

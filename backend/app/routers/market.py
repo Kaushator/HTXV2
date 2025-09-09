@@ -42,14 +42,7 @@ async def htx_ticker(request: Request, symbol: str, ttl: int | None = None, api_
     allowed = await _rl.allow(key, max_calls, window)
     if not allowed:
         raise HTTPException(status_code=429, detail="Rate limit exceeded. Please slow down.")
-    # Touch API key usage (best effort)
-    if effective_key:
-        try:
-            from ..services.api_keys import touch_api_key_usage
-
-            await touch_api_key_usage(effective_key)
-        except Exception:
-            pass
+    # Usage tracking now handled globally by ApiKeyUsageMiddleware
     try:
         data = await htx_client.get_ticker(symbol, ttl_override=ttl)
         return data

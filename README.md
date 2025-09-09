@@ -29,3 +29,6 @@ make dev
 
 Uploads
 - Настройка GCS Signed URL: `docs/uploads-gcs-setup.md`.
+
+API Keys
+- Руководство по ключам API: `docs/api-keys-usage.md`.
