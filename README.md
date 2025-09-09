@@ -22,3 +22,10 @@ make dev
     - gcloud auth print-access-token | docker login -u oauth2accesstoken --password-stdin https://us-central1-docker.pkg.dev
   - PowerShell:
     - (gcloud auth print-access-token) | docker login -u oauth2accesstoken --password-stdin https://us-central1-docker.pkg.dev
+
+Наблюдаемость
+- Логи/ошибки/метрики описаны в `docs/observability.md` (JSON‑логи, единый формат ошибок, Prometheus `/metrics`).
+ - Пример локального сбора метрик Prometheus: `docs/prometheus-scrape.md`.
+
+Uploads
+- Настройка GCS Signed URL: `docs/uploads-gcs-setup.md`.

@@ -179,3 +179,6 @@ CI/CD pipeline запускается автоматически при:
 - [Документация GitHub Actions](https://docs.github.com/en/actions)
 - [Документация Google Cloud Run](https://cloud.google.com/run/docs)
 - [Документация Artifact Registry](https://cloud.google.com/artifact-registry/docs)
+
+## C/C++ Toolchain
+- Для сборки нативных зависимостей см. `docs/cpp-toolchain.md` (Windows/Linux/macOS варианты)

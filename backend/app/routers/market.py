@@ -3,6 +3,7 @@ import httpx
 
 from ..clients import htx as htx_client
 from ..utils.ratelimit import RateLimiter
+from ..utils.api_keys import extract_api_key
 from ..config import settings
 
 router = APIRouter(prefix="/api/data", tags=["market-data"])
@@ -18,6 +19,10 @@ async def htx_ticker(request: Request, symbol: str, ttl: int | None = None, api_
     # Prefer API key (header or query) to scope rate limiting; fallback to IP
     header_key = request.headers.get("X-API-Key")
     effective_key = api_key or header_key
+    if not effective_key:
+        # unified extractor (covers query/header)
+        k, _ = extract_api_key(request)
+        effective_key = effective_key or k
     if effective_key:
         key = f"rl:htx:ticker:key:{effective_key}"
     else:
@@ -37,6 +42,14 @@ async def htx_ticker(request: Request, symbol: str, ttl: int | None = None, api_
     allowed = await _rl.allow(key, max_calls, window)
     if not allowed:
         raise HTTPException(status_code=429, detail="Rate limit exceeded. Please slow down.")
+    # Touch API key usage (best effort)
+    if effective_key:
+        try:
+            from ..services.api_keys import touch_api_key_usage
+
+            await touch_api_key_usage(effective_key)
+        except Exception:
+            pass
     try:
         data = await htx_client.get_ticker(symbol, ttl_override=ttl)
         return data

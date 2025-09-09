@@ -61,6 +61,35 @@ P3 — Док- и DevEx-полировка
    - Что: `docs/fingpt-dev.md` — локальный запуск, частые проблемы (CUDA/драйверы), как смотреть логи, как обновить образ.
    - Критерии: по шагам под Windows/Linux, проверено локально.
 
+## Новая волна задач (не пересекаются)
+
+P0 — CI/Docs/UX без бэкенда
+11) Required checks и правила мёржа
+   - Что: включить required checks в GitHub (backend pytest, frontend vitest, trufflehog), описать в `docs/github-actions.md` + добавить PR template.
+   - DoD: защита ветки main настроена; PR template в `.github/PULL_REQUEST_TEMPLATE.md`.
+
+12) WS UX: reconnection/backoff + индикаторы
+   - Что: улучшить `useWebSocket`/UI — экспоненциальный backoff, индикатор статуса, кнопка reconnect.
+   - DoD: покрытие тестами, поведение воспроизводимо в smoke.
+
+P1 — Наблюдаемость/дашборды
+13) Grafana dashboards (JSON)
+   - Что: подготовить JSON‑дашборды (latency p95, RPS, errors) и гайд импорта `docs/grafana-dashboards.md`.
+   - DoD: файлы JSON в `docs/grafana/`, инструкция проверена локально.
+
+14) Диаграммы потоков
+   - Что: дополнить `docs/flows.md` mermaid‑диаграммами: GCS uploads, WS поток, ошибки/ретраи.
+   - DoD: диаграммы рендерятся в GitHub, ссылки из `docs/architecture.md`.
+
+P2 — DevEx/процессы
+15) Issue/PR templates
+   - Что: добавить `.github/ISSUE_TEMPLATE/*` и обновить CODEOWNERS при необходимости.
+   - DoD: шаблоны доступны при создании issue/PR.
+
+16) OpenAPI артефакты
+   - Что: экспортировать `/openapi.json` в `docs/openapi.json` и мини‑гайд как синхронизировать.
+   - DoD: файл в репозитории, обновлённый.
+
 ## Definition of Done
 - Чёткие критерии проверки в описании задачи выполнены.
 - CI зелёный; без деградации существующих проверок.
@@ -75,4 +104,3 @@ P3 — Док- и DevEx-полировка
 - Frontend: `make frontend` или `npm run dev` в `frontend/`
 - Тесты: backend `pytest -q`, frontend `npm run test` (Vitest)
 - Dev контейнер: `.devcontainer/` (VS Code)
-

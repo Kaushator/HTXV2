@@ -3,7 +3,7 @@ import time
 import uuid
 from typing import Callable, Awaitable, Optional
 
-from .logging_setup import request_id_var
+from .logging_setup import request_id_var, trace_id_var, span_id_var
 
 
 class RequestContextMiddleware:
@@ -23,7 +23,24 @@ class RequestContextMiddleware:
 
         start = time.perf_counter()
         rid = uuid.uuid4().hex
-        token = request_id_var.set(rid)
+        token_rid = request_id_var.set(rid)
+
+        # Parse Cloud Trace context if present: 'TRACE_ID/SPAN_ID;o=1'
+        trace_token = span_token = None
+        for k, v in scope.get("headers", []) or []:
+            if k == b"x-cloud-trace-context":
+                try:
+                    raw = v.decode("utf-8", errors="ignore")
+                    parts = raw.split(";")[0].split("/")
+                    t = parts[0] if len(parts) >= 1 else None
+                    s = parts[1] if len(parts) >= 2 else None
+                    if t:
+                        trace_token = trace_id_var.set(t)
+                    if s:
+                        span_token = span_id_var.set(s)
+                except Exception:
+                    pass
+                break
 
         method = scope.get("method")
         path = scope.get("path")
@@ -37,15 +54,22 @@ class RequestContextMiddleware:
         if scope.get("client"):
             client_ip = scope["client"][0]
 
-        # Extract User-Agent
+        # Extract User-Agent and API key prefix for access logs
         user_agent: Optional[str] = None
+        api_key_prefix: Optional[str] = None
         for k, v in scope.get("headers", []) or []:
             if k == b"user-agent":
                 try:
                     user_agent = v.decode("utf-8", errors="ignore")
                 except Exception:
                     user_agent = None
-                break
+            elif k == b"x-api-key":
+                try:
+                    s = v.decode("utf-8", errors="ignore")
+                    if "." in s:
+                        api_key_prefix = s.split(".", 1)[0]
+                except Exception:
+                    api_key_prefix = None
 
         status_code_holder = {"value": 500}
 
@@ -72,6 +96,7 @@ class RequestContextMiddleware:
                         "duration_ms": dur_ms,
                         "client_ip": client_ip,
                         "user_agent": user_agent,
+                        "api_key_prefix": api_key_prefix,
                     },
                 )
 
@@ -81,5 +106,8 @@ class RequestContextMiddleware:
             await self.app(scope, receive, send_wrapper)
         finally:
             # reset contextvar
-            request_id_var.reset(token)
-
+            request_id_var.reset(token_rid)
+            if trace_token:
+                trace_id_var.reset(trace_token)
+            if span_token:
+                span_id_var.reset(span_token)

@@ -70,25 +70,40 @@ export default function TickerPage() {
   // Use WebSocket hook
   const {
     status,
+    lastMessage,
+    sendMessage,
+    connect,
+    disconnect,
     isConnected: wsConnected,
-    isConnecting
+    isConnecting,
+    hasError,
+    reconnectAttemptsLeft,
+    nextReconnectIn
   } = useWebSocket(wsUrl, {
     onMessage: handleMessage,
     onConnect: handleConnect,
     onDisconnect: handleDisconnect,
     onError: handleError,
     reconnectAttempts: 5,
-    reconnectInterval: 3000
+    reconnectInterval: 3000,
+    maxReconnectInterval: 30000,
+    reconnectDecay: 1.5
   })
 
   // Control handlers
   const handleConnectToggle = useCallback(() => {
-    setIsConnected(!isConnected)
-  }, [isConnected])
+    if (wsConnected) {
+      disconnect()
+    } else {
+      setIsConnected(true)
+      // The WebSocket will connect automatically when wsUrl changes
+    }
+  }, [wsConnected, disconnect])
 
   const handleDisconnectToggle = useCallback(() => {
     setIsConnected(false)
-  }, [])
+    disconnect()
+  }, [disconnect])
 
   const handleSymbolsChange = useCallback((newSymbols: string[]) => {
     setSymbols(newSymbols)
@@ -138,8 +153,11 @@ export default function TickerPage() {
           {/* WebSocket Controls */}
           <div className="lg:col-span-1">
             <WebSocketControls
+              status={status}
               isConnected={wsConnected}
               isConnecting={isConnecting}
+              reconnectAttemptsLeft={reconnectAttemptsLeft}
+              nextReconnectIn={nextReconnectIn}
               symbols={symbols}
               interval={interval}
               onConnect={handleConnectToggle}

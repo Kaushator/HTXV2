@@ -14,6 +14,7 @@ from .config import settings
 from .logging_setup import setup_logging
 from .middleware import RequestContextMiddleware
 from .errors import register_exception_handlers
+from .metrics import MetricsMiddleware, router as metrics_router
 
 logger = logging.getLogger("htx.api")
 
@@ -23,6 +24,7 @@ from .routers import uploads as uploads_router
 from .routers import news as news_router
 from .routers import llm as llm_router
 from .routers import ws as ws_router
+from .routers import api_keys as api_keys_router
 
 # Configure logging early
 setup_logging()
@@ -48,8 +50,11 @@ app.include_router(uploads_router.router)
 app.include_router(news_router.router)
 app.include_router(llm_router.router)
 app.include_router(ws_router.router)
+app.include_router(api_keys_router.router)
+app.include_router(metrics_router)
 
-# Request context and access logging
+# Metrics and access logging
+app.add_middleware(MetricsMiddleware)
 app.add_middleware(RequestContextMiddleware)
 
 # Error handling

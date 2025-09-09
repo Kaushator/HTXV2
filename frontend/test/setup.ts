@@ -1,6 +1,8 @@
 // Test setup file for Vitest
 // Add global test utilities and mocks here
 
+import '@testing-library/jest-dom'
+
 // Mock WebSocket for tests
 class MockWebSocket {
   static readonly CONNECTING = 0

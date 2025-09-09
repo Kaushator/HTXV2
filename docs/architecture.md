@@ -141,3 +141,10 @@ HTX Interface v2 представляет собой комплексную фи
 - **Cloud Logging** - централизованные логи
 - **Cloud Trace** - трассировка запросов
 - **Looker** - бизнес-аналитика и дашборды
+ - Подробнее: `docs/observability.md` (формат логов, ошибки, /metrics)
+
+## Detailed Flow Diagrams
+
+For detailed data flow diagrams and system interactions, see:
+- **[Data Flow Diagrams](flows.md)** - WebSocket, HTTP API, health checks, and error handling flows
+- Covers WebSocket ticker subscriptions, HTTP API patterns, caching strategies, and component interactions

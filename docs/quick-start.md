@@ -236,3 +236,6 @@ gcloud run services update backend-api --to-revision=backend-api-00001
 # Scale to zero (экономия)
 gcloud run services update backend-api --concurrency=1 --min-instances=0
 ```
+
+## C/C++ Toolchain
+- Если при установке зависящих пакетов требуется компилятор, см. `docs/cpp-toolchain.md`.

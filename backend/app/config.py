@@ -29,6 +29,7 @@ class Settings(BaseSettings):
         "text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
     )
     uploads_url_ttl_sec: int = int(os.getenv("UPLOADS_URL_TTL_SEC", "600"))
+    uploads_gcs_bucket: Optional[str] = os.getenv("UPLOADS_GCS_BUCKET")
 
     @property
     def htx_allowed_quotes(self) -> list[str]:

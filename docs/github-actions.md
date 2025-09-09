@@ -18,6 +18,38 @@ graph TB
     F --> G[Error Summary]
 ```
 
+## Required Status Checks
+
+Ветка `main` защищена обязательными проверками, которые должны пройти перед слиянием PR:
+
+### Обязательные проверки:
+1. **Backend (pytest)** - Тесты Python backend
+2. **Frontend (lint + type-check + tests)** - Проверки frontend
+3. **Secret Scan (TruffleHog)** - Сканирование на утечку секретов
+
+### Настройка Branch Protection
+
+Для настройки защиты ветки (требуются права администратора):
+
+1. **Settings** → **Branches** → **Add rule**
+2. Branch name pattern: `main`
+3. ✅ Require status checks to pass before merging
+4. ✅ Require branches to be up to date before merging
+5. Select required checks:
+   - `Backend (pytest)`
+   - `Frontend (lint + type-check + tests)`
+   - `Secret Scan (TruffleHog)`
+6. ✅ Require pull request reviews before merging (рекомендуется)
+7. ✅ Dismiss stale PR approvals when new commits are pushed
+
+### Отслеживание статуса проверок
+
+В PR автоматически отображается статус всех проверок:
+- 🟢 **Passed** - Проверка прошла успешно
+- 🔴 **Failed** - Проверка провалилась  
+- 🟡 **Pending** - Проверка выполняется
+- ⚪ **Skipped** - Проверка пропущена
+
 ## Структура Workflow
 
 ### Основные Jobs
@@ -512,6 +544,31 @@ gh run rerun [RUN_ID] --failed
 - Настройте уведомления о failed builds
 - Мониторьте время выполнения workflows
 - Регулярно просматривайте и архивируйте артефакты
+
+## Pull Request Template
+
+Проект использует PR template (`.github/PULL_REQUEST_TEMPLATE.md`) для стандартизации информации в pull request:
+
+### Основные секции:
+- **Summary** - Краткое описание изменений
+- **Type of Change** - Тип изменения (bug fix, feature, etc.)
+- **Related Issues** - Связанные issues
+- **Testing** - Информация о тестировании
+- **Checklist** - Общие проверки
+- **Backend/Frontend/Infrastructure Checklists** - Специфичные проверки
+
+### Использование template:
+1. При создании PR template автоматически загружается
+2. Заполните все применимые секции
+3. Уберите неприменимые чекбоксы
+4. Добавьте скриншоты для UI изменений
+5. Ссылайтесь на связанные issues через `Fixes #123`
+
+### Требования для мержа:
+- ✅ Все обязательные проверки прошли
+- ✅ PR reviewed и approved
+- ✅ Все чекбоксы в template отмечены
+- ✅ Нет конфликтов с target веткой
 
 ---
 

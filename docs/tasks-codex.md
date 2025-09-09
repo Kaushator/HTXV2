@@ -41,3 +41,10 @@ P2 — CSV/XLSX Signed URL
 - Прогресс фиксирую файлами `docs/journal/YYYY-MM-DD.md`.
 - В `docs/dev-journal.md` прямые правки не делаю (кодировка), только ссылки.
 
+## Прогресс (текущее)
+- DONE: Structured access logs + `X-Request-ID` (middleware, JSON formatter)
+- DONE: Error handling (HTTP/Validation/Unhandled) — единый JSON
+- DONE: Prometheus `/metrics` (`http_requests_total`, `http_request_duration_seconds`, `http_requests_in_progress`)
+- DONE: Error counter `http_errors_total{method,path,status}`
+- DONE: Signed URL stub + валидации (CSV/XLSX)
+- DONE: Документация — `docs/observability.md`, ссылки в `README.md`, `docs/api-endpoints.md`

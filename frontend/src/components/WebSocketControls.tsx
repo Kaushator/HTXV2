@@ -4,11 +4,16 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { ConnectionStatus } from '@/components/ConnectionStatus'
+import { useWebSocket, WebSocketStatus } from '@/hooks/useWebSocket'
 import { Wifi, WifiOff, Settings, Play, Pause, Plus, X } from 'lucide-react'
 
 interface WebSocketControlsProps {
+  status: WebSocketStatus
   isConnected: boolean
   isConnecting: boolean
+  reconnectAttemptsLeft: number
+  nextReconnectIn?: number
   symbols: string[]
   interval: number
   onConnect: () => void
@@ -18,8 +23,11 @@ interface WebSocketControlsProps {
 }
 
 export function WebSocketControls({
+  status,
   isConnected,
   isConnecting,
+  reconnectAttemptsLeft,
+  nextReconnectIn,
   symbols,
   interval,
   onConnect,
@@ -49,34 +57,18 @@ export function WebSocketControls({
     }
   }, [onIntervalChange])
 
-  const getStatusColor = () => {
-    if (isConnecting) return 'bg-yellow-100 text-yellow-800 border-yellow-200'
-    if (isConnected) return 'bg-green-100 text-green-800 border-green-200'
-    return 'bg-red-100 text-red-800 border-red-200'
-  }
-
-  const getStatusText = () => {
-    if (isConnecting) return 'Connecting...'
-    if (isConnected) return 'Connected'
-    return 'Disconnected'
-  }
-
-  const getStatusIcon = () => {
-    if (isConnecting) return <Wifi className="h-4 w-4 animate-pulse" />
-    if (isConnected) return <Wifi className="h-4 w-4" />
-    return <WifiOff className="h-4 w-4" />
-  }
-
   return (
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center justify-between">
           <span>WebSocket Control</span>
           <div className="flex items-center gap-2">
-            <Badge className={getStatusColor()}>
-              {getStatusIcon()}
-              {getStatusText()}
-            </Badge>
+            <ConnectionStatus
+              status={status}
+              reconnectAttemptsLeft={reconnectAttemptsLeft}
+              nextReconnectIn={nextReconnectIn}
+              onManualReconnect={onConnect}
+            />
             <Button
               variant="outline"
               size="sm"

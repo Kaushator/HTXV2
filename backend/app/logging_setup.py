@@ -8,6 +8,8 @@ import contextvars
 
 # Request-scoped context
 request_id_var: contextvars.ContextVar[Optional[str]] = contextvars.ContextVar("request_id", default=None)
+trace_id_var: contextvars.ContextVar[Optional[str]] = contextvars.ContextVar("trace_id", default=None)
+span_id_var: contextvars.ContextVar[Optional[str]] = contextvars.ContextVar("span_id", default=None)
 
 
 class JsonFormatter(logging.Formatter):
@@ -29,6 +31,14 @@ class JsonFormatter(logging.Formatter):
         rid = getattr(record, "request_id", None) or request_id_var.get()
         if rid:
             payload["request_id"] = rid
+
+        # Cloud Trace correlation (if present)
+        t = getattr(record, "trace_id", None) or trace_id_var.get()
+        s = getattr(record, "span_id", None) or span_id_var.get()
+        if t:
+            payload["trace_id"] = t
+        if s:
+            payload["span_id"] = s
 
         # Copy select extras from record.__dict__
         for key in (
@@ -83,4 +93,3 @@ def setup_logging(level: str = "INFO") -> None:
     logging.getLogger("htx").setLevel(level)
     logging.getLogger("htx.api").setLevel(level)
     logging.getLogger("htx.access").setLevel(level)
-

@@ -7,6 +7,7 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
 
 from ..config import settings
+from ..services.uploads import generate_gcs_signed_put_url
 
 router = APIRouter(prefix="/api/data", tags=["uploads"])
 
@@ -49,13 +50,27 @@ async def request_signed_url(payload: SignedUrlRequest):
     if payload.size_bytes is not None and payload.size_bytes > max_bytes:
         raise HTTPException(status_code=400, detail=f"File too large: {payload.size_bytes} > {max_bytes} bytes")
 
-    # Generate stub signed URL
+    # Object key (stable layout)
     key = f"uploads/{uuid.uuid4().hex}/{name}"
-    token = secrets.token_urlsafe(24)
     expires_at_dt = datetime.utcnow() + timedelta(seconds=settings.uploads_url_ttl_sec)
     expires_at = expires_at_dt.isoformat(timespec="seconds") + "Z"
-    # Use .invalid TLD to ensure the URL is non-routable in production
-    upload_url = f"https://upload.invalid/v1/put/{key}?token={token}&expires={int(expires_at_dt.timestamp())}"
+
+    # If GCS bucket configured, try real signed URL generation
+    upload_url: Optional[str] = None
+    if settings.uploads_gcs_bucket:
+        upload_url = generate_gcs_signed_put_url(
+            bucket_name=settings.uploads_gcs_bucket,
+            object_key=key,
+            content_type=ct,
+            expires_seconds=settings.uploads_url_ttl_sec,
+        )
+
+    # Fallback to stub if GCS not configured or failed
+    if not upload_url:
+        token = secrets.token_urlsafe(24)
+        upload_url = (
+            f"https://upload.invalid/v1/put/{key}?token={token}&expires={int(expires_at_dt.timestamp())}"
+        )
 
     headers = {"Content-Type": payload.content_type}
     return SignedUrlResponse(
