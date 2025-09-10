@@ -8,6 +8,12 @@ from app.schemas.trading import (
     PositionBase, PositionCreate, PositionUpdate, PositionResponse,
     MarketDataResponse, PriceHistoryResponse
 )
+from app.schemas.mcp import (
+    HealthStatus, ServiceHealth, SystemHealth,
+    TaskStatus, TaskInfo, WebSocketMessage,
+    MarketDataUpdate, TradingSignalUpdate, PortfolioUpdate,
+    TaskRequest, TaskResponse
+)
 
 __all__ = [
     # User schemas
@@ -19,5 +25,10 @@ __all__ = [
     "TradingSignalBase", "TradingSignalCreate", "TradingSignalResponse",
     "PortfolioBase", "PortfolioCreate", "PortfolioUpdate", "PortfolioResponse",
     "PositionBase", "PositionCreate", "PositionUpdate", "PositionResponse",
-    "MarketDataResponse", "PriceHistoryResponse"
+    "MarketDataResponse", "PriceHistoryResponse",
+    # MCP schemas
+    "HealthStatus", "ServiceHealth", "SystemHealth",
+    "TaskStatus", "TaskInfo", "WebSocketMessage",
+    "MarketDataUpdate", "TradingSignalUpdate", "PortfolioUpdate",
+    "TaskRequest", "TaskResponse"
 ]

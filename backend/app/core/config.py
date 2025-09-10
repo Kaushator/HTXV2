@@ -103,6 +103,12 @@ class Settings(BaseSettings):
     # BigQuery
     BIGQUERY_DATASET: str = "htxv2_main"
     
+    # MCP Configuration
+    MCP_TASK_CLEANUP_INTERVAL: int = 3600  # seconds
+    MCP_HEALTH_CHECK_INTERVAL: int = 60    # seconds
+    MCP_MAX_WEBSOCKET_CONNECTIONS: int = 1000
+    MCP_WEBSOCKET_HEARTBEAT_INTERVAL: int = 30  # seconds
+    
     class Config:
         env_file = ".env"
         case_sensitive = True
