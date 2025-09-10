@@ -27,6 +27,7 @@ groups:
 
       # High response time
       - alert: HighResponseTime
+        # Threshold value 2000 is in milliseconds (ms)
         expr: htx:response_time_p95_5m > 2000
         for: 5m
         labels:
