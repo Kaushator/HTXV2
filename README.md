@@ -2,138 +2,122 @@
 
 A comprehensive GCP-based cryptocurrency trading platform with ML/AI capabilities.
 
-## Architecture Overview
-
-```
-[Frontend (Next.js/React, shadcn)]
-          |        REST/WS
-          v
-[Backend API (FastAPI)]  —— gRPC/HTTP ———————————————————————————————─┐
-          | SQLAlchemy                |                                  |
-          |                           |                                  |
-          v                           v                                  v
-  [Cloud SQL for PostgreSQL]   [Memorystore (Redis)]           [Artifact Registry]
-          |                           |                                  |
-          | ETL writes/reads          | caching / queues                 | images for API/ETL/LLM
-          v                           v                                  v
- [Feature Store (Postgres/pgvector)]  [Pub/Sub] <——— Cloud Scheduler ————┐
-          ^            ^                 ^                                |
-          |            |                 | triggers                       |
-          |            |           Dataflow jobs / Cloud Run Jobs         |
-          |            |                                                  |
-          |            └——— Embeddings ————> [Vertex AI Matching Engine] |
-          |                                                               |
-          |                ┌──────────── Batch/Stream ingestion ───────────────┐
-          |                |                                                   |
-          v                v                                                   v
- [GCS (raw landing)] -> [Dataflow | Cloud Run Jobs] -> [BigQuery (curated/dwh)] ---> [Looker/BI]
-```
-
-## Components
-
-- **Frontend**: Next.js 14 with React, TypeScript, and shadcn/ui
-- **Backend**: FastAPI with SQLAlchemy, Alembic migrations
-- **Infrastructure**: Terraform for GCP resource management
-- **Database**: Cloud SQL PostgreSQL with pgvector extension
-- **Caching**: Memorystore Redis
-- **Storage**: Google Cloud Storage for data lake
-- **Data Warehouse**: BigQuery with vector search
-- **ML/AI**: Vertex AI + local FinGPT with LoRA adapters
-- **Container Registry**: Artifact Registry
-- **Security**: Secret Manager, Workload Identity Federation
-- **Monitoring**: Cloud Logging, Error Reporting, Cloud Monitoring
-
-## Getting Started
+## Quick Start
 
 ### Prerequisites
 
-- Node.js 18+
-- Python 3.11+
-- Docker
-- Terraform
-- Google Cloud SDK
-- Git
+- **Python 3.11+** (recommended 3.11 for best compatibility)
+- **Node.js 18+**
+- **Docker & Docker Compose**
+- **Git**
 
 ### Local Development
 
-#### Option 1: Local AI Environment (RTX 4060 + 90GB RAM)
+1. **Clone and setup:**
+   ```bash
+   git clone https://github.com/Kaushator/HTXV2.git
+   cd HTXV2
+   make setup
+   ```
 
-For optimal AI development with local GPU acceleration:
+2. **Start with Docker:**
+   ```bash
+   cd docker
+   docker compose up -d
+   ```
 
-```bash
-# Clone repository
-git clone https://github.com/Kaushator/HTXV2.git
-cd HTXV2
-
-# Start GPU-enabled environment with FinGPT
-./scripts/start-local-ai.sh
-```
-
-See [Local AI Setup Guide](docs/LOCAL_AI_SETUP.md) for detailed WSL2 + Docker Desktop configuration.
-
-#### Option 2: Standard Development
-
-For cloud-only development without local GPU:
-
-```bash
-# Clone repository  
-git clone https://github.com/Kaushator/HTXV2.git
-cd HTXV2
-
-# Set up environment variables
-# Run backend: make dev-backend
-# Run frontend: make dev-frontend
-# Run infrastructure: make tf-plan
-```
+3. **Manual setup (alternative):**
+   ```bash
+   # Backend
+   cd backend
+   python3 -m venv venv
+   ./venv/bin/pip install -r requirements.txt
+   
+   # Frontend
+   cd frontend
+   npm install
+   ```
 
 ### Access Points
 
-After starting the local environment:
-
 - **Frontend**: http://localhost:3000
-- **Backend API**: http://localhost:8000  
+- **Backend API**: http://localhost:8000
 - **API Documentation**: http://localhost:8000/docs
-- **ML Service**: http://localhost:8080 (GPU-enabled FinGPT)
-
-## Project Structure
-
-```
-├── frontend/           # Next.js React application
-├── backend/           # FastAPI application
-├── infrastructure/    # Terraform configurations
-├── ml/               # ML/LLM components and models
-├── etl/              # Data processing pipelines
-├── docker/           # Docker configurations
-├── scripts/          # Utility scripts
-├── docs/             # Documentation
-└── .github/          # GitHub Actions workflows
-```
+- **Database**: PostgreSQL on localhost:5432
+- **Cache**: Redis on localhost:6379
 
 ## Data Sources
 
 - **HTX (Huobi)**: Cryptocurrency exchange data
-- **Coingecko**: Market data and cryptocurrency information
+- **Coingecko**: Market data and cryptocurrency information  
 - **Cryptopanic**: News and sentiment data
 - **User uploads**: CSV/XLSX files via signed URLs
 
-## ML/LLM Stack
+## Development Commands
 
-- **Local FinGPT**: LoRA-adapted model optimized for RTX 4060 (8GB VRAM)
-- **Vertex AI**: Cloud-based models (Gemini, Text-Bison)  
-- **OpenAI**: Fallback provider for high-quality responses
-- **Vector Search**: BigQuery Vector Search for RAG capabilities
-- **GPU Acceleration**: CUDA 12.1+ support with 4-bit quantization
-- **Memory Optimization**: Supports up to 90GB RAM for large model loading
+```bash
+# Setup environment
+make setup
 
-## Security
+# Development servers
+make dev-backend      # Start FastAPI backend
+make dev-frontend     # Start Next.js frontend  
+make dev-all          # Start both frontend and backend
 
-- No API keys in code - all secrets in Secret Manager
-- Workload Identity Federation for service authentication
-- VPC and private service access
-- Minimal IAM permissions per service
+# Testing & Quality
+make test-all         # Run all tests
+make lint-all         # Run all linters
+make clean           # Clean build artifacts
+
+# Docker
+cd docker && docker compose up -d
+
+# Terraform (Infrastructure)
+make tf-init         # Initialize Terraform
+make tf-plan         # Plan infrastructure changes
+make tf-apply        # Apply infrastructure changes
+```
+
+## Security & Best Practices
+
+### Development
+- Environment variables in `.env` files (never committed)
+- Type safety with TypeScript and Python type hints
+- Linting with ESLint (frontend) and flake8 (backend)
+- Pre-commit hooks for code quality
+
+### Production
+- JWT authentication with Google OAuth2
+- API rate limiting and CORS protection
+- Secret management via GCP Secret Manager
+- Container security with non-root users
+- Network security with VPC and firewall rules
 
 ## Deployment
 
-Infrastructure is managed via Terraform with CI/CD through GitHub Actions.
+### Local Development
+```bash
+cd docker && docker compose up -d
+```
 
-See individual component READMEs for detailed setup instructions.
+### Production (GCP)
+```bash
+# Deploy infrastructure
+make tf-apply
+
+# Build and deploy containers
+make docker-build-all
+make docker-push-all
+make deploy-prod
+```
+
+## Support & Documentation
+
+- **API Docs**: http://localhost:8000/docs (when running)
+- **Architecture**: See `docs/` directory
+- **Component READMEs**: Each directory has detailed setup instructions
+- **Issues**: Use GitHub Issues for bug reports and feature requests
+
+## License
+
+MIT License - see LICENSE file for details.

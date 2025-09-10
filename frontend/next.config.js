@@ -5,12 +5,14 @@ const withPWA = require('next-pwa')({
 })
 
 const nextConfig = {
-  experimental: {
-    appDir: true,
-  },
   output: 'standalone',
   images: {
-    domains: ['localhost'],
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'localhost',
+      },
+    ],
   },
   env: {
     CUSTOM_KEY: process.env.CUSTOM_KEY,

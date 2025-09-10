@@ -1,0 +1,15 @@
+# Core FastAPI dependencies - minimal set for testing
+fastapi
+uvicorn[standard]
+python-multipart
+
+# Database essentials
+sqlalchemy
+asyncpg
+alembic
+
+# Development tools
+pytest
+black
+isort
+flake8
