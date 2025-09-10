@@ -1,0 +1,54 @@
+# Автоматическое добавление меток к Pull Requests
+
+backend:
+  - backend/**/*
+  - backend/
+
+frontend:
+  - frontend/**/*
+  - frontend/
+
+documentation:
+  - docs/**/*
+  - docs/
+  - README.md
+  - "*.md"
+
+infrastructure:
+  - infra/**/*
+  - infra/
+  - docker-compose.yml
+  - Dockerfile
+  - .github/**/*
+
+tests:
+  - "**/*test*"
+  - "**/*spec*"
+  - test/
+  - tests/
+
+fingpt:
+  - fingpt/**/*
+  - fingpt/
+
+htxv2:
+  - HTXV2/**/*
+  - HTXV2/
+
+ci-cd:
+  - .github/workflows/**/*
+  - .github/
+
+terraform:
+  - infra/terraform/**/*
+
+python:
+  - "**/*.py"
+
+typescript:
+  - "**/*.ts"
+  - "**/*.tsx"
+
+javascript:
+  - "**/*.js"
+  - "**/*.jsx"

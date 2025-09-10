@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import Link from 'next/link'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 
@@ -87,7 +88,7 @@ export default function HomePage() {
           <p className="text-lg text-gray-600 dark:text-gray-300">
             Cryptocurrency Trading Platform with ML Analytics
           </p>
-          <div className="mt-4">
+          <div className="mt-4 space-y-3">
             <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
               apiStatus === 'connected' ? 'bg-green-100 text-green-800' :
               apiStatus === 'disconnected' ? 'bg-red-100 text-red-800' :
@@ -95,6 +96,17 @@ export default function HomePage() {
             }`}>
               API Status: {apiStatus}
             </span>
+            
+            <div className="flex justify-center gap-4">
+              <Button asChild>
+                <Link href="/ticker">
+                  📈 Live Ticker
+                </Link>
+              </Button>
+              <Button variant="outline" onClick={fetchCoins}>
+                🔄 Refresh Data
+              </Button>
+            </div>
           </div>
         </div>
 

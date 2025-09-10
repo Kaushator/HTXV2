@@ -1,6 +1,5 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
 from datetime import datetime
 import asyncio
 import contextlib
@@ -12,6 +11,12 @@ import asyncpg
 from redis import asyncio as aioredis
 
 from .config import settings
+from .logging_setup import setup_logging
+from .middleware import RequestContextMiddleware
+from .errors import register_exception_handlers
+from .metrics import MetricsMiddleware, router as metrics_router
+from .middleware_api_keys import ApiKeyUsageMiddleware
+from .middleware_ratelimit import GlobalRateLimitMiddleware
 
 logger = logging.getLogger("htx.api")
 
@@ -20,6 +25,11 @@ from .routers import market as market_router
 from .routers import uploads as uploads_router
 from .routers import news as news_router
 from .routers import llm as llm_router
+from .routers import ws as ws_router
+from .routers import api_keys as api_keys_router
+
+# Configure logging early
+setup_logging()
 
 app = FastAPI(
     title=settings.app_name,
@@ -41,6 +51,22 @@ app.include_router(market_router.router)
 app.include_router(uploads_router.router)
 app.include_router(news_router.router)
 app.include_router(llm_router.router)
+app.include_router(ws_router.router)
+app.include_router(api_keys_router.router)
+app.include_router(metrics_router)
+
+# Metrics and access logging
+app.add_middleware(MetricsMiddleware)
+app.add_middleware(RequestContextMiddleware)
+# API key usage tracking
+app.add_middleware(ApiKeyUsageMiddleware)
+
+# Global rate limiting (optional, disabled by default)
+if settings.rate_limit_enabled:
+    app.add_middleware(GlobalRateLimitMiddleware)
+
+# Error handling
+register_exception_handlers(app)
 
 @app.get("/")
 async def root():

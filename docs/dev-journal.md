@@ -101,3 +101,31 @@ make mcp        # MCP server
 - Запуск локальных тестов: `make ci-local`
 - Инициализация подмодуля: `git submodule update --init --recursive`
 - Пуш выполнен: `git push -u origin main`
+
+## 2025-09-08 — Docker dev-стек, HTX тикер, WS и CI отчёты
+
+### Что сделано
+- [x] Docker Desktop dev-стек: postgres, redis, backend (uvicorn --reload), frontend (next dev), FinGPT (CUDA 12.1, RTX 4060)
+- [x] VS Code Dev Container на базе docker-compose
+- [x] Backend конфиг: pydantic-settings, CORS из env, health `/health/details` с таймингами и логированием
+- [x] HTX тикер (alpha): `/api/data/htx/ticker/{symbol}`
+  - Нормализация и валидация пар (допустимые котировки: `HTX_ALLOWED_QUOTES`)
+  - Redis-кэш с TTL и параметром `?ttl=` (ограничение `HTX_TICKER_TTL_MAX`)
+  - Rate limiting (Redis-backed, fallback in-memory)
+- [x] WebSocket стрим: `/ws/ticker?symbols=BTC,ETH&interval_ms=1000`
+- [x] Тесты backend: HTX тикер (mock), rate limit (in-memory), WS smoke
+- [x] CI: кэш pip, Vitest стек, публикация отчётов (pytest HTML/JUnit, Vitest coverage) как artifacts
+- [x] Доки обновлены: deployment-plan (статус), api-endpoints (HTX тикер — implemented alpha)
+
+### Проверка
+- Docker: `docker compose up -d --build`
+- Backend: `http://localhost:8000/health` и `/health/details`
+- Тикер: `GET /api/data/htx/ticker/BTC?ttl=2`
+- WS: подключиться к `/ws/ticker?symbols=BTC,ETH&interval_ms=1000`
+- CI отчёты: GitHub → Actions → CI → Artifacts
+
+### Следующие шаги
+- [ ] Rate limiting по пользователю/API-ключу (как появится auth)
+- [ ] CoinGecko интеграция (poll + кэш)
+- [ ] ETL источников и схема БД (Alembic) под реальные данные
+- [ ] Frontend: подписка на WS и отображение тикеров в UI

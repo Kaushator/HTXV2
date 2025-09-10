@@ -1,0 +1,123 @@
+# Prometheus recording rules for HTX Interface
+# These pre-calculated rules improve dashboard performance
+
+groups:
+  - name: htx_performance
+    interval: 30s
+    rules:
+      # Request rate aggregations
+      - record: htx:request_rate_5m
+        expr: rate(http_requests_total{job="htx-backend"}[5m])
+      
+      - record: htx:request_rate_1h
+        expr: rate(http_requests_total{job="htx-backend"}[1h])
+      
+      # Error rate calculations
+      - record: htx:error_rate_5m
+        expr: |
+          rate(http_requests_total{job="htx-backend",status=~"4..|5.."}[5m]) /
+          rate(http_requests_total{job="htx-backend"}[5m]) * 100
+      
+      # Response time percentiles
+      - record: htx:response_time_p95_5m
+        expr: |
+          histogram_quantile(0.95, 
+            rate(http_request_duration_seconds_bucket{job="htx-backend"}[5m])
+          ) * 1000
+      
+      - record: htx:response_time_p50_5m
+        expr: |
+          histogram_quantile(0.50, 
+            rate(http_request_duration_seconds_bucket{job="htx-backend"}[5m])
+          ) * 1000
+
+  - name: htx_websocket
+    interval: 30s
+    rules:
+      # WebSocket connection metrics
+      - record: htx:websocket_connections_total
+        expr: websocket_connections_active{job="htx-backend"}
+      
+      # WebSocket message rates
+      - record: htx:websocket_message_rate_5m
+        expr: rate(websocket_messages_sent_total{job="htx-backend"}[5m])
+      
+      - record: htx:ticker_message_rate_5m
+        expr: rate(ticker_messages_sent_total{job="htx-backend"}[5m])
+      
+      # WebSocket error rate
+      - record: htx:websocket_error_rate_5m
+        expr: rate(websocket_errors_total{job="htx-backend"}[5m])
+
+  - name: htx_database
+    interval: 30s
+    rules:
+      # Database connection utilization
+      - record: htx:db_connection_utilization
+        expr: |
+          postgresql_connections_active{job="postgres-exporter"} /
+          postgresql_max_connections{job="postgres-exporter"} * 100
+      
+      # Database query rates
+      - record: htx:db_query_rate_5m
+        expr: rate(postgresql_queries_total{job="postgres-exporter"}[5m])
+      
+      # Database query latency
+      - record: htx:db_query_latency_p95_5m
+        expr: |
+          histogram_quantile(0.95, 
+            rate(database_query_duration_seconds_bucket{job="htx-backend"}[5m])
+          ) * 1000
+
+  - name: htx_redis
+    interval: 30s
+    rules:
+      # Redis memory utilization
+      - record: htx:redis_memory_utilization
+        expr: |
+          redis_memory_used_bytes{job="redis-exporter"} /
+          redis_memory_max_bytes{job="redis-exporter"} * 100
+      
+      # Redis operation rates
+      - record: htx:redis_ops_rate_5m
+        expr: rate(redis_commands_total{job="redis-exporter"}[5m])
+      
+      # Redis key count
+      - record: htx:redis_keys_total
+        expr: sum(redis_keys_total{job="redis-exporter"})
+
+  - name: htx_system
+    interval: 30s
+    rules:
+      # CPU utilization
+      - record: htx:cpu_utilization
+        expr: |
+          100 - (avg(irate(node_cpu_seconds_total{job="node-exporter",mode="idle"}[5m])) * 100)
+      
+      # Memory utilization
+      - record: htx:memory_utilization
+        expr: |
+          (1 - (node_memory_MemAvailable_bytes{job="node-exporter"} / 
+                node_memory_MemTotal_bytes{job="node-exporter"})) * 100
+      
+      # Disk I/O rates
+      - record: htx:disk_read_rate_5m
+        expr: rate(node_disk_read_bytes_total{job="node-exporter"}[5m])
+      
+      - record: htx:disk_write_rate_5m
+        expr: rate(node_disk_written_bytes_total{job="node-exporter"}[5m])
+
+  - name: htx_business
+    interval: 60s
+    rules:
+      # Active symbols being tracked
+      - record: htx:active_symbols_count
+        expr: count(count by (symbol)(ticker_messages_sent_total{job="htx-backend"}))
+      
+      # Total ticker updates per minute
+      - record: htx:ticker_updates_per_minute
+        expr: sum(rate(ticker_messages_sent_total{job="htx-backend"}[1m])) * 60
+      
+      # HTX API latency trend
+      - record: htx:htx_api_latency_avg_5m
+        expr: avg_over_time(htx_api_latency_seconds{job="htx-backend"}[5m]) * 1000

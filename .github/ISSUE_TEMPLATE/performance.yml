@@ -1,0 +1,89 @@
+---
+name: ⚡ Performance Issue
+about: Report performance problems or optimization opportunities
+title: '[PERFORMANCE] '
+labels: ['performance', 'investigation']
+assignees: ''
+---
+
+## ⚡ Performance Issue Summary
+<!-- Brief description of the performance problem -->
+
+## 🎯 Component Affected
+- [ ] Backend API
+- [ ] Frontend UI
+- [ ] Database Queries
+- [ ] WebSocket Connections
+- [ ] External API Calls
+- [ ] File Processing
+- [ ] Memory Usage
+- [ ] Network Requests
+
+## 📊 Current Performance
+<!-- Describe current performance metrics -->
+- **Response Time**: 
+- **Throughput**: 
+- **Memory Usage**: 
+- **CPU Usage**: 
+- **Error Rate**: 
+
+## 🎯 Target Performance
+<!-- What performance goals should we achieve? -->
+- **Target Response Time**: 
+- **Target Throughput**: 
+- **Target Memory Usage**: 
+- **Target CPU Usage**: 
+
+## 🔍 Steps to Reproduce
+1. 
+2. 
+3. 
+4. 
+
+## 📈 Performance Data
+<!-- Include any performance metrics, logs, or profiling data -->
+
+### 📊 Metrics
+```
+<!-- Paste performance metrics here -->
+```
+
+### 🔍 Profiling Data
+```
+<!-- Paste profiling results here -->
+```
+
+## 🌐 Environment
+- **Environment**: [Development/Staging/Production]
+- **Load**: [Number of concurrent users/requests]
+- **Hardware**: [CPU, Memory, etc.]
+- **Network**: [Bandwidth, latency]
+
+## 💡 Suspected Cause
+<!-- What do you think might be causing the performance issue? -->
+
+## 🔧 Potential Solutions
+<!-- Any ideas for how to fix or improve performance? -->
+- [ ] Database optimization
+- [ ] Caching implementation
+- [ ] Code optimization
+- [ ] Infrastructure scaling
+- [ ] Algorithm improvement
+- [ ] Resource management
+
+## 📋 Impact Assessment
+- [ ] Critical - System unusable
+- [ ] High - Significantly impacts user experience
+- [ ] Medium - Noticeable but manageable
+- [ ] Low - Minor optimization opportunity
+
+## 🧪 Testing Requirements
+<!-- How should performance improvements be tested? -->
+- [ ] Load testing
+- [ ] Stress testing
+- [ ] Performance benchmarking
+- [ ] Memory profiling
+- [ ] CPU profiling
+
+## 📚 Additional Context
+<!-- Any other relevant information -->

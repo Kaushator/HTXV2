@@ -1,0 +1,247 @@
+# Prometheus Alert Rules for HTX Interface
+# These rules define when alerts should fire based on metrics
+
+groups:
+  - name: htx_critical_alerts
+    interval: 30s
+    rules:
+      # Service availability
+      - alert: HTXBackendDown
+        expr: up{job="htx-backend"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "HTX Backend service is down"
+          description: "HTX Backend has been down for more than 1 minute"
+
+      # High error rate
+      - alert: HighErrorRate
+        expr: htx:error_rate_5m > 10
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "High error rate detected"
+          description: "Error rate is {{ $value }}% over the last 5 minutes"
+
+      # High response time
+      - alert: HighResponseTime
+        # Threshold value 2000 is in milliseconds (ms)
+        expr: htx:response_time_p95_5m > 2000
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "High response time detected"
+          description: "95th percentile response time is {{ $value }}ms"
+
+      # Database connection pool exhaustion
+      - alert: DatabaseConnectionPoolHigh
+        expr: htx:db_connection_utilization > 90
+        for: 3m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Database connection pool nearly exhausted"
+          description: "Database connection utilization is {{ $value }}%"
+
+  - name: htx_warning_alerts
+    interval: 60s
+    rules:
+      # Moderate error rate
+      - alert: ModerateErrorRate
+        expr: htx:error_rate_5m > 5
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Moderate error rate detected"
+          description: "Error rate is {{ $value }}% over the last 5 minutes"
+
+      # Slow response time
+      - alert: SlowResponseTime
+        expr: htx:response_time_p95_5m > 1000
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Slow response time detected"
+          description: "95th percentile response time is {{ $value }}ms"
+
+      # High WebSocket connection count
+      - alert: HighWebSocketConnections
+        expr: websocket_connections_active{job="htx-backend"} > 500
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High WebSocket connection count"
+          description: "{{ $value }} active WebSocket connections"
+
+      # High memory usage
+      - alert: HighMemoryUsage
+        expr: htx:memory_utilization > 85
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High memory usage"
+          description: "Memory utilization is {{ $value }}%"
+
+      # High CPU usage
+      - alert: HighCPUUsage
+        expr: htx:cpu_utilization > 80
+        for: 15m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High CPU usage"
+          description: "CPU utilization is {{ $value }}%"
+
+      # Redis memory usage
+      - alert: HighRedisMemoryUsage
+        expr: htx:redis_memory_utilization > 80
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High Redis memory usage"
+          description: "Redis memory utilization is {{ $value }}%"
+
+  - name: htx_websocket_alerts
+    interval: 60s
+    rules:
+      # WebSocket error rate
+      - alert: HighWebSocketErrorRate
+        expr: rate(websocket_errors_total{job="htx-backend"}[5m]) > 1
+        for: 3m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High WebSocket error rate"
+          description: "{{ $value }} WebSocket errors per second"
+
+      # Slow WebSocket message processing
+      - alert: SlowWebSocketProcessing
+        expr: |
+          histogram_quantile(0.95, 
+            rate(websocket_message_duration_seconds_bucket{job="htx-backend"}[5m])
+          ) * 1000 > 100
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Slow WebSocket message processing"
+          description: "95th percentile WebSocket processing time is {{ $value }}ms"
+
+      # HTX API latency
+      - alert: HighHTXAPILatency
+        expr: htx_api_latency_seconds{job="htx-backend"} * 1000 > 1000
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High HTX API latency"
+          description: "HTX API latency is {{ $value }}ms"
+
+  - name: htx_database_alerts
+    interval: 60s
+    rules:
+      # Slow database queries
+      - alert: SlowDatabaseQueries
+        expr: htx:db_query_latency_p95_5m > 500
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Slow database queries detected"
+          description: "95th percentile database query time is {{ $value }}ms"
+
+      # High database query rate
+      - alert: HighDatabaseQueryRate
+        expr: htx:db_query_rate_5m > 1000
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High database query rate"
+          description: "Database query rate is {{ $value }} queries/second"
+
+      # Database connection issues
+      - alert: DatabaseConnectionsLow
+        expr: postgresql_connections_active{job="postgres-exporter"} < 5
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Low database connections"
+          description: "Only {{ $value }} active database connections"
+
+  - name: htx_business_alerts
+    interval: 120s
+    rules:
+      # No ticker updates
+      - alert: NoTickerUpdates
+        expr: rate(ticker_messages_sent_total{job="htx-backend"}[10m]) == 0
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "No ticker updates being sent"
+          description: "No ticker messages have been sent in the last 10 minutes"
+
+      # Low active symbols
+      - alert: LowActiveSymbols
+        expr: htx:active_symbols_count < 3
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Low number of active symbols"
+          description: "Only {{ $value }} symbols are being tracked"
+
+      # High ticker message rate (possible spam)
+      - alert: HighTickerMessageRate
+        expr: htx:ticker_updates_per_minute > 10000
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Very high ticker message rate"
+          description: "{{ $value }} ticker messages per minute - possible spam or misconfiguration"
+
+  - name: htx_system_alerts
+    interval: 60s
+    rules:
+      # Disk space usage
+      - alert: HighDiskUsage
+        expr: |
+          (node_filesystem_size_bytes{fstype!="tmpfs"} - node_filesystem_avail_bytes{fstype!="tmpfs"}) / 
+          node_filesystem_size_bytes{fstype!="tmpfs"} * 100 > 85
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High disk usage"
+          description: "Disk usage is {{ $value }}% on {{ $labels.mountpoint }}"
+
+      # High disk I/O
+      - alert: HighDiskIO
+        expr: rate(node_disk_io_time_seconds_total{job="node-exporter"}[5m]) > 0.8
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High disk I/O utilization"
+          description: "Disk I/O utilization is {{ $value * 100 }}%"
+
+      # Network connectivity issues
+      - alert: HighNetworkErrors
+        expr: rate(node_network_receive_errs_total{job="node-exporter"}[5m]) > 10
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High network error rate"
+          description: "{{ $value }} network errors per second on {{ $labels.device }}"

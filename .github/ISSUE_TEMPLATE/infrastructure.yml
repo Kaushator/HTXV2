@@ -1,0 +1,94 @@
+---
+name: 🔧 DevOps/Infrastructure
+about: Infrastructure, deployment, or DevOps related issues
+title: '[INFRA] '
+labels: ['infrastructure', 'devops']
+assignees: ''
+---
+
+## 🔧 Infrastructure Issue Summary
+<!-- Brief description of the infrastructure or DevOps issue -->
+
+## 🏗️ Component Area
+- [ ] CI/CD Pipeline
+- [ ] Docker/Containerization
+- [ ] Google Cloud Platform
+- [ ] Terraform Infrastructure
+- [ ] Monitoring/Observability
+- [ ] Security/Access Control
+- [ ] Networking
+- [ ] Database Infrastructure
+- [ ] Load Balancing
+- [ ] Storage/File Systems
+
+## 🎯 Issue Type
+- [ ] Configuration Problem
+- [ ] Deployment Failure
+- [ ] Resource Scaling
+- [ ] Security Vulnerability
+- [ ] Monitoring/Alerting
+- [ ] Performance Optimization
+- [ ] Cost Optimization
+- [ ] Disaster Recovery
+
+## 📋 Current State
+<!-- Describe the current infrastructure state and the problem -->
+
+## ✅ Desired State
+<!-- Describe what the infrastructure should look like after resolution -->
+
+## 🔍 Steps to Reproduce (if applicable)
+1. 
+2. 
+3. 
+4. 
+
+## 📊 Environment Information
+- **Environment**: [Development/Staging/Production]
+- **Cloud Provider**: [GCP/AWS/Azure]
+- **Region/Zone**: 
+- **Services Affected**: 
+- **Resource IDs**: 
+
+## 🚨 Error Messages/Logs
+```
+<!-- Paste relevant error messages or logs here -->
+```
+
+## 📈 Metrics/Monitoring Data
+<!-- Include any relevant metrics, dashboards, or monitoring data -->
+
+## 💡 Suspected Root Cause
+<!-- What do you think might be causing this issue? -->
+
+## 🔧 Proposed Solution
+<!-- How do you think this should be resolved? -->
+
+## 📋 Impact Assessment
+- [ ] Critical - Service down/unavailable
+- [ ] High - Major functionality affected
+- [ ] Medium - Performance degraded
+- [ ] Low - Minor optimization
+
+## ⏰ Urgency
+- [ ] Immediate - Fix required now
+- [ ] High - Fix required within 24 hours
+- [ ] Medium - Fix required within week
+- [ ] Low - Can be scheduled
+
+## 🧪 Testing Requirements
+<!-- How should the fix be tested? -->
+- [ ] Smoke testing
+- [ ] Integration testing
+- [ ] Load testing
+- [ ] Security testing
+- [ ] Disaster recovery testing
+
+## 📚 Documentation Updates
+<!-- What documentation needs to be updated after resolution? -->
+
+## 🔗 Related Resources
+<!-- Link to relevant runbooks, documentation, or monitoring dashboards -->
+
+## 🚀 Rollback Plan
+<!-- How can changes be reverted if something goes wrong? -->

@@ -1,0 +1,10 @@
+* text=auto eol=lf
+
+# Preserve CRLF for Windows scripts
+*.ps1 text eol=crlf
+*.bat text eol=crlf
+
+# Treat docs as text with UTF-8
+*.md text eol=lf
+docs/** text eol=lf
+

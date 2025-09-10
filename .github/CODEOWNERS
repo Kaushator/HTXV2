@@ -1,0 +1,41 @@
+# Global owners - владельцы всего репозитория
+* @Kaushator
+
+# Backend code - Python код backend сервиса
+backend/ @Kaushator
+backend/**/*.py @Kaushator
+
+# Frontend code - TypeScript/JavaScript код frontend 
+frontend/ @Kaushator
+frontend/**/*.ts @Kaushator
+frontend/**/*.tsx @Kaushator
+frontend/**/*.js @Kaushator
+frontend/**/*.jsx @Kaushator
+
+# FinGPT service - ML/AI сервис
+fingpt/ @Kaushator
+fingpt/**/*.py @Kaushator
+
+# Infrastructure - Terraform и Docker конфигурации
+infra/ @Kaushator
+infra/**/*.tf @Kaushator
+docker-compose.yml @Kaushator
+**/Dockerfile @Kaushator
+
+# CI/CD - GitHub Actions workflows
+.github/ @Kaushator
+.github/workflows/ @Kaushator
+
+# Documentation - документация
+docs/ @Kaushator
+docs/**/*.md @Kaushator
+*.md @Kaushator
+
+# Configuration files - конфигурационные файлы
+package.json @Kaushator
+requirements.txt @Kaushator
+pyproject.toml @Kaushator
+tsconfig.json @Kaushator
+next.config.js @Kaushator
+tailwind.config.js @Kaushator
+vitest.config.ts @Kaushator

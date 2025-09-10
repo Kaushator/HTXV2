@@ -1,9 +1,10 @@
 from fastapi import APIRouter, HTTPException, Request
-from fastapi.responses import JSONResponse
 import httpx
 
 from ..clients import htx as htx_client
+from ..clients import coingecko as cg_client
 from ..utils.ratelimit import RateLimiter
+from ..utils.api_keys import extract_api_key
 from ..config import settings
 
 router = APIRouter(prefix="/api/data", tags=["market-data"])
@@ -19,6 +20,10 @@ async def htx_ticker(request: Request, symbol: str, ttl: int | None = None, api_
     # Prefer API key (header or query) to scope rate limiting; fallback to IP
     header_key = request.headers.get("X-API-Key")
     effective_key = api_key or header_key
+    if not effective_key:
+        # unified extractor (covers query/header)
+        k, _ = extract_api_key(request)
+        effective_key = effective_key or k
     if effective_key:
         key = f"rl:htx:ticker:key:{effective_key}"
     else:
@@ -38,6 +43,7 @@ async def htx_ticker(request: Request, symbol: str, ttl: int | None = None, api_
     allowed = await _rl.allow(key, max_calls, window)
     if not allowed:
         raise HTTPException(status_code=429, detail="Rate limit exceeded. Please slow down.")
+    # Usage tracking now handled globally by ApiKeyUsageMiddleware
     try:
         data = await htx_client.get_ticker(symbol, ttl_override=ttl)
         return data
@@ -51,17 +57,15 @@ async def htx_ticker(request: Request, symbol: str, ttl: int | None = None, api_
 
 @router.get("/coingecko/coin/{coin_id}")
 async def coingecko_coin(coin_id: str):
-    """CoinGecko market data (pending integration)."""
-    return JSONResponse(
-        status_code=501,
-        content={
-            "status": "not_implemented",
-            "provider": "CoinGecko",
-            "endpoint": "coin",
-            "id": coin_id,
-            "todo": "Integrate CoinGecko client with caching",
-        },
-    )
+    """CoinGecko market data for a given coin id."""
+    try:
+        return await cg_client.get_coin(coin_id)
+    except httpx.HTTPStatusError as e:
+        if e.response is not None and e.response.status_code == 404:
+            raise HTTPException(status_code=404, detail="Coin not found")
+        raise HTTPException(status_code=502, detail=f"CoinGecko upstream error: {e.response.status_code if e.response else 'unknown'}")
+    except Exception as e:
+        raise HTTPException(status_code=502, detail=f"CoinGecko upstream unavailable: {e}")
 
 
 @router.get("/sources")

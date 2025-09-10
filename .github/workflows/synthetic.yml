@@ -1,0 +1,57 @@
+name: Synthetic Monitoring
+
+on:
+  schedule:
+    - cron: '*/15 * * * *' # Every 15 minutes
+  workflow_dispatch:
+
+jobs:
+  synthetic-checks:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        environment: [staging, production]
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+      
+      - name: Install dependencies
+        run: |
+          cd frontend
+          npm ci
+      
+      - name: Install Playwright
+        run: |
+          cd frontend
+          npx playwright install --with-deps chromium
+      
+      - name: Run synthetic checks
+        env:
+          BASE_URL: ${{ matrix.environment == 'production' && 'https://htx-interface.com' || 'https://staging.htx-interface.com' }}
+        run: |
+          cd frontend
+          npx playwright test --config=playwright.synthetic.config.ts
+      
+      - name: Upload results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: synthetic-results-${{ matrix.environment }}
+          path: frontend/synthetic-results/
+          retention-days: 30
+      
+      - name: Notify on failure
+        if: failure()
+        uses: 8398a7/action-slack@v3
+        with:
+          status: failure
+          text: 'Synthetic monitoring failed for ${{ matrix.environment }}'
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}

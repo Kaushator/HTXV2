@@ -1,0 +1,71 @@
+---
+name: 📚 Documentation Update
+about: Suggest improvements to documentation
+title: '[DOCS] '
+labels: ['documentation', 'good first issue']
+assignees: ''
+---
+
+## 📖 Documentation Issue
+<!-- What documentation needs to be updated, added, or improved? -->
+
+## 📍 Location
+<!-- Where is this documentation located or where should it be added? -->
+- **File/Section**: 
+- **URL** (if applicable): 
+
+## 🎯 Type of Documentation
+- [ ] API Documentation
+- [ ] Setup/Installation Guide
+- [ ] Developer Documentation
+- [ ] User Guide
+- [ ] Architecture Documentation
+- [ ] Troubleshooting Guide
+- [ ] Code Comments
+- [ ] README Updates
+
+## ❌ Current State
+<!-- What's wrong or missing with the current documentation? -->
+
+## ✅ Desired State
+<!-- What should the documentation look like after the improvement? -->
+
+## 🎭 Target Audience
+- [ ] New Developers
+- [ ] Experienced Developers
+- [ ] End Users
+- [ ] System Administrators
+- [ ] DevOps Engineers
+
+## 📋 Specific Changes Needed
+<!-- List specific changes or additions needed -->
+- 
+- 
+- 
+
+## 🎯 Priority
+- [ ] Critical (blocking development/deployment)
+- [ ] High (significantly impacts productivity)
+- [ ] Medium (moderate impact)
+- [ ] Low (minor improvement)
+
+## 💡 Suggested Content
+<!-- If you have specific content suggestions, include them here -->
+
+## 🔗 Related Resources
+<!-- Link to related documentation, issues, or external resources -->
+
+## 📋 Acceptance Criteria
+<!-- Define what "done" looks like for this documentation update -->
+- [ ] Content is accurate and up-to-date
+- [ ] Content is clear and easy to understand
+- [ ] Examples are provided where appropriate
+- [ ] Content follows project documentation standards
+- [ ] Content is properly formatted and structured
+
+## 🧪 Validation
+<!-- How can we verify the documentation is correct and useful? -->
+- [ ] Technical review by team member
+- [ ] User testing with target audience
+- [ ] Link validation (if applicable)
+- [ ] Code example testing (if applicable)
