@@ -1,6 +1,6 @@
 from sqlalchemy import Column, Integer, String, Numeric, DateTime, JSON, Text, Index, Boolean
 from sqlalchemy.sql import func
-from app.db.session import Base
+from app.models.base import Base
 
 
 class CryptoPriceData(Base):

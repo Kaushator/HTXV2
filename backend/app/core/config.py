@@ -1,6 +1,6 @@
 from pydantic_settings import BaseSettings
 from typing import List, Optional
-from pydantic import AnyHttpUrl, validator
+from pydantic import AnyHttpUrl, field_validator
 import os
 
 
@@ -15,7 +15,7 @@ class Settings(BaseSettings):
     API_V1_STR: str = "/api/v1"
     
     # Security
-    SECRET_KEY: str
+    SECRET_KEY: str = "dev-secret-key-change-in-production"
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     
@@ -24,17 +24,19 @@ class Settings(BaseSettings):
     POSTGRES_PORT: int = 5432
     POSTGRES_DB: str = "htxv2"
     POSTGRES_USER: str = "htxv2_user"
-    POSTGRES_PASSWORD: str
+    POSTGRES_PASSWORD: str = "password"
     DATABASE_URL: Optional[str] = None
     
-    @validator("DATABASE_URL", pre=True)
-    def assemble_db_connection(cls, v: Optional[str], values: dict) -> str:
+    @field_validator("DATABASE_URL", mode="before")
+    @classmethod
+    def assemble_db_connection(cls, v: Optional[str], info) -> str:
         if isinstance(v, str):
             return v
+        values = info.data if hasattr(info, 'data') else {}
         return (
-            f"postgresql+asyncpg://{values.get('POSTGRES_USER')}:"
-            f"{values.get('POSTGRES_PASSWORD')}@{values.get('POSTGRES_HOST')}:"
-            f"{values.get('POSTGRES_PORT')}/{values.get('POSTGRES_DB')}"
+            f"postgresql+asyncpg://{values.get('POSTGRES_USER', 'htxv2_user')}:"
+            f"{values.get('POSTGRES_PASSWORD', 'password')}@{values.get('POSTGRES_HOST', 'localhost')}:"
+            f"{values.get('POSTGRES_PORT', 5432)}/{values.get('POSTGRES_DB', 'htxv2')}"
         )
     
     # Redis
@@ -43,20 +45,23 @@ class Settings(BaseSettings):
     REDIS_DB: int = 0
     REDIS_URL: Optional[str] = None
     
-    @validator("REDIS_URL", pre=True)
-    def assemble_redis_connection(cls, v: Optional[str], values: dict) -> str:
+    @field_validator("REDIS_URL", mode="before")
+    @classmethod
+    def assemble_redis_connection(cls, v: Optional[str], info) -> str:
         if isinstance(v, str):
             return v
+        values = info.data if hasattr(info, 'data') else {}
         return (
-            f"redis://{values.get('REDIS_HOST')}:"
-            f"{values.get('REDIS_PORT')}/{values.get('REDIS_DB')}"
+            f"redis://{values.get('REDIS_HOST', 'localhost')}:"
+            f"{values.get('REDIS_PORT', 6379)}/{values.get('REDIS_DB', 0)}"
         )
     
     # CORS
     BACKEND_CORS_ORIGINS: List[AnyHttpUrl] = []
     ALLOWED_HOSTS: List[str] = ["*"]
     
-    @validator("BACKEND_CORS_ORIGINS", pre=True)
+    @field_validator("BACKEND_CORS_ORIGINS", mode="before")
+    @classmethod
     def assemble_cors_origins(cls, v) -> List[str]:
         if isinstance(v, str) and not v.startswith("["):
             return [i.strip() for i in v.split(",")]
@@ -65,12 +70,12 @@ class Settings(BaseSettings):
         raise ValueError(v)
     
     # Google Cloud
-    GOOGLE_CLOUD_PROJECT: str
+    GOOGLE_CLOUD_PROJECT: str = "htxv2-dev"
     GOOGLE_APPLICATION_CREDENTIALS: Optional[str] = None
     
     # External APIs
-    HTX_API_KEY: str
-    HTX_SECRET_KEY: str
+    HTX_API_KEY: str = "dev-api-key"
+    HTX_SECRET_KEY: str = "dev-secret-key"
     COINGECKO_API_KEY: Optional[str] = None
     OPENAI_API_KEY: Optional[str] = None
     
@@ -78,17 +83,21 @@ class Settings(BaseSettings):
     CELERY_BROKER_URL: Optional[str] = None
     CELERY_RESULT_BACKEND: Optional[str] = None
     
-    @validator("CELERY_BROKER_URL", pre=True)
-    def assemble_celery_broker(cls, v: Optional[str], values: dict) -> str:
+    @field_validator("CELERY_BROKER_URL", mode="before")
+    @classmethod
+    def assemble_celery_broker(cls, v: Optional[str], info) -> str:
         if isinstance(v, str):
             return v
-        return f"redis://{values.get('REDIS_HOST')}:{values.get('REDIS_PORT')}/1"
+        values = info.data if hasattr(info, 'data') else {}
+        return f"redis://{values.get('REDIS_HOST', 'localhost')}:{values.get('REDIS_PORT', 6379)}/1"
     
-    @validator("CELERY_RESULT_BACKEND", pre=True)
-    def assemble_celery_backend(cls, v: Optional[str], values: dict) -> str:
+    @field_validator("CELERY_RESULT_BACKEND", mode="before")
+    @classmethod
+    def assemble_celery_backend(cls, v: Optional[str], info) -> str:
         if isinstance(v, str):
             return v
-        return f"redis://{values.get('REDIS_HOST')}:{values.get('REDIS_PORT')}/1"
+        values = info.data if hasattr(info, 'data') else {}
+        return f"redis://{values.get('REDIS_HOST', 'localhost')}:{values.get('REDIS_PORT', 6379)}/1"
     
     # ML Configuration
     FINGPT_MODEL_PATH: str = "/app/models/fingpt"
