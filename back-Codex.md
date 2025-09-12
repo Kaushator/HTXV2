@@ -54,14 +54,155 @@
 
 ---
 
-## V. Советы для Codex и оптимизации
+## V. Полное делегирование завершения кода Codex
 
-- Docstring-инструкции перед каждым endpoint — кратко, что делает функция (см. предыдущий пример).
-- Не писать большие "god functions", всё атомарно.
-- Все схемы/типы — отдельно, не дублировать.
-- Для повторяющихся операций — декораторы и helpers.
-- Не держать в памяти большие массивы данных, использовать yield/generators.
-- Для AI — singleton-подход к загрузке моделей.
+### Эффективные промпты для Codex:
+
+```python
+# @codex: Создай FastAPI endpoint для получения торговых сигналов
+# Требования: асинхронность, валидация Pydantic, Redis кеширование, rate limiting
+@router.get("/trading/signals", response_model=List[TradingSignalResponse])
+async def get_trading_signals(
+    symbol: Optional[str] = None,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_active_user)
+):
+    """
+    @codex: Полная реализация с:
+    - валидацией входных параметров
+    - получением данных из базы с фильтрацией  
+    - кешированием результатов в Redis
+    - обработкой ошибок с proper HTTP статусами
+    - логированием с correlation ID
+    """
+    pass
+
+# @codex: Создай сервис для работы с AI моделями FinGPT
+class FinGPTService:
+    """
+    @codex: Реализуй сервис с методами:
+    - load_model() - загрузка модели с fallback на CPU
+    - generate_signal() - генерация торгового сигнала  
+    - get_sentiment() - анализ настроений рынка
+    - validate_model() - проверка состояния модели
+    Включи error handling, logging, и singleton pattern
+    """
+    pass
+```
+
+### Стратегии экономии токенов для Codex:
+
+**1. Использование декораторов и middleware:**
+```python
+# @codex: Создай декоратор для rate limiting всех торговых endpoints
+def trading_rate_limit(requests_per_minute: int = 60):
+    """
+    @codex: Реализуй декоратор с Redis backend для хранения лимитов
+    """
+    pass
+
+# @codex: Создай middleware для логирования всех API запросов  
+async def logging_middleware(request: Request, call_next):
+    """
+    @codex: Structured logging с correlation ID, timing, error tracking
+    """
+    pass
+
+# @codex: Примени эти паттерны ко всем endpoints в: trading.py, portfolio.py, data.py
+```
+
+**2. Автогенерация схем и моделей:**
+```python
+# @codex: Создай Pydantic схемы на базе этого JSON response:
+# {"user_id": 1, "portfolio": [{"symbol": "BTC", "quantity": 0.5, "avg_price": 45000}]}
+# Сгенерируй: PortfolioResponse, AssetPosition, UserPortfolio с валидацией
+
+# @codex: Создай SQLAlchemy модели соответствующие схемам выше
+# с правильными relationships, indexes, constraints
+```
+
+**3. Сервисы и business logic:**
+```python
+# @codex: КОНТЕКСТ: HTXV2 криптотрейдинг платформа, paper trading только
+# БЕЗОПАСНОСТЬ: никаких реальных ордеров, только симуляция
+
+class TradingService:
+    """
+    @codex: Реализуй все методы для paper trading:
+    - create_paper_order() - создание виртуального ордера
+    - execute_paper_order() - исполнение по рыночной цене  
+    - cancel_paper_order() - отмена ордера
+    - get_portfolio_pnl() - расчет P&L портфеля
+    - simulate_market_impact() - симуляция влияния на рынок
+    
+    Используй async/await, type hints, proper exception handling
+    """
+    pass
+```
+
+### Оптимизация использования токенов:
+
+**1. Шаблоны для CRUD операций:**
+```python
+# @codex: Создай generic CRUD service по этому паттерну
+class CRUDService(Generic[T]):
+    """
+    @codex: Universal CRUD operations для любой SQLAlchemy модели
+    Методы: create, get, update, delete, list с фильтрацией и пагинацией
+    """
+    pass
+
+# @codex: Создай наследников для: UserCRUD, TradeCRUD, PortfolioCRUD
+# используя CRUDService как базовый класс
+```
+
+**2. Обработка ошибок и валидация:**
+```python
+# @codex: Создай централизованную систему обработки ошибок
+class HTTPException(Exception):
+    """
+    @codex: Custom exceptions для всех типов ошибок в приложении
+    """
+    pass
+
+# @codex: Exception handler middleware с proper HTTP статусами
+# для ValidationError, DatabaseError, AuthenticationError, RateLimitError
+
+# @codex: Валидаторы для торговых данных:
+def validate_trading_symbol(symbol: str) -> str:
+    """@codex: валидация символа криптопары"""
+    pass
+
+def validate_order_quantity(quantity: Decimal, symbol: str) -> Decimal:
+    """@codex: валидация количества с учетом минимальных лотов"""
+    pass
+```
+
+**3. Асинхронные операции и worker tasks:**
+```python
+# @codex: Создай Celery tasks для фоновых операций
+@shared_task
+def process_market_data_batch(data_batch: List[Dict]):
+    """
+    @codex: Обработка batch данных от криптобиржи
+    - валидация данных
+    - сохранение в БД  
+    - отправка уведомлений через WebSocket
+    - обновление кеша
+    """
+    pass
+
+# @codex: WebSocket manager для real-time уведомлений
+class WebSocketManager:
+    """
+    @codex: Менеджер WS соединений с поддержкой:
+    - групповых подписок на символы
+    - персональных уведомлений пользователей
+    - автоматического переподключения
+    - rate limiting для WS сообщений
+    """
+    pass
+```
 
 ---
 
