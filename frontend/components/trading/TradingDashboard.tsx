@@ -11,7 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { RefreshCw, TrendingUp, TrendingDown, Activity } from 'lucide-react';
-import { useTradingWebSocket } from '@/hooks/useWebSocket';
+import { useMarketDataWebSocket } from '@/hooks/useMarketDataWebSocket';
 import { useMarketData, usePortfolio, useActiveOrders } from '@/hooks/useMarketData';
 import { PriceChart } from './PriceChart';
 import { OrderBook } from './OrderBook';
@@ -33,43 +33,33 @@ export function TradingDashboard({ defaultSymbol = 'BTCUSDT', className }: Tradi
   const { data: portfolio, isLoading: isPortfolioLoading } = usePortfolio();
   const { data: activeOrders, isLoading: isOrdersLoading } = useActiveOrders();
 
-  // WebSocket for real-time data
+  // WebSocket for real-time market data
   const {
+    status: wsStatus,
+    marketData: realTimeMarketData,
+    error: wsError,
     isConnected,
-    connect,
-    disconnect,
-    tickers,
-    orderBooks,
-    subscribeToTicker,
-    subscribeToOrderBook,
-    status,
-  } = useTradingWebSocket();
+    reconnectAttempts
+  } = useMarketDataWebSocket({
+    symbol: selectedSymbol,
+    // token: authToken, // Add authentication token if available
+    onMarketData: (data) => {
+      console.log('Received market data:', data);
+    },
+    onError: (error) => {
+      console.error('WebSocket error:', error);
+    }
+  });
 
-  // Get current symbol data
+  // Get current symbol data - prioritize real-time data from WebSocket
   const currentSymbolData = marketData?.data?.find((item: any) => item.symbol === selectedSymbol);
-  const currentTicker = tickers[selectedSymbol];
-  const currentOrderBook = orderBooks[selectedSymbol];
-
+  
   // Use real-time data if available, fallback to API data
-  const displayPrice = currentTicker?.price ?? currentSymbolData?.price ?? 0;
-  const displayChange = currentTicker?.change_percent ?? currentSymbolData?.change_24h_percent ?? 0;
+  const displayPrice = realTimeMarketData?.price ?? currentSymbolData?.price ?? 0;
+  const displayChange = realTimeMarketData?.change_24h ?? currentSymbolData?.change_24h_percent ?? 0;
+  const displayVolume = realTimeMarketData?.volume ?? currentSymbolData?.volume_24h ?? 0;
 
-  // Connection management
-  useEffect(() => {
-    if (isAutoRefresh && !isConnected) {
-      connect();
-    }
-  }, [isAutoRefresh, isConnected, connect]);
-
-  // Subscribe to symbol updates
-  useEffect(() => {
-    if (isConnected && selectedSymbol) {
-      subscribeToTicker(selectedSymbol);
-      subscribeToOrderBook(selectedSymbol);
-    }
-  }, [isConnected, selectedSymbol, subscribeToTicker, subscribeToOrderBook]);
-
-  // Handle symbol change
+  // Handle symbol change - will trigger WebSocket reconnection
   const handleSymbolChange = (symbol: string) => {
     setSelectedSymbol(symbol);
   };
@@ -91,10 +81,16 @@ export function TradingDashboard({ defaultSymbol = 'BTCUSDT', className }: Tradi
         </div>
         
         <div className="flex items-center space-x-2">
-          <Badge variant={isConnected ? 'default' : 'destructive'}>
+          <Badge variant={isConnected ? 'default' : wsStatus === 'connecting' ? 'secondary' : 'destructive'}>
             <Activity className="w-3 h-3 mr-1" />
-            {isConnected ? 'Live' : 'Disconnected'}
+            {wsStatus === 'connecting' ? 'Connecting...' : isConnected ? 'Live' : wsError ? `Error: ${wsError}` : 'Disconnected'}
           </Badge>
+          
+          {reconnectAttempts > 0 && !isConnected && (
+            <Badge variant="outline" className="text-xs">
+              Retry {reconnectAttempts}/5
+            </Badge>
+          )}
           
           <Button
             variant="outline"
