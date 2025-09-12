@@ -1,7 +1,7 @@
 import asyncio
 import json
 import time
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import List, Dict, Any, Optional, Set
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -66,7 +66,7 @@ class MCPService:
         return SystemHealth(
             status=overall_status,
             services=services,
-            timestamp=datetime.utcnow()
+            timestamp=datetime.now(timezone.utc)
         )
     
     async def _check_database_health(self) -> ServiceHealth:
@@ -82,14 +82,14 @@ class MCPService:
                 name="PostgreSQL",
                 status=HealthStatus.HEALTHY,
                 response_time_ms=response_time,
-                last_checked=datetime.utcnow()
+                last_checked=datetime.now(timezone.utc)
             )
         except Exception as e:
             return ServiceHealth(
                 name="PostgreSQL",
                 status=HealthStatus.UNHEALTHY,
                 details={"error": str(e)},
-                last_checked=datetime.utcnow()
+                last_checked=datetime.now(timezone.utc)
             )
     
     async def _check_redis_health(self) -> ServiceHealth:
@@ -107,21 +107,21 @@ class MCPService:
                     name="Redis",
                     status=HealthStatus.HEALTHY,
                     response_time_ms=response_time,
-                    last_checked=datetime.utcnow()
+                    last_checked=datetime.now(timezone.utc)
                 )
             else:
                 return ServiceHealth(
                     name="Redis",
                     status=HealthStatus.UNHEALTHY,
                     details={"error": "Redis client not initialized"},
-                    last_checked=datetime.utcnow()
+                    last_checked=datetime.now(timezone.utc)
                 )
         except Exception as e:
             return ServiceHealth(
                 name="Redis",
                 status=HealthStatus.UNHEALTHY,
                 details={"error": str(e)},
-                last_checked=datetime.utcnow()
+                last_checked=datetime.now(timezone.utc)
             )
     
     async def _check_htx_api_health(self) -> ServiceHealth:
@@ -136,7 +136,7 @@ class MCPService:
                     name="HTX API",
                     status=HealthStatus.UNHEALTHY,
                     details={"error": "httpx not available"},
-                    last_checked=datetime.utcnow()
+                    last_checked=datetime.now(timezone.utc)
                 )
             
             async with httpx.AsyncClient() as client:
@@ -148,7 +148,7 @@ class MCPService:
                         name="HTX API",
                         status=HealthStatus.HEALTHY,
                         response_time_ms=response_time,
-                        last_checked=datetime.utcnow()
+                        last_checked=datetime.now(timezone.utc)
                     )
                 else:
                     return ServiceHealth(
@@ -156,14 +156,14 @@ class MCPService:
                         status=HealthStatus.DEGRADED,
                         response_time_ms=response_time,
                         details={"status_code": response.status_code},
-                        last_checked=datetime.utcnow()
+                        last_checked=datetime.now(timezone.utc)
                     )
         except Exception as e:
             return ServiceHealth(
                 name="HTX API",
                 status=HealthStatus.UNHEALTHY,
                 details={"error": str(e)},
-                last_checked=datetime.utcnow()
+                last_checked=datetime.now(timezone.utc)
             )
     
     async def _check_coingecko_api_health(self) -> ServiceHealth:
@@ -177,7 +177,7 @@ class MCPService:
                     name="CoinGecko API",
                     status=HealthStatus.UNHEALTHY,
                     details={"error": "httpx not available"},
-                    last_checked=datetime.utcnow()
+                    last_checked=datetime.now(timezone.utc)
                 )
             
             async with httpx.AsyncClient() as client:
@@ -189,7 +189,7 @@ class MCPService:
                         name="CoinGecko API",
                         status=HealthStatus.HEALTHY,
                         response_time_ms=response_time,
-                        last_checked=datetime.utcnow()
+                        last_checked=datetime.now(timezone.utc)
                     )
                 else:
                     return ServiceHealth(
@@ -197,14 +197,14 @@ class MCPService:
                         status=HealthStatus.DEGRADED,
                         response_time_ms=response_time,
                         details={"status_code": response.status_code},
-                        last_checked=datetime.utcnow()
+                        last_checked=datetime.now(timezone.utc)
                     )
         except Exception as e:
             return ServiceHealth(
                 name="CoinGecko API",
                 status=HealthStatus.UNHEALTHY,
                 details={"error": str(e)},
-                last_checked=datetime.utcnow()
+                last_checked=datetime.now(timezone.utc)
             )
     
     async def add_websocket_connection(self, websocket):
@@ -239,7 +239,7 @@ class MCPService:
         message = WebSocketMessage(
             type="market_data",
             data=market_data.model_dump(),
-            timestamp=datetime.utcnow()
+            timestamp=datetime.now(timezone.utc)
         )
         await self.broadcast_message(message)
     
@@ -248,7 +248,7 @@ class MCPService:
         message = WebSocketMessage(
             type="trading_signal",
             data=signal.model_dump(),
-            timestamp=datetime.utcnow()
+            timestamp=datetime.now(timezone.utc)
         )
         await self.broadcast_message(message)
     
@@ -257,7 +257,7 @@ class MCPService:
         message = WebSocketMessage(
             type="portfolio_update",
             data=portfolio.model_dump(),
-            timestamp=datetime.utcnow(),
+            timestamp=datetime.now(timezone.utc),
             user_id=portfolio.user_id
         )
         await self.broadcast_message(message)
@@ -273,7 +273,7 @@ class MCPService:
                 task_id=task_id,
                 name=task_name,
                 status=TaskStatus.PENDING,
-                created_at=datetime.utcnow()
+                created_at=datetime.now(timezone.utc)
             )
             await self.redis_client.setex(
                 f"task:{task_id}",
