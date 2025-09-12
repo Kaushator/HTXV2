@@ -11,10 +11,10 @@ HTXV2 — персональный трейдинг-ассистент для HT
 - **Infrastructure as Code**: Terraform для GCP ресурсов (BigQuery, Pub/Sub, VPC, Cloud Functions)
 
 ## Environments & runtime
-- Разработка: **WSL2 (Ubuntu) + Docker Desktop** с GPU поддержкой (RTX 4060)
-- Backend: FastAPI (+ async SQLAlchemy), WebSocket; ML: FinGPT/Mistral (локально или контейнеры)
-- Database: PostgreSQL 15 + pgvector для эмбеддингов, Redis для кэша и real-time данных
-- Хранилище/облако: GCP (GCS, Pub/Sub, Dataflow, BigQuery, Vertex AI, Secret Manager)
+- Разработка: **WSL2 (Ubuntu) + Docker Desktop** с GPU поддержкой (RTX 4060).
+- Backend: FastAPI (+ async SQLAlchemy), WebSocket; ML: FinGPT/Mistral (локально или контейнеры).
+- Database: PostgreSQL 15 + pgvector для эмбеддингов, Redis для кэша и real-time данных.
+- Хранилище/облако: GCP (GCS, Pub/Sub, Dataflow, BigQuery, Vertex AI, Secret Manager).
 
 ## How to run locally
 - **Full stack**: `cd docker && docker compose up -d` (PostgreSQL + Redis + backend + frontend)
