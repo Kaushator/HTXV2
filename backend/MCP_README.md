@@ -1,6 +1,34 @@
 # Master Control Program (MCP) Server
 
+**Status: ✅ OPERATIONAL** - MCP система полностью функциональна и готова к использованию.
+
 The MCP server is the central orchestration and monitoring system for the HTXV2 platform. It provides real-time communication, system health monitoring, and task management capabilities.
+
+## 🚀 Quick Start
+
+### Docker Compose (Recommended)
+```bash
+docker compose -f docker/docker-compose.yml up -d
+# MCP available at: http://localhost:8000/api/v1/mcp/
+```
+
+### Test MCP Functionality
+```bash
+# Run comprehensive MCP test
+./scripts/test_mcp.sh
+
+# Or test individual endpoints
+curl http://localhost:8000/api/v1/mcp/health | jq .
+```
+
+## ✅ What's Working
+
+- **Health Monitoring**: PostgreSQL, Redis, HTX API, CoinGecko API
+- **Task Management**: Scheduling, status tracking, Redis persistence  
+- **Real-time Communication**: WebSocket endpoint with authentication
+- **Broadcasting**: Market data, trading signals, portfolio updates
+- **Security**: JWT authentication, role-based access control
+- **API Documentation**: Available at `/docs` and `/redoc`
 
 ## Features
 
