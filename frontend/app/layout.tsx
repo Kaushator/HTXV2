@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from 'next'
+import Link from 'next/link'
 import './globals.css'
 import { QueryProvider } from '@/components/providers/query-provider'
 import { ThemeProvider } from '@/components/providers/theme-provider'
@@ -29,7 +30,45 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <QueryProvider>
-            {children}
+            <div className="min-h-screen flex flex-col">
+              <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+                <div className="container mx-auto px-4 py-3">
+                  <nav className="flex items-center justify-between">
+                    <div className="flex items-center space-x-6">
+                      <Link href="/" className="text-xl font-bold">
+                        HTXV2
+                      </Link>
+                      <div className="hidden md:flex space-x-4">
+                        <Link 
+                          href="/trading" 
+                          className="text-sm font-medium hover:text-primary transition-colors"
+                        >
+                          Trading
+                        </Link>
+                        <Link 
+                          href="/upload" 
+                          className="text-sm font-medium hover:text-primary transition-colors"
+                        >
+                          Upload
+                        </Link>
+                        <Link 
+                          href="/demo" 
+                          className="text-sm font-medium hover:text-primary transition-colors"
+                        >
+                          Demo
+                        </Link>
+                      </div>
+                    </div>
+                    <div className="text-sm text-muted-foreground">
+                      Crypto Trading Assistant
+                    </div>
+                  </nav>
+                </div>
+              </header>
+              <main className="flex-1">
+                {children}
+              </main>
+            </div>
             <Toaster />
           </QueryProvider>
         </ThemeProvider>
