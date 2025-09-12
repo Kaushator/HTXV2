@@ -103,6 +103,7 @@ class Settings(BaseSettings):
     FINGPT_MODEL_PATH: str = "/app/models/fingpt"
     VERTEX_AI_REGION: str = "us-central1"
     LOCAL_LLM_ENABLED: bool = True
+    ML_SERVICE_URL: Optional[str] = None
     
     # Storage
     GCS_RAW_BUCKET: Optional[str] = None
@@ -111,6 +112,12 @@ class Settings(BaseSettings):
     
     # BigQuery
     BIGQUERY_DATASET: str = "htxv2_main"
+
+    # MCP Configuration (defaults; can be overridden via env)
+    MCP_TASK_CLEANUP_INTERVAL: int = 3600
+    MCP_HEALTH_CHECK_INTERVAL: int = 60
+    MCP_MAX_WEBSOCKET_CONNECTIONS: int = 1000
+    MCP_WEBSOCKET_HEARTBEAT_INTERVAL: int = 30
     
     # MCP Configuration
     MCP_TASK_CLEANUP_INTERVAL: int = 3600  # seconds

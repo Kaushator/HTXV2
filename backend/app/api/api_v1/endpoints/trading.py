@@ -4,6 +4,8 @@ from typing import List, Optional
 from datetime import datetime, timedelta
 
 from app.core.security import get_current_active_user
+from app.core.rate_limit import trading_rate_limit
+from app.core.cache import get_json, set_json
 from app.db.session import get_db
 from app.models.user import User
 from app.schemas.trading import (
@@ -21,7 +23,8 @@ async def get_trading_signals(
     signal_type: Optional[str] = None,
     limit: int = 100,
     current_user: User = Depends(get_current_active_user),
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
+    _: None = Depends(trading_rate_limit(60)),
 ):
     """Get trading signals"""
     # This would implement the actual trading signals logic
@@ -33,20 +36,28 @@ async def get_trading_signals(
 async def get_market_data(
     symbol: str,
     current_user: User = Depends(get_current_active_user),
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
+    _: None = Depends(trading_rate_limit(120)),
 ):
     """Get current market data for a symbol"""
-    # This would implement the actual market data retrieval
-    # For now, returning mock data
-    return MarketDataResponse(
+    cache_key = f"market:{symbol.upper()}"
+    cached = await get_json(cache_key)
+    if cached:
+        return MarketDataResponse(**cached)
+
+    # This would implement the actual market data retrieval.
+    # For now, returning mock data and caching it briefly.
+    data = MarketDataResponse(
         symbol=symbol.upper(),
         price=50000.00,
         price_change_24h=2.5,
         volume_24h=1000000.00,
         high_24h=51000.00,
         low_24h=49000.00,
-        timestamp=datetime.utcnow()
+        timestamp=datetime.utcnow(),
     )
+    await set_json(cache_key, data.model_dump(), ttl_seconds=30)
+    return data
 
 
 @router.get("/price-history/{symbol}", response_model=PriceHistoryResponse)
@@ -55,7 +66,8 @@ async def get_price_history(
     timeframe: str = "1d",
     days: int = 30,
     current_user: User = Depends(get_current_active_user),
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
+    _: None = Depends(trading_rate_limit(60)),
 ):
     """Get price history for a symbol"""
     # This would implement the actual price history retrieval
