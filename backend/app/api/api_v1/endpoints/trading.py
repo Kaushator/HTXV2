@@ -6,6 +6,7 @@ from datetime import datetime, timedelta
 from app.core.security import get_current_active_user
 from app.core.rate_limit import trading_rate_limit
 from app.core.cache import get_json, set_json
+from app.utils.validation import validate_trading_symbol, validate_timeframe
 from app.db.session import get_db
 from app.models.user import User
 from app.schemas.trading import (
@@ -40,7 +41,8 @@ async def get_market_data(
     _: None = Depends(trading_rate_limit(120)),
 ):
     """Get current market data for a symbol"""
-    cache_key = f"market:{symbol.upper()}"
+    symbol = validate_trading_symbol(symbol)
+    cache_key = f"market:{symbol}"
     cached = await get_json(cache_key)
     if cached:
         return MarketDataResponse(**cached)
@@ -48,7 +50,7 @@ async def get_market_data(
     # This would implement the actual market data retrieval.
     # For now, returning mock data and caching it briefly.
     data = MarketDataResponse(
-        symbol=symbol.upper(),
+        symbol=symbol,
         price=50000.00,
         price_change_24h=2.5,
         volume_24h=1000000.00,
@@ -70,13 +72,15 @@ async def get_price_history(
     _: None = Depends(trading_rate_limit(60)),
 ):
     """Get price history for a symbol"""
+    symbol = validate_trading_symbol(symbol)
+    timeframe = validate_timeframe(timeframe)
     # This would implement the actual price history retrieval
     # For now, returning mock data
     end_date = datetime.utcnow()
     start_date = end_date - timedelta(days=days)
     
     return PriceHistoryResponse(
-        symbol=symbol.upper(),
+        symbol=symbol,
         data=[],  # Would contain actual price data
         timeframe=timeframe,
         start_date=start_date,
