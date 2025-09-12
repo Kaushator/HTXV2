@@ -88,3 +88,30 @@ def is_refresh_token(token: str) -> bool:
     """Check if token is a valid refresh token."""
     payload = verify_token(token)
     return bool(payload and payload.get("type") == "refresh")
+
+
+async def get_current_user_websocket(token: Optional[str]) -> Optional[User]:
+    """Get the current authenticated user for WebSocket connections"""
+    if not token:
+        return None
+    
+    payload = verify_token(token)
+    if payload is None:
+        return None
+    
+    user_id: str = payload.get("sub")
+    if user_id is None:
+        return None
+    
+    # Import here to avoid circular import
+    from app.services.user_service import UserService
+    from app.db.session import get_async_session
+    
+    async with get_async_session() as db:
+        user_service = UserService(db)
+        user = await user_service.get_user(int(user_id))
+        
+        if user and user.is_active:
+            return user
+    
+    return None

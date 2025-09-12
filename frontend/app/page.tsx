@@ -1,121 +1,189 @@
-import Link from 'next/link'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { TrendingUp, Shield, Zap, BarChart3 } from 'lucide-react'
+// @cursor: КОНТЕКСТ: HTXV2 - главная страница
+// ТЕХНОЛОГИИ: Next.js App Router, TypeScript, shadcn/ui
+// ЦЕЛЬ: Landing page с навигацией к основным функциям
+
+import Link from 'next/link';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
-      {/* Header */}
-      <header className="border-b bg-white/80 backdrop-blur-sm dark:bg-gray-900/80">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center space-x-2">
-            <TrendingUp className="h-8 w-8 text-blue-600" />
-            <h1 className="text-2xl font-bold">HTXV2</h1>
+    <div className="min-h-screen bg-gradient-to-br from-background to-muted">
+      <div className="container mx-auto px-4 py-12 space-y-16">
+        {/* Hero Section */}
+        <section className="text-center space-y-6">
+          <div className="space-y-4">
+            <h1 className="text-6xl font-bold tracking-tight">
+              HTX<span className="text-primary">V2</span>
+            </h1>
+            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+              Персональный трейдинг-ассистент для HTX с быстрым импортом данных, 
+              оперативными сводками P&L и анализом сигналов ИИ
+            </p>
           </div>
-          <nav className="hidden md:flex items-center space-x-6">
-            <Link href="/features" className="text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white">
-              Features
-            </Link>
-            <Link href="/pricing" className="text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white">
-              Pricing
-            </Link>
-            <Link href="/docs" className="text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white">
-              Docs
-            </Link>
-          </nav>
-          <div className="flex items-center space-x-2">
-            <Button variant="ghost" asChild>
-              <Link href="/auth/login">Login</Link>
+          
+          <div className="flex flex-wrap justify-center gap-2 mt-6">
+            <Badge variant="secondary">Time-to-Insight ≤ 10 сек</Badge>
+            <Badge variant="secondary">Real-time WebSocket</Badge>
+            <Badge variant="secondary">AI-powered Analysis</Badge>
+            <Badge variant="secondary">Multi-format Import</Badge>
+          </div>
+
+          <div className="flex flex-col sm:flex-row gap-4 justify-center mt-8">
+            <Button asChild size="lg">
+              <Link href="/trading">
+                Start Trading Dashboard
+              </Link>
             </Button>
-            <Button asChild>
-              <Link href="/auth/register">Get Started</Link>
+            <Button asChild size="lg" variant="outline">
+              <Link href="/demo">
+                View Demo
+              </Link>
             </Button>
           </div>
-        </div>
-      </header>
+        </section>
 
-      {/* Hero Section */}
-      <section className="container mx-auto px-4 py-16 text-center">
-        <h2 className="text-4xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-          AI-Powered Crypto Trading
-        </h2>
-        <p className="text-xl text-gray-600 dark:text-gray-300 mb-8 max-w-3xl mx-auto">
-          Advanced cryptocurrency trading platform with machine learning insights, 
-          real-time data analysis, and automated portfolio management.
-        </p>
-        <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <Button size="lg" asChild>
-            <Link href="/auth/register">Start Trading</Link>
-          </Button>
-          <Button size="lg" variant="outline" asChild>
-            <Link href="/demo">View Demo</Link>
-          </Button>
-        </div>
-      </section>
+        {/* Features Grid */}
+        <section className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <Card className="hover:shadow-lg transition-shadow">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                📊 Trading Dashboard
+              </CardTitle>
+              <CardDescription>
+                Real-time market data and portfolio management
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <p className="text-sm text-muted-foreground">
+                Live price updates via WebSocket, order book analysis, 
+                P&L tracking, and intelligent trade recommendations.
+              </p>
+              <Button asChild className="w-full">
+                <Link href="/trading">
+                  Open Dashboard
+                </Link>
+              </Button>
+            </CardContent>
+          </Card>
 
-      {/* Features Grid */}
-      <section className="container mx-auto px-4 py-16">
-        <h3 className="text-3xl font-bold text-center mb-12">
-          Powerful Features
-        </h3>
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <Card>
+          <Card className="hover:shadow-lg transition-shadow">
             <CardHeader>
-              <TrendingUp className="h-12 w-12 text-blue-600 mb-4" />
-              <CardTitle>Real-Time Analytics</CardTitle>
+              <CardTitle className="flex items-center gap-2">
+                📁 File Upload
+              </CardTitle>
+              <CardDescription>
+                Fast import from CSV/XLSX files
+              </CardDescription>
             </CardHeader>
-            <CardContent>
-              <p className="text-gray-600 dark:text-gray-300">
-                Live market data and advanced charting tools with technical indicators.
+            <CardContent className="space-y-3">
+              <p className="text-sm text-muted-foreground">
+                Drag & drop your trading data files for instant analysis. 
+                Supports CSV and Excel formats with automatic validation.
               </p>
+              <Button asChild className="w-full" variant="outline">
+                <Link href="/upload">
+                  Upload Files
+                </Link>
+              </Button>
             </CardContent>
           </Card>
-          
-          <Card>
-            <CardHeader>
-              <Zap className="h-12 w-12 text-yellow-600 mb-4" />
-              <CardTitle>AI Trading Signals</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-gray-600 dark:text-gray-300">
-                Machine learning powered trading signals with confidence scores.
-              </p>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardHeader>
-              <BarChart3 className="h-12 w-12 text-green-600 mb-4" />
-              <CardTitle>Portfolio Management</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-gray-600 dark:text-gray-300">
-                Comprehensive portfolio tracking with P&L analysis and risk metrics.
-              </p>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardHeader>
-              <Shield className="h-12 w-12 text-purple-600 mb-4" />
-              <CardTitle>Enterprise Security</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-gray-600 dark:text-gray-300">
-                Bank-grade security with encrypted data and secure API access.
-              </p>
-            </CardContent>
-          </Card>
-        </div>
-      </section>
 
-      {/* Footer */}
-      <footer className="border-t bg-white dark:bg-gray-900">
-        <div className="container mx-auto px-4 py-8 text-center text-gray-600 dark:text-gray-300">
-          <p>&copy; 2024 HTXV2. All rights reserved.</p>
-        </div>
-      </footer>
+          <Card className="hover:shadow-lg transition-shadow">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                🤖 AI Analysis
+              </CardTitle>
+              <CardDescription>
+                FinGPT & multi-model intelligence
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <p className="text-sm text-muted-foreground">
+                Local FinGPT model, Vertex AI integration, and smart 
+                signal analysis for better trading decisions.
+              </p>
+              <Button asChild className="w-full" variant="outline">
+                <Link href="/demo">
+                  See AI Features
+                </Link>
+              </Button>
+            </CardContent>
+          </Card>
+        </section>
+
+        {/* Architecture Overview */}
+        <section className="space-y-8">
+          <div className="text-center">
+            <h2 className="text-3xl font-bold tracking-tight">Built for Performance</h2>
+            <p className="text-muted-foreground mt-2">
+              Async-first architecture designed for real-time data processing
+            </p>
+          </div>
+
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <Card className="text-center">
+              <CardContent className="pt-6">
+                <div className="text-2xl mb-2">⚡</div>
+                <h3 className="font-semibold">FastAPI</h3>
+                <p className="text-sm text-muted-foreground">Async backend</p>
+              </CardContent>
+            </Card>
+            
+            <Card className="text-center">
+              <CardContent className="pt-6">
+                <div className="text-2xl mb-2">⚛️</div>
+                <h3 className="font-semibold">Next.js 14</h3>
+                <p className="text-sm text-muted-foreground">Modern frontend</p>
+              </CardContent>
+            </Card>
+            
+            <Card className="text-center">
+              <CardContent className="pt-6">
+                <div className="text-2xl mb-2">🐘</div>
+                <h3 className="font-semibold">PostgreSQL</h3>
+                <p className="text-sm text-muted-foreground">+ pgvector</p>
+              </CardContent>
+            </Card>
+            
+            <Card className="text-center">
+              <CardContent className="pt-6">
+                <div className="text-2xl mb-2">☁️</div>
+                <h3 className="font-semibold">GCP</h3>
+                <p className="text-sm text-muted-foreground">Cloud AI</p>
+              </CardContent>
+            </Card>
+          </div>
+        </section>
+
+        {/* Quick Start */}
+        <section className="bg-muted rounded-lg p-8">
+          <div className="text-center space-y-4">
+            <h2 className="text-2xl font-bold">Ready to Get Started?</h2>
+            <p className="text-muted-foreground">
+              Choose your preferred way to explore HTXV2
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Button asChild>
+                <Link href="/demo">
+                  Full Demo Experience
+                </Link>
+              </Button>
+              <Button asChild variant="outline">
+                <Link href="/trading">
+                  Jump to Trading
+                </Link>
+              </Button>
+              <Button asChild variant="outline">
+                <Link href="/upload">
+                  Import Your Data
+                </Link>
+              </Button>
+            </div>
+          </div>
+        </section>
+      </div>
     </div>
-  )
+  );
 }

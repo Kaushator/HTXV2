@@ -10,7 +10,7 @@ alembic==1.12.1
 psycopg2-binary==2.9.9
 
 # Redis
-redis==5.0.1
+redis>=4.5.2,<5.0.0
 # Note: aioredis removed - redis>=5 provides asyncio support
 
 # Authentication & Security
