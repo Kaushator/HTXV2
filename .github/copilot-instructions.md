@@ -29,12 +29,12 @@ HTXV2 — персональный трейдинг-ассистент для HT
 - **Secrets**: Fernet encryption для локальных ключей, GCP Secret Manager для продакшна
 - **Database**: PostgreSQL с pgvector extension для семантического поиска (см. `docker/init-db.sql`)
 
-## Build / test / quality
+## Build / lint / quality
 - **Linting**: `make lint-all` (black, isort, flake8 для backend; eslint, prettier для frontend)  
-- **Testing**: `make test-all` или `cd backend && pytest tests/` + `cd frontend && npm test`
 - **Type checking**: Backend использует type hints, frontend TypeScript с strict mode
 - **Database**: Alembic migrations в `backend/alembic/versions/`, автосоздание таблиц через SQLAlchemy
 - **Docker health checks**: Все сервисы имеют healthcheck (postgres, redis, backend)
+- **Manual validation**: Ручная проверка основных user flows через UI и API docs
 
 ### Project-specific conventions
 - **Async everywhere**: Все DB операции через async SQLAlchemy, aiohttp для HTTP клиентов
@@ -45,7 +45,7 @@ HTXV2 — персональный трейдинг-ассистент для HT
 ## Agent tasks (what you MAY do)
 - **Data processing**: CSV/XLSX импорт через pandas, PnL расчеты, агрегации в BigQuery
 - **API development**: FastAPI эндпойнты с async/await, Pydantic схемы, dependency injection
-- **ML integration**: Подключение новых моделей через `llm_selector.py`, векторный поиск с pgvector
+- **WebSocket integration**: Real-time market data, trading signals, portfolio updates
 - **ETL optimization**: Улучшение extractors с rate limiting, retry logic, error handling
 - **UI components**: React/Next.js с shadcn/ui, TanStack Query для state management
 
@@ -82,5 +82,5 @@ HTXV2 — персональный трейдинг-ассистент для HT
 
 ## Definition of Done
 - Сборка проходит (Docker/WSL2).
-- Тесты/линтеры зелёные.
+- Основная функциональность работает при ручной проверке.
 - Документация обновлена (README/CHANGELOG)

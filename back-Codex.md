@@ -29,10 +29,7 @@
   - [ ] Механика хранения и ротации ключей (DB + сервис).
   - [ ] Привязка к лимитам, автоматический reset.
 
-- [ ] **AI/ML сервисы**
-  - [ ] Проверить загрузку/выгрузку моделей FinGPT, fallback на CPU.
-  - [ ] Реализовать endpoint для проверки состояния модели.
-  - [ ] Интеграция с frontend: отдавать только нужные поля (confidence, meta).
+
 
 - [ ] **File Upload**
   - [ ] Асинхронный endpoint для загрузки, проверки формата, хранения файла (GCS + локально).
@@ -45,12 +42,11 @@
 
 ---
 
-## IV. Тесты и валидация
+## IV. Валидация и отладка
 
-- [ ] Unit-тесты для всех сервисов (pytest).
-- [ ] Интеграционные тесты для key endpoints (upload, trading, ML).
-- [ ] Тесты для edge-cases: невалидные payloads, таймауты, ошибки сети.
-- [ ] Проверить покрытия тестами (`pytest --cov`).
+- [ ] Ручная проверка всех основных endpoints через FastAPI docs.
+- [ ] Проверка работы с frontend компонентами.
+- [ ] Валидация основных user flows (upload, trading, WebSocket).
 
 ---
 
@@ -77,15 +73,15 @@ async def get_trading_signals(
     """
     pass
 
-# @codex: Создай сервис для работы с AI моделями FinGPT
-class FinGPTService:
+# @codex: Создай сервис для работы с торговыми данными  
+class TradingDataService:
     """
     @codex: Реализуй сервис с методами:
-    - load_model() - загрузка модели с fallback на CPU
-    - generate_signal() - генерация торгового сигнала  
-    - get_sentiment() - анализ настроений рынка
-    - validate_model() - проверка состояния модели
-    Включи error handling, logging, и singleton pattern
+    - get_market_data() - получение рыночных данных
+    - calculate_portfolio() - расчет портфеля
+    - format_trading_response() - форматирование ответов
+    - validate_trading_params() - валидация параметров
+    Включи error handling, logging, и rate limiting
     """
     pass
 ```
@@ -133,7 +129,7 @@ class TradingService:
     - execute_paper_order() - исполнение по рыночной цене  
     - cancel_paper_order() - отмена ордера
     - get_portfolio_pnl() - расчет P&L портфеля
-    - simulate_market_impact() - симуляция влияния на рынок
+    - get_market_data() - получение рыночных данных
     
     Используй async/await, type hints, proper exception handling
     """
@@ -210,7 +206,7 @@ class WebSocketManager:
 
 - [ ] Все endpoints отдают корректные коды и ошибки, API-доки актуальны.
 - [ ] Нет хардкода секретов или адресов.
-- [ ] Все тесты проходят на локалке.
+- [ ] Основная функциональность работает на локалке.
 - [ ] Логи чистые, нет лишних ворнингов.
 - [ ] Проект запускается на ПК в режиме production.
 
