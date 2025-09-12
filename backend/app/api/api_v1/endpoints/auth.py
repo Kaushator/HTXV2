@@ -84,7 +84,12 @@ async def login(
     }
 
 
-@router.post("/refresh", response_model=Token)
+@router.post(
+    "/refresh",
+    response_model=Token,
+    summary="Refresh access token",
+    description="Accepts a valid refresh token and issues new access and refresh tokens.",
+)
 async def refresh_token(
     payload: TokenRefreshRequest,
     db: AsyncSession = Depends(get_db),
