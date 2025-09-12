@@ -11,7 +11,7 @@ psycopg2-binary==2.9.9
 
 # Redis
 redis==5.0.1
-aioredis==2.0.1
+# Note: aioredis removed - redis>=5 provides asyncio support
 
 # Authentication & Security
 python-jose[cryptography]==3.3.0

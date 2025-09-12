@@ -86,7 +86,7 @@ fi
 
 # Start services with Docker
 echo "🐳 Starting services with Docker..."
-docker-compose -f docker/docker-compose.yml up -d
+docker compose -f docker/docker-compose.yml up -d
 
 echo "✅ Development environment setup complete!"
 echo ""

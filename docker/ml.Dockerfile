@@ -25,7 +25,7 @@ ENV CUDA_VISIBLE_DEVICES=0
 ENV NVIDIA_VISIBLE_DEVICES=all
 ENV NVIDIA_DRIVER_CAPABILITIES=compute,utility
 ENV FORCE_CUDA="1"
-ENV TORCH_CUDA_ARCH_LIST="8.6"
+ENV TORCH_CUDA_ARCH_LIST="8.9"
 
 # Copy requirements first for better caching
 COPY ml/requirements.txt .

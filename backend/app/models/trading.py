@@ -1,6 +1,6 @@
 from sqlalchemy import Column, Integer, String, Numeric, DateTime, JSON, Text, Index, Boolean
 from sqlalchemy.sql import func
-from app.db.session import Base
+from app.models.base import Base
 
 
 class CryptoPriceData(Base):
@@ -25,7 +25,7 @@ class CryptoPriceData(Base):
     total_supply = Column(Numeric(20, 2), nullable=True)
     
     # Metadata
-    metadata = Column(JSON, nullable=True)
+    extra_data = Column(JSON, nullable=True)
     data_source = Column(String(50), nullable=False)
     
     # Timestamps
@@ -112,7 +112,7 @@ class TradingSignal(Base):
     
     # Metadata
     features = Column(JSON, nullable=True)
-    metadata = Column(JSON, nullable=True)
+    extra_data = Column(JSON, nullable=True)
     
     # Status
     is_active = Column(Boolean, default=True)
