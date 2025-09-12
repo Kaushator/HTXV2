@@ -7,6 +7,7 @@ import logging
 from app.core.config import settings
 from app.core.security import get_current_user
 from app.core.middleware import logging_middleware
+from app.core.errors import register_exception_handlers
 from app.api.api_v1.api import api_router
 from app.db.session import engine
 from app.models import Base
@@ -105,3 +106,4 @@ if __name__ == "__main__":
 
 # Register logging middleware after app creation
 app.middleware("http")(logging_middleware)
+register_exception_handlers(app)
