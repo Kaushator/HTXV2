@@ -3,11 +3,24 @@
 // Provides real-time market data updates with authentication
 
 import { useEffect, useRef, useState, useCallback } from 'react';
-import { MarketDataUpdate } from '@/types/api';
 
 const WS_BASE_URL = process.env.NEXT_PUBLIC_WS_URL || 'ws://localhost:8000/api/v1/ws';
 
 export type ConnectionStatus = 'connecting' | 'connected' | 'disconnected' | 'error';
+
+interface MarketDataUpdate {
+  symbol: string;
+  price: number;
+  change_24h: number;
+  volume: number;
+  timestamp: string;
+  orderBook?: {
+    symbol: string;
+    bids: [number, number][];
+    asks: [number, number][];
+    timestamp: string;
+  };
+}
 
 interface MarketDataMessage {
   type: 'market_data' | 'market_data_update' | 'price_history' | 'connection_established' | 'error' | 'ping' | 'pong';
@@ -124,7 +137,7 @@ export function useMarketDataWebSocket(options: UseMarketDataWebSocketOptions) {
                   price: message.price,
                   volume: message.volume_24h || 0,
                   change_24h: message.change_24h || 0,
-                  timestamp: new Date(message.timestamp || Date.now())
+                  timestamp: new Date(message.timestamp || Date.now()).toISOString()
                 };
                 setMarketData(marketUpdate);
                 onMarketData?.(message);
