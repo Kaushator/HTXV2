@@ -31,10 +31,10 @@ celery[redis]==5.3.4
 flower==2.0.1
 
 # Google Cloud - Updated for Python 3.12 compatibility
-google-cloud-secret-manager>=2.18.1
-google-cloud-storage>=2.10.0
-google-cloud-bigquery>=3.13.0
-google-cloud-sql-connector>=1.5.0
+google-cloud-secret-manager>=2.20.0
+google-cloud-storage>=2.16.0
+google-cloud-bigquery>=3.20.0
+# google-cloud-sql-connector>=1.5.0  # Commented out due to Python 3.12 compatibility issues
 
 # ML/AI
 numpy>=1.24.3
