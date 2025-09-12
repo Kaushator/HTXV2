@@ -1,31 +1,17 @@
 from datetime import datetime, timedelta
 from typing import Optional, Union, Any
 from jose import JWTError, jwt
-from passlib.context import CryptContext
 from fastapi import HTTPException, status, Depends
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import settings
+from app.core.password import verify_password, get_password_hash
 from app.db.session import get_db
 from app.models.user import User
-from app.services.user_service import UserService
-
-# Password hashing
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 # JWT Bearer scheme
 security = HTTPBearer()
-
-
-def verify_password(plain_password: str, hashed_password: str) -> bool:
-    """Verify a password against its hash"""
-    return pwd_context.verify(plain_password, hashed_password)
-
-
-def get_password_hash(password: str) -> str:
-    """Hash a password"""
-    return pwd_context.hash(password)
 
 
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
@@ -71,6 +57,8 @@ async def get_current_user(
     if user_id is None:
         raise credentials_exception
     
+    # Import UserService here to avoid circular import
+    from app.services.user_service import UserService
     user_service = UserService(db)
     user = await user_service.get_user(int(user_id))
     

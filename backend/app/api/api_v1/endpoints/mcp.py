@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status, WebSocket, WebSoc
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import List, Optional
 import json
-from datetime import datetime
+from datetime import datetime, timezone
 
 from app.core.security import get_current_active_user
 from app.db.session import get_db
@@ -229,7 +229,7 @@ async def websocket_endpoint(
         await websocket.send_text(json.dumps({
             "type": "system_health",
             "data": health.model_dump(),
-            "timestamp": datetime.utcnow().isoformat()
+            "timestamp": datetime.now(timezone.utc).isoformat()
         }))
         
         # Keep connection alive and handle messages
@@ -244,21 +244,21 @@ async def websocket_endpoint(
                 if message_type == "ping":
                     await websocket.send_text(json.dumps({
                         "type": "pong",
-                        "timestamp": datetime.utcnow().isoformat()
+                        "timestamp": datetime.now(timezone.utc).isoformat()
                     }))
                 elif message_type == "get_health":
                     health = await mcp_service.check_system_health()
                     await websocket.send_text(json.dumps({
                         "type": "system_health",
                         "data": health.model_dump(),
-                        "timestamp": datetime.utcnow().isoformat()
+                        "timestamp": datetime.now(timezone.utc).isoformat()
                     }))
                 elif message_type == "get_tasks":
                     tasks = await mcp_service.get_active_tasks()
                     await websocket.send_text(json.dumps({
                         "type": "tasks",
                         "data": [task.model_dump() for task in tasks],
-                        "timestamp": datetime.utcnow().isoformat()
+                        "timestamp": datetime.now(timezone.utc).isoformat()
                     }))
                 else:
                     await websocket.send_text(json.dumps({
