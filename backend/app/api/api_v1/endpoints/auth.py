@@ -5,14 +5,15 @@ from datetime import timedelta
 
 from app.core.config import settings
 from app.core.security import (
-    create_access_token, 
+    create_access_token,
     create_refresh_token,
     verify_password,
-    get_password_hash
+    get_password_hash,
+    verify_token,
 )
 from app.db.session import get_db
 from app.services.user_service import UserService
-from app.schemas.auth import Token, UserCreate, UserLogin
+from app.schemas.auth import Token, UserCreate, UserLogin, TokenRefreshRequest
 from app.schemas.user import UserResponse
 
 router = APIRouter()
@@ -83,15 +84,39 @@ async def login(
     }
 
 
-@router.post("/refresh", response_model=Token)
+@router.post(
+    "/refresh",
+    response_model=Token,
+    summary="Refresh access token",
+    description="Accepts a valid refresh token and issues new access and refresh tokens.",
+)
 async def refresh_token(
-    refresh_token: str,
-    db: AsyncSession = Depends(get_db)
+    payload: TokenRefreshRequest,
+    db: AsyncSession = Depends(get_db),
 ):
-    """Refresh access token"""
-    # This would need additional logic to validate refresh tokens
-    # For now, returning a simple error
-    raise HTTPException(
-        status_code=status.HTTP_501_NOT_IMPLEMENTED,
-        detail="Refresh token functionality not implemented yet"
-    )
+    """Issue new access (and refresh) tokens using a valid refresh token."""
+    data = verify_token(payload.refresh_token)
+    if not data or data.get("type") != "refresh":
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid refresh token",
+        )
+
+    user_id = data.get("sub")
+    if not user_id:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token payload")
+
+    # Optionally verify user still exists and is active
+    user_service = UserService(db)
+    user = await user_service.get_user(int(user_id))
+    if not user or not user.is_active:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User not found or inactive")
+
+    access_token = create_access_token({"sub": str(user.id)})
+    new_refresh_token = create_refresh_token({"sub": str(user.id)})
+
+    return {
+        "access_token": access_token,
+        "refresh_token": new_refresh_token,
+        "token_type": "bearer",
+    }

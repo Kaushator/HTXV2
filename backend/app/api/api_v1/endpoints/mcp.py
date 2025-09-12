@@ -32,6 +32,43 @@ async def get_system_health(
     return await mcp_service.check_system_health()
 
 
+@router.get(
+    "/status",
+    response_model=SystemHealth,
+    summary="System status (alias)",
+    description="Alias for /health to maintain compatibility with tools/tests.",
+)
+async def get_status(
+    current_user: User = Depends(get_current_active_user),
+    mcp_service: MCPService = Depends(get_mcp_service),
+):
+    """Alias for health endpoint for compatibility with tests/tools."""
+    return await mcp_service.check_system_health()
+
+
+@router.get(
+    "/tools",
+    summary="List supported MCP tools",
+    description="Returns supported endpoints and WebSocket message types for client discovery.",
+)
+async def get_tools():
+    """List supported MCP tools/operations for clients and tests."""
+    return {
+        "websocket": {"endpoint": "/api/v1/mcp/ws", "auth": "JWT bearer in first message"},
+        "endpoints": [
+            {"method": "GET", "path": "/api/v1/mcp/health"},
+            {"method": "GET", "path": "/api/v1/mcp/status"},
+            {"method": "GET", "path": "/api/v1/mcp/tasks"},
+            {"method": "GET", "path": "/api/v1/mcp/tasks/{task_id}"},
+            {"method": "POST", "path": "/api/v1/mcp/tasks"},
+            {"method": "POST", "path": "/api/v1/mcp/broadcast/market-data"},
+            {"method": "POST", "path": "/api/v1/mcp/broadcast/trading-signal"},
+            {"method": "POST", "path": "/api/v1/mcp/broadcast/portfolio-update"},
+        ],
+        "messages": ["ping", "get_health", "get_tasks"],
+    }
+
+
 @router.get("/tasks", response_model=List[TaskInfo])
 async def get_active_tasks(
     current_user: User = Depends(get_current_active_user),

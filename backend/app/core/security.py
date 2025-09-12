@@ -22,7 +22,7 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -
     else:
         expire = datetime.utcnow() + timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     
-    to_encode.update({"exp": expire})
+    to_encode.update({"exp": expire, "type": "access"})
     encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
     return encoded_jwt
 
@@ -79,6 +79,12 @@ def create_refresh_token(data: dict) -> str:
     """Create a refresh token"""
     to_encode = data.copy()
     expire = datetime.utcnow() + timedelta(days=7)  # Refresh tokens last 7 days
-    to_encode.update({"exp": expire})
+    to_encode.update({"exp": expire, "type": "refresh"})
     encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
     return encoded_jwt
+
+
+def is_refresh_token(token: str) -> bool:
+    """Check if token is a valid refresh token."""
+    payload = verify_token(token)
+    return bool(payload and payload.get("type") == "refresh")

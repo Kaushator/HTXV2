@@ -13,3 +13,8 @@ class Token(BaseModel):
 class TokenData(BaseModel):
     """Token data schema"""
     user_id: Optional[str] = None
+
+
+class TokenRefreshRequest(BaseModel):
+    """Refresh token request payload"""
+    refresh_token: str
