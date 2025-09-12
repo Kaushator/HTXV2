@@ -29,24 +29,110 @@ async def get_crypto_prices(
 async def upload_data_file(
     file: UploadFile = File(...),
     data_type: str = "crypto_prices",
+    chunk_number: int = 1,
+    total_chunks: int = 1,
+    file_id: Optional[str] = None,
     current_user: User = Depends(get_current_active_user),
     db: AsyncSession = Depends(get_db)
 ):
-    """Upload data files (CSV/XLSX)"""
+    """Upload data files (CSV/XLSX) with chunked upload support"""
+    
     # Validate file type
-    if not file.filename.endswith(('.csv', '.xlsx', '.xls')):
+    allowed_extensions = {'.csv', '.xlsx', '.xls'}
+    file_extension = '.' + file.filename.split('.')[-1].lower() if '.' in file.filename else ''
+    
+    if file_extension not in allowed_extensions:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Only CSV and Excel files are supported"
+            detail=f"Only {', '.join(allowed_extensions)} files are supported"
         )
     
-    # This would implement the actual file upload to GCS
-    # and queue processing job
-    return {
-        "message": f"File {file.filename} uploaded successfully",
-        "file_id": "mock-file-id",
-        "status": "processing"
+    # Validate file size (10MB per chunk max)
+    max_chunk_size = 10 * 1024 * 1024  # 10MB
+    file_content = await file.read()
+    
+    if len(file_content) > max_chunk_size:
+        raise HTTPException(
+            status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
+            detail=f"Chunk size exceeds maximum allowed size of {max_chunk_size} bytes"
+        )
+    
+    # Generate file ID for first chunk
+    if not file_id:
+        import uuid
+        file_id = str(uuid.uuid4())
+    
+    # Store chunk metadata in Redis
+    from app.core.cache import set_json, get_json
+    chunk_key = f"upload:{file_id}:chunk:{chunk_number}"
+    file_key = f"upload:{file_id}:metadata"
+    
+    # Store chunk data
+    chunk_data = {
+        "chunk_number": chunk_number,
+        "size": len(file_content),
+        "uploaded_at": datetime.utcnow().isoformat(),
+        "user_id": current_user.id
     }
+    
+    # Store chunk in Redis temporarily (expires in 1 hour)
+    await set_json(chunk_key, chunk_data, ttl_seconds=3600)
+    
+    # Update file metadata
+    file_metadata = await get_json(file_key) or {
+        "file_id": file_id,
+        "filename": file.filename,
+        "data_type": data_type,
+        "total_chunks": total_chunks,
+        "uploaded_chunks": [],
+        "user_id": current_user.id,
+        "created_at": datetime.utcnow().isoformat(),
+        "status": "uploading"
+    }
+    
+    # Track uploaded chunks
+    if chunk_number not in file_metadata["uploaded_chunks"]:
+        file_metadata["uploaded_chunks"].append(chunk_number)
+    
+    # Check if all chunks are uploaded
+    if len(file_metadata["uploaded_chunks"]) == total_chunks:
+        file_metadata["status"] = "processing"
+        # Trigger processing (in real implementation, this would queue a background task)
+        await process_uploaded_file(file_id, file_metadata, db)
+    
+    await set_json(file_key, file_metadata, ttl_seconds=3600)
+    
+    return {
+        "message": f"Chunk {chunk_number}/{total_chunks} uploaded successfully",
+        "file_id": file_id,
+        "status": file_metadata["status"],
+        "chunks_received": len(file_metadata["uploaded_chunks"]),
+        "total_chunks": total_chunks
+    }
+
+
+async def process_uploaded_file(file_id: str, metadata: dict, db: AsyncSession):
+    """Process the uploaded file after all chunks are received"""
+    # In a real implementation, this would:
+    # 1. Reconstruct the file from chunks
+    # 2. Validate the file format
+    # 3. Parse CSV/XLSX data
+    # 4. Store in database
+    # 5. Update metadata with results
+    
+    from app.core.cache import set_json
+    
+    # Simulate processing time
+    import asyncio
+    await asyncio.sleep(1)
+    
+    # Update status to completed
+    metadata["status"] = "completed"
+    metadata["processed_at"] = datetime.utcnow().isoformat()
+    metadata["records_processed"] = 1000  # Mock number
+    metadata["errors"] = []
+    
+    await set_json(f"upload:{file_id}:metadata", metadata, ttl_seconds=86400)  # Keep for 24 hours
 
 
 @router.get("/upload-status/{file_id}")

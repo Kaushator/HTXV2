@@ -31,3 +31,8 @@ async def get_db() -> AsyncSession:
             raise
         finally:
             await session.close()
+
+
+def get_async_session():
+    """Get async session context manager (for use outside FastAPI dependencies)"""
+    return AsyncSessionLocal()
