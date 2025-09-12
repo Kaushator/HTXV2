@@ -1,6 +1,6 @@
 from pydantic_settings import BaseSettings
 from typing import List, Optional
-from pydantic import AnyHttpUrl, validator
+from pydantic import AnyHttpUrl, field_validator
 import os
 
 
@@ -27,10 +27,12 @@ class Settings(BaseSettings):
     POSTGRES_PASSWORD: str
     DATABASE_URL: Optional[str] = None
     
-    @validator("DATABASE_URL", pre=True)
-    def assemble_db_connection(cls, v: Optional[str], values: dict) -> str:
+    @field_validator("DATABASE_URL", mode="before")
+    @classmethod
+    def assemble_db_connection(cls, v: Optional[str], info) -> str:
         if isinstance(v, str):
             return v
+        values = info.data if hasattr(info, 'data') else {}
         return (
             f"postgresql+asyncpg://{values.get('POSTGRES_USER')}:"
             f"{values.get('POSTGRES_PASSWORD')}@{values.get('POSTGRES_HOST')}:"
@@ -43,10 +45,12 @@ class Settings(BaseSettings):
     REDIS_DB: int = 0
     REDIS_URL: Optional[str] = None
     
-    @validator("REDIS_URL", pre=True)
-    def assemble_redis_connection(cls, v: Optional[str], values: dict) -> str:
+    @field_validator("REDIS_URL", mode="before")
+    @classmethod
+    def assemble_redis_connection(cls, v: Optional[str], info) -> str:
         if isinstance(v, str):
             return v
+        values = info.data if hasattr(info, 'data') else {}
         return (
             f"redis://{values.get('REDIS_HOST')}:"
             f"{values.get('REDIS_PORT')}/{values.get('REDIS_DB')}"
@@ -56,7 +60,8 @@ class Settings(BaseSettings):
     BACKEND_CORS_ORIGINS: List[AnyHttpUrl] = []
     ALLOWED_HOSTS: List[str] = ["*"]
     
-    @validator("BACKEND_CORS_ORIGINS", pre=True)
+    @field_validator("BACKEND_CORS_ORIGINS", mode="before")
+    @classmethod
     def assemble_cors_origins(cls, v) -> List[str]:
         if isinstance(v, str) and not v.startswith("["):
             return [i.strip() for i in v.split(",")]
@@ -64,13 +69,13 @@ class Settings(BaseSettings):
             return v
         raise ValueError(v)
     
-    # Google Cloud
-    GOOGLE_CLOUD_PROJECT: str
+    # Google Cloud (Optional for dev environment)
+    GOOGLE_CLOUD_PROJECT: Optional[str] = None
     GOOGLE_APPLICATION_CREDENTIALS: Optional[str] = None
     
-    # External APIs
-    HTX_API_KEY: str
-    HTX_SECRET_KEY: str
+    # External APIs (Optional for dev environment)
+    HTX_API_KEY: Optional[str] = None
+    HTX_SECRET_KEY: Optional[str] = None
     COINGECKO_API_KEY: Optional[str] = None
     OPENAI_API_KEY: Optional[str] = None
     
@@ -78,16 +83,20 @@ class Settings(BaseSettings):
     CELERY_BROKER_URL: Optional[str] = None
     CELERY_RESULT_BACKEND: Optional[str] = None
     
-    @validator("CELERY_BROKER_URL", pre=True)
-    def assemble_celery_broker(cls, v: Optional[str], values: dict) -> str:
+    @field_validator("CELERY_BROKER_URL", mode="before")
+    @classmethod
+    def assemble_celery_broker(cls, v: Optional[str], info) -> str:
         if isinstance(v, str):
             return v
+        values = info.data if hasattr(info, 'data') else {}
         return f"redis://{values.get('REDIS_HOST')}:{values.get('REDIS_PORT')}/1"
-    
-    @validator("CELERY_RESULT_BACKEND", pre=True)
-    def assemble_celery_backend(cls, v: Optional[str], values: dict) -> str:
+
+    @field_validator("CELERY_RESULT_BACKEND", mode="before")
+    @classmethod
+    def assemble_celery_backend(cls, v: Optional[str], info) -> str:
         if isinstance(v, str):
             return v
+        values = info.data if hasattr(info, 'data') else {}
         return f"redis://{values.get('REDIS_HOST')}:{values.get('REDIS_PORT')}/1"
     
     # ML Configuration

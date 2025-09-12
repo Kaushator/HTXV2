@@ -17,7 +17,7 @@ To run the complete development environment:
 
 ```bash
 cd docker
-docker-compose up -d
+docker compose up -d
 ```
 
 This will start:

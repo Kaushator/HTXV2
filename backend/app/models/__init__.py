@@ -3,7 +3,7 @@ from app.models.user import User
 from app.models.trading import CryptoPriceData, Portfolio, Position, TradingSignal
 
 # Export Base for migrations
-from app.db.session import Base
+from app.db.base import Base
 
 __all__ = [
     "Base",

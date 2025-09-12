@@ -20,12 +20,12 @@ RUN apt-get update && apt-get install -y \
 RUN ln -s /usr/bin/python3.11 /usr/bin/python && \
     ln -s /usr/bin/python3.11 /usr/bin/python3
 
-# Set CUDA environment variables for RTX 4060
+# Set CUDA environment variables for RTX 4060 (Ada architecture)
 ENV CUDA_VISIBLE_DEVICES=0
 ENV NVIDIA_VISIBLE_DEVICES=all
 ENV NVIDIA_DRIVER_CAPABILITIES=compute,utility
 ENV FORCE_CUDA="1"
-ENV TORCH_CUDA_ARCH_LIST="8.6"
+ENV TORCH_CUDA_ARCH_LIST="8.9"
 
 # Copy requirements first for better caching
 COPY ml/requirements.txt .
@@ -34,7 +34,7 @@ COPY ml/requirements.txt .
 RUN python -m pip install --upgrade pip
 RUN pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
 
-# Install other Python dependencies
+# Install other Python dependencies (excluding torch to avoid conflicts)
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy application code

@@ -56,13 +56,11 @@ fi
 print_status "Checking GPU support..."
 if docker run --rm --gpus all nvidia/cuda:12.1-base-ubuntu22.04 nvidia-smi &> /dev/null; then
     print_success "GPU support confirmed"
+    COMPOSE_FILE="docker/docker-compose.gpu.yml"
 else
     print_warning "GPU support not available. Running in CPU mode."
-    COMPOSE_FILE="docker-compose.yml"
+    COMPOSE_FILE="docker/docker-compose.yml"
 fi
-
-# Set compose file
-COMPOSE_FILE=${COMPOSE_FILE:-"docker-compose.gpu.yml"}
 print_status "Using compose file: $COMPOSE_FILE"
 
 # Create necessary directories
