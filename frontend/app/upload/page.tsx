@@ -104,7 +104,7 @@ export default function UploadPage() {
               <CardContent className="text-sm text-muted-foreground">
                 <p>
                   Files are processed automatically after upload. 
-                  You'll see progress updates and can view the results 
+                  You&apos;ll see progress updates and can view the results 
                   in your portfolio dashboard once processing is complete.
                 </p>
               </CardContent>

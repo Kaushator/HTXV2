@@ -4,7 +4,27 @@
 // ПАТТЕРН: Переиспользуемый хук с состоянием подключения и подписками
 
 import { useEffect, useRef, useState, useCallback } from 'react';
-import { WebSocketMessage, TickerMessage, OrderBookUpdate } from '@/types/api';
+
+// Define types locally instead of importing from missing types file
+interface WebSocketMessage {
+  type: string;
+  data?: any;
+  timestamp?: string;
+}
+
+interface TickerMessage {
+  symbol: string;
+  price: number;
+  change_24h: number;
+  volume: number;
+}
+
+interface OrderBookUpdate {
+  symbol: string;
+  bids: [number, number][];
+  asks: [number, number][];
+  timestamp: string;
+}
 
 // WebSocket Configuration
 const WS_CONFIG = {
