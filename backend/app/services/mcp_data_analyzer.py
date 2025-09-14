@@ -204,4 +204,3 @@ class MCPDataAnalyzer:
                 "error": str(e),
                 "timestamp": datetime.now().isoformat()
             }
-"""
