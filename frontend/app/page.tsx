@@ -13,8 +13,13 @@ export default function HomePage() {
               HTX<span className="text-primary">V2</span>
             </h1>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Персональный трейдинг-ассистент для HTX с быстрым импортом данных, 
-              оперативными сводками P&L и анализом сигналов ИИ
+              Personal trading assistant for HTX with fast data import,
+              instant P&amp;L summaries, and AI signal analysis
+              <br />
+              <span className="text-sm text-muted-foreground block mt-2">
+                Персональный трейдинг-ассистент для HTX с быстрым импортом данных, 
+                оперативными сводками P&amp;L и анализом сигналов ИИ
+              </span>
             </p>
           </div>
           

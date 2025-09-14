@@ -28,6 +28,8 @@ curl http://localhost:8000/api/v1/mcp/health | jq .
 - **Real-time Communication**: WebSocket endpoint with authentication
 - **Broadcasting**: Market data, trading signals, portfolio updates
 - **Security**: JWT authentication, role-based access control
+- **Data Processing Tools**: CSV/XLSX импорт через DataProcessor
+- **Trading Analytics Tools**: PnL расчеты и анализ сделок через TradingAnalyzer
 - **API Documentation**: Available at `/docs` and `/redoc`
 
 ## Features
@@ -89,6 +91,37 @@ Returns comprehensive system health status including all monitored services.
 GET /api/v1/mcp/tasks                  # List active tasks
 GET /api/v1/mcp/tasks/{task_id}        # Get task status
 POST /api/v1/mcp/tasks                 # Schedule new task
+```
+
+### Data Processing
+```
+POST /api/v1/mcp/data/process-file     # Process CSV/XLSX file
+POST /api/v1/mcp/data/analyze-trades   # Analyze trading data
+POST /api/v1/mcp/data/calculate-pnl    # Calculate PnL for trades
+```
+
+**Process File Request:**
+```json
+{
+  "file": "<binary file content>",
+  "filename": "trades_2023.csv"
+}
+```
+
+**Calculate PnL Request:**
+```json
+{
+  "trades": [
+    {
+      "side": "buy",
+      "price": 50000.0,
+      "quantity": 0.1,
+      "timestamp": "2023-01-01T12:00:00Z",
+      "symbol": "BTC/USDT"
+    }
+  ],
+  "include_fees": true
+}
 ```
 
 **Schedule Task Request:**

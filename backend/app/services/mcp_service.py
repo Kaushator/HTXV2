@@ -25,6 +25,7 @@ from app.services.mcp_errors import (
     MCPTaskError, MCPCacheError, MCPWebSocketError
 )
 from app.services.mcp_utils import with_retry, measure_execution_time, ResourceMonitor
+from app.services.mcp_tool_manager import MCPToolManager
 
 logger = logging.getLogger(__name__)
 
@@ -73,6 +74,9 @@ class MCPService:
         self.resource_monitor = ResourceMonitor(history_size=120)  # 2 часа истории с шагом в минуту
         self.reconnect_attempts = 0  # Счетчик попыток переподключения к Redis
         self.local_cache_size = 0  # Счетчик размера локального кэша
+        
+        # Инициализация менеджера инструментов
+        self.tool_manager = MCPToolManager()
         
         logger.info("MCP Service initialized")
     
@@ -1031,6 +1035,98 @@ class MCPService:
                 "error": str(e),
                 "timestamp": datetime.now().isoformat()
             }
+    
+    # === Методы для работы с инструментами анализа данных === 
+    
+    async def process_file(self, 
+                          file_content: bytes, 
+                          filename: str, 
+                          file_type: Optional[str] = None) -> Dict[str, Any]:
+        """
+        Обработка файла через DataProcessor с кэшированием результата.
+        
+        Args:
+            file_content: Содержимое файла в байтах
+            filename: Имя файла
+            file_type: Тип файла (опционально)
+            
+        Returns:
+            Dict с результатами обработки файла
+        """
+        # Создаем ключ кэша на основе имени файла и хэша содержимого
+        import hashlib
+        content_hash = hashlib.md5(file_content).hexdigest()
+        cache_key = f"file_processor:{filename}:{content_hash}"
+        
+        # Проверяем наличие в кэше
+        cached_result = await self.get_cache(cache_key)
+        if cached_result:
+            logger.info(f"Using cached result for file {filename}")
+            return cached_result
+        
+        # Если нет в кэше, обрабатываем файл
+        try:
+            result = await self.tool_manager.process_file(
+                file_content=file_content,
+                filename=filename,
+                file_type=file_type
+            )
+            
+            # Сохраняем в кэше с TTL 1 час (3600 секунд)
+            await self.set_cache(cache_key, result, ttl=3600)
+            
+            return result
+        except MCPDataError as e:
+            logger.error(f"Error processing file {filename}: {e}")
+            raise
+        except Exception as e:
+            logger.exception(f"Unexpected error processing file {filename}")
+            raise MCPDataError(f"Непредвиденная ошибка при обработке файла: {str(e)}")
+    
+    def calculate_pnl(self, 
+                    trades: List[Dict[str, Any]], 
+                    include_fees: bool = True) -> Dict[str, Any]:
+        """
+        Расчет PnL по списку сделок.
+        
+        Args:
+            trades: Список сделок для расчета
+            include_fees: Учитывать ли комиссии при расчете
+            
+        Returns:
+            Dict с результатами расчета PnL
+        """
+        try:
+            return self.tool_manager.calculate_pnl(
+                trades=trades,
+                include_fees=include_fees
+            )
+        except MCPDataError as e:
+            logger.error(f"Error calculating PnL: {e}")
+            raise
+        except Exception as e:
+            logger.exception(f"Unexpected error calculating PnL: {e}")
+            raise MCPDataError(f"Ошибка при расчете PnL: {str(e)}")
+    
+    def analyze_trades(self, 
+                      trades: List[Dict[str, Any]]) -> Dict[str, Any]:
+        """
+        Расширенный анализ сделок.
+        
+        Args:
+            trades: Список сделок для анализа
+            
+        Returns:
+            Dict с результатами анализа сделок
+        """
+        try:
+            return self.tool_manager.analyze_trades(trades=trades)
+        except MCPDataError as e:
+            logger.error(f"Error analyzing trades: {e}")
+            raise
+        except Exception as e:
+            logger.exception(f"Unexpected error analyzing trades: {e}")
+            raise MCPDataError(f"Ошибка при анализе сделок: {str(e)}")
 
 
 # Глобальный экземпляр MCP Service
