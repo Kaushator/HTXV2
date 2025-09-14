@@ -25,8 +25,9 @@ if ! command -v docker &> /dev/null; then
 fi
 
 if ! command -v terraform &> /dev/null; then
-    echo "❌ Terraform is required. Please install Terraform 1.5+"
-    exit 1
+    echo "⚠️  Terraform not found. Terraform is optional for local development."
+else
+    echo "✅ Terraform found"
 fi
 
 echo "✅ All prerequisites found"
