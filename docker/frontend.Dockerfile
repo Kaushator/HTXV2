@@ -23,8 +23,11 @@ RUN npm run build
 FROM base AS runner
 WORKDIR /app
 
-# Install curl for healthcheck
-RUN apk add --no-cache curl
+# Install curl for healthcheck with SSL workaround
+RUN echo "http://dl-cdn.alpinelinux.org/alpine/v3.18/main" > /etc/apk/repositories && \
+    echo "http://dl-cdn.alpinelinux.org/alpine/v3.18/community" >> /etc/apk/repositories && \
+    apk update --allow-untrusted && \
+    apk add --no-cache curl
 
 ENV NODE_ENV production
 ENV NEXT_TELEMETRY_DISABLED 1

@@ -1,0 +1,75 @@
+{
+  "name": "HTXV2 Development Environment",
+  "dockerComposeFile": "../docker/docker-compose.yml",
+  "service": "backend",
+  "workspaceFolder": "/app",
+  "shutdownAction": "stopCompose",
+  
+  "features": {
+    "ghcr.io/devcontainers/features/python:1": {
+      "version": "3.11"
+    },
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "18"
+    },
+    "ghcr.io/devcontainers/features/git:1": {},
+    "ghcr.io/devcontainers/features/github-cli:1": {},
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {}
+  },
+
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "python.defaultInterpreterPath": "/usr/local/bin/python",
+        "python.formatting.provider": "black",
+        "python.linting.enabled": true,
+        "python.linting.flake8Enabled": true,
+        "typescript.preferences.importModuleSpecifier": "relative",
+        "tailwindCSS.includeLanguages": {
+          "typescript": "typescript",
+          "typescriptreact": "typescript"
+        }
+      },
+      "extensions": [
+        "ms-python.python",
+        "ms-python.black-formatter",
+        "ms-python.flake8",
+        "ms-python.isort",
+        "ms-vscode.vscode-typescript-next",
+        "bradlc.vscode-tailwindcss",
+        "ms-vscode.vscode-json",
+        "github.copilot",
+        "github.copilot-chat",
+        "ms-azuretools.vscode-docker",
+        "redhat.vscode-yaml",
+        "esbenp.prettier-vscode"
+      ]
+    }
+  },
+
+  "forwardPorts": [8000, 3000, 5432, 6379],
+  "portsAttributes": {
+    "8000": {
+      "label": "Backend API",
+      "protocol": "http"
+    },
+    "3000": {
+      "label": "Frontend",
+      "protocol": "http"
+    },
+    "5432": {
+      "label": "PostgreSQL",
+      "protocol": "tcp"
+    },
+    "6379": {
+      "label": "Redis",
+      "protocol": "tcp"
+    }
+  },
+
+  "postCreateCommand": "chmod +x /app/scripts/*.sh && /app/scripts/setup-dev.sh",
+  "postStartCommand": "echo 'HTXV2 DevContainer is ready! Backend API: http://localhost:8000'",
+
+  "remoteUser": "app",
+  "overrideCommand": false
+}

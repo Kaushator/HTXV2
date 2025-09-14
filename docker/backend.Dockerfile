@@ -8,13 +8,15 @@ RUN apt-get update && apt-get install -y \
     g++ \
     libpq-dev \
     curl \
+    ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy requirements first for better caching
 COPY backend/requirements.txt .
 
-# Install Python dependencies
-RUN pip install --no-cache-dir -r requirements.txt
+# Update pip and install Python dependencies with SSL workaround
+RUN pip install --upgrade pip && \
+    pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org --no-cache-dir -r requirements.txt
 
 # Copy application code
 COPY backend/ .
