@@ -1,5 +1,7 @@
 from fastapi import APIRouter
-from app.api.api_v1.endpoints import auth, users, trading, portfolio, data, mcp, websocket
+
+from app.api.api_v1.endpoints import (auth, data, mcp, portfolio, trading,
+                                      users, websocket)
 
 api_router = APIRouter()
 

@@ -1,19 +1,20 @@
 """
 Test configuration and fixtures for HTXV2 backend tests.
 """
-import pytest
+
 import asyncio
-from httpx import AsyncClient
+
+import pytest
 from fastapi.testclient import TestClient
+from httpx import AsyncClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 
-from app.main import app
 from app.core.config import settings
 from app.db.session import get_db
+from app.main import app
 from app.models import Base
-
 
 # Test database setup
 SQLALCHEMY_DATABASE_URL = "sqlite:///./test.db"
@@ -52,7 +53,7 @@ async def db_session():
     """Create a fresh database session for each test."""
     # Create all tables
     Base.metadata.create_all(bind=engine)
-    
+
     session = TestingSessionLocal()
     try:
         yield session
@@ -82,7 +83,7 @@ def test_user_data():
     return {
         "email": "test@example.com",
         "password": "testpassword123",
-        "full_name": "Test User"
+        "full_name": "Test User",
     }
 
 
@@ -93,5 +94,5 @@ def test_trading_data():
         "symbol": "BTCUSDT",
         "side": "buy",
         "quantity": "0.001",
-        "price": "50000.00"
+        "price": "50000.00",
     }

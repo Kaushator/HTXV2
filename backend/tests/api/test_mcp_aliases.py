@@ -13,4 +13,3 @@ def test_mcp_tools_ok(client: TestClient):
     data = resp.json()
     assert "endpoints" in data
     assert any(e.get("path") == "/api/v1/mcp/health" for e in data.get("endpoints", []))
-

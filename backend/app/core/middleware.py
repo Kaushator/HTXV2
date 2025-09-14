@@ -46,4 +46,3 @@ async def logging_middleware(request: Request, call_next: Callable) -> Response:
     )
 
     return response
-

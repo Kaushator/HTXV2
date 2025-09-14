@@ -1,11 +1,13 @@
-from pydantic import BaseModel
-from typing import Optional, Dict, Any, List
 from datetime import datetime
 from enum import Enum
+from typing import Any, Dict, List, Optional
+
+from pydantic import BaseModel
 
 
 class HealthStatus(str, Enum):
     """Health status enumeration"""
+
     HEALTHY = "healthy"
     UNHEALTHY = "unhealthy"
     DEGRADED = "degraded"
@@ -13,6 +15,7 @@ class HealthStatus(str, Enum):
 
 class ServiceHealth(BaseModel):
     """Individual service health schema"""
+
     name: str
     status: HealthStatus
     response_time_ms: Optional[float] = None
@@ -22,6 +25,7 @@ class ServiceHealth(BaseModel):
 
 class SystemHealth(BaseModel):
     """Overall system health schema"""
+
     status: HealthStatus
     services: List[ServiceHealth]
     timestamp: datetime
@@ -29,6 +33,7 @@ class SystemHealth(BaseModel):
 
 class TaskStatus(str, Enum):
     """Task status enumeration"""
+
     PENDING = "pending"
     RUNNING = "running"
     SUCCESS = "success"
@@ -38,6 +43,7 @@ class TaskStatus(str, Enum):
 
 class TaskInfo(BaseModel):
     """Task information schema"""
+
     task_id: str
     name: str
     status: TaskStatus
@@ -50,6 +56,7 @@ class TaskInfo(BaseModel):
 
 class MarketDataUpdate(BaseModel):
     """Market data update schema"""
+
     symbol: str
     price: float
     volume: float
@@ -59,6 +66,7 @@ class MarketDataUpdate(BaseModel):
 
 class TradingSignalUpdate(BaseModel):
     """Trading signal update schema"""
+
     signal_id: str
     symbol: str
     action: str  # buy, sell, hold
@@ -70,6 +78,7 @@ class TradingSignalUpdate(BaseModel):
 
 class PortfolioUpdate(BaseModel):
     """Portfolio update schema"""
+
     user_id: int
     portfolio_id: str
     total_value: float
@@ -79,6 +88,7 @@ class PortfolioUpdate(BaseModel):
 
 class WebSocketMessage(BaseModel):
     """WebSocket message schema"""
+
     type: str  # market_data, trading_signal, portfolio_update, task_status
     data: Dict[str, Any]
     timestamp: datetime
@@ -87,6 +97,7 @@ class WebSocketMessage(BaseModel):
 
 class TaskRequest(BaseModel):
     """Task request schema"""
+
     task_name: str
     parameters: Optional[Dict[str, Any]] = None
     priority: Optional[int] = 1
@@ -94,6 +105,7 @@ class TaskRequest(BaseModel):
 
 class TaskResponse(BaseModel):
     """Task response schema"""
+
     task_id: str
     status: TaskStatus
     message: str

@@ -8,7 +8,6 @@ from fastapi import FastAPI, HTTPException, Request, status
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 
-
 logger = logging.getLogger("htxv2.errors")
 
 
@@ -32,14 +31,18 @@ def register_exception_handlers(app: FastAPI) -> None:
     """Register global exception handlers with a consistent JSON shape."""
 
     @app.exception_handler(RequestValidationError)
-    async def validation_exception_handler(request: Request, exc: RequestValidationError):
+    async def validation_exception_handler(
+        request: Request, exc: RequestValidationError
+    ):
         payload = _base_error_payload(
             request,
             error="validation_error",
             message="Request validation failed",
             details={"errors": exc.errors()},
         )
-        return JSONResponse(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, content=payload)
+        return JSONResponse(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, content=payload
+        )
 
     @app.exception_handler(HTTPException)
     async def http_exception_handler(request: Request, exc: HTTPException):
@@ -57,7 +60,9 @@ def register_exception_handlers(app: FastAPI) -> None:
             message=message,
             details=details,
         )
-        return JSONResponse(status_code=exc.status_code, content=payload, headers=exc.headers or None)
+        return JSONResponse(
+            status_code=exc.status_code, content=payload, headers=exc.headers or None
+        )
 
     @app.exception_handler(Exception)
     async def unhandled_exception_handler(request: Request, exc: Exception):
@@ -67,5 +72,6 @@ def register_exception_handlers(app: FastAPI) -> None:
             error="internal_error",
             message="Internal server error",
         )
-        return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, content=payload)
-
+        return JSONResponse(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, content=payload
+        )
