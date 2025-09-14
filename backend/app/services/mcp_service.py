@@ -297,9 +297,9 @@ class MCPService:
                 continue
                 
             # Создаем задачу отправки с семафором
-            async def send_with_semaphore(client):
+            async def send_with_semaphore(client_id):
                 async with semaphore:
-                    await self.send_message(client, message)
+                    await self.send_message(client_id, message)
                     
             send_tasks.append(send_with_semaphore(client_id))
             
