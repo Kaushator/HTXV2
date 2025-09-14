@@ -1,0 +1,94 @@
+{
+  "trades": [
+    {
+      "id": "1",
+      "symbol": "BTC/USDT",
+      "side": "buy",
+      "price": 64500.5,
+      "quantity": 0.1,
+      "fee": 3.225,
+      "timestamp": "2025-09-01T10:15:30Z"
+    },
+    {
+      "id": "2",
+      "symbol": "BTC/USDT",
+      "side": "sell",
+      "price": 66200.75,
+      "quantity": 0.1,
+      "fee": 3.31,
+      "timestamp": "2025-09-02T14:22:15Z"
+    },
+    {
+      "id": "3",
+      "symbol": "ETH/USDT",
+      "side": "buy",
+      "price": 3450.25,
+      "quantity": 1.5,
+      "fee": 2.59,
+      "timestamp": "2025-09-03T09:45:10Z"
+    },
+    {
+      "id": "4",
+      "symbol": "ETH/USDT",
+      "side": "sell",
+      "price": 3580.80,
+      "quantity": 1.5,
+      "fee": 2.69,
+      "timestamp": "2025-09-05T11:30:45Z"
+    },
+    {
+      "id": "5",
+      "symbol": "SOL/USDT",
+      "side": "buy",
+      "price": 148.75,
+      "quantity": 10.0,
+      "fee": 7.44,
+      "timestamp": "2025-09-06T16:20:30Z"
+    },
+    {
+      "id": "6",
+      "symbol": "SOL/USDT",
+      "side": "sell",
+      "price": 156.50,
+      "quantity": 10.0,
+      "fee": 7.83,
+      "timestamp": "2025-09-09T10:05:22Z"
+    },
+    {
+      "id": "7",
+      "symbol": "BTC/USDT",
+      "side": "buy",
+      "price": 65300.25,
+      "quantity": 0.15,
+      "fee": 4.90,
+      "timestamp": "2025-09-10T08:55:15Z"
+    },
+    {
+      "id": "8",
+      "symbol": "BTC/USDT",
+      "side": "sell",
+      "price": 64800.75,
+      "quantity": 0.15,
+      "fee": 4.86,
+      "timestamp": "2025-09-11T13:40:20Z"
+    },
+    {
+      "id": "9",
+      "symbol": "ETH/USDT",
+      "side": "buy",
+      "price": 3520.30,
+      "quantity": 2.0,
+      "fee": 3.52,
+      "timestamp": "2025-09-12T15:10:05Z"
+    },
+    {
+      "id": "10",
+      "symbol": "ETH/USDT",
+      "side": "sell",
+      "price": 3650.80,
+      "quantity": 2.0,
+      "fee": 3.65,
+      "timestamp": "2025-09-14T09:25:40Z"
+    }
+  ]
+}

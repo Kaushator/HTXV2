@@ -1,0 +1,43 @@
+{
+    "$schema": "https://json.schemastore.org/devcontainer.json",
+    "name": "HTXV2 Development",
+    "dockerComposeFile": [
+        "docker/docker-compose.yml",
+        ".devcontainer/docker-compose.devcontainer.yml"
+    ],
+    "service": "backend",
+    "workspaceFolder": "/workspaces/HTXV2",
+    "forwardPorts": [3000, 8000, 5432, 6379],
+    "portsAttributes": {
+        "3000": {
+            "label": "Frontend",
+            "onAutoForward": "openPreview"
+        },
+        "8000": {
+            "label": "Backend API",
+            "onAutoForward": "notify"
+        }
+    },
+    "postCreateCommand": "cd /workspaces/HTXV2 && make setup",
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "ms-python.python",
+                "ms-python.vscode-pylance",
+                "dbaeumer.vscode-eslint",
+                "esbenp.prettier-vscode",
+                "GitHub.copilot",
+                "GitHub.copilot-chat"
+            ]
+        },
+        "codespaces": {
+            "openFiles": [
+                "README.md",
+                "scripts/start-codespaces.sh"
+            ]
+        }
+    },
+    "remoteEnv": {
+        "LOCAL_WORKSPACE_FOLDER": "${localWorkspaceFolder}"
+    }
+}

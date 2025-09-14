@@ -1,0 +1,32 @@
+{
+  "name": "HTXV2 Dev",
+  "dockerComposeFile": [
+    "../docker/docker-compose.yml",
+    "docker-compose.devcontainer.yml"
+  ],
+  "service": "backend",
+  "workspaceFolder": "/workspaces/HTXV2",
+  "remoteUser": "root",
+  "features": {
+    "ghcr.io/devcontainers/features/common-utils:2": {},
+    "ghcr.io/devcontainers/features/python:1": {
+      "version": "3.11"
+    }
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python",
+        "ms-python.vscode-pylance",
+        "ms-azuretools.vscode-docker",
+        "esbenp.prettier-vscode",
+        "dbaeumer.vscode-eslint"
+      ]
+    }
+  },
+  "forwardPorts": [3000, 8000, 8080, 5432, 6379],
+  "postCreateCommand": "bash -lc 'cd /workspaces/HTXV2/backend && python -m venv venv && . venv/bin/activate && pip install -r requirements.txt && cd /workspaces/HTXV2/frontend && npm ci'",
+  "mounts": [
+    "source=${localWorkspaceFolder},target=/workspaces/HTXV2,type=bind"
+  ]
+}

@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  backend:
+    image: mcr.microsoft.com/devcontainers/python:3.11
+    volumes:
+      - ..:/workspaces/HTXV2:cached
+    working_dir: /workspaces/HTXV2/backend
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://htxv2_user:password@postgres:5432/htxv2
+      - REDIS_URL=redis://redis:6379/0
+      - SECRET_KEY=dev-secret-key-change-in-production
+      - DEBUG=true
+      - ENVIRONMENT=development
+      - USE_GPU=false
+      - ML_SERVICE_ENABLED=false
+    command: sleep infinity
+
+volumes:
+  postgres_data:
+  redis_data:
+  ml_models:

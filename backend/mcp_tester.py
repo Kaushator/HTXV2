@@ -1,6 +1,9 @@
+"""
+MCP - Simplified API for tests
+"""
 #!/usr/bin/env python3
 """
-Основной файл FastAPI приложения HTXV2.
+Simplified version of main.py for testing MCP
 """
 
 import logging
@@ -11,7 +14,6 @@ from fastapi import FastAPI, WebSocket, WebSocketDisconnect, Depends
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.services.mcp_service import get_mcp_service, MCPService
-from app.api.api_v1.api import api_router
 
 # Настройка логирования
 logging.basicConfig(
@@ -21,36 +23,24 @@ logging.basicConfig(
 
 # Создание приложения FastAPI
 app = FastAPI(
-    title="HTXV2 API",
-    description="Персональный трейдинг-ассистент для HTX",
+    title="MCP Tester",
+    description="Тестовое приложение для MCP",
     version="0.1.0",
 )
 
 # Настройка CORS для фронтенда
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # В продакшне заменить на конкретные домены
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Подключаем API роутеры
-app.include_router(api_router, prefix="/api/v1")
-
 @app.get("/api/health")
 async def health_check():
     """Проверка работоспособности API."""
-    return {"status": "ok", "service": "HTXV2 API"}
-
-@app.get("/api/version")
-async def version():
-    """Информация о версии API."""
-    return {
-        "version": "0.1.0",
-        "name": "HTXV2",
-        "description": "Персональный трейдинг-ассистент для HTX"
-    }
+    return {"status": "ok", "service": "MCP Tester"}
 
 @app.websocket("/ws/mcp")
 async def websocket_endpoint(
@@ -59,7 +49,6 @@ async def websocket_endpoint(
 ):
     """
     WebSocket эндпоинт для коммуникации с MCP Service.
-    Обеспечивает двухстороннюю связь между клиентом и сервером.
     """
     client_id = str(uuid.uuid4())
     await websocket.accept()
@@ -79,7 +68,7 @@ async def websocket_endpoint(
 @app.on_event("startup")
 async def startup_event():
     """Действия при запуске приложения."""
-    logging.info("Starting HTXV2 API")
+    logging.info("Starting MCP Tester")
     
     # Инициализация MCP Service
     await get_mcp_service()
@@ -87,7 +76,7 @@ async def startup_event():
 @app.on_event("shutdown")
 async def shutdown_event():
     """Действия при остановке приложения."""
-    logging.info("Shutting down HTXV2 API")
+    logging.info("Shutting down MCP Tester")
     
     # Остановка MCP Service
     mcp_service = await get_mcp_service()

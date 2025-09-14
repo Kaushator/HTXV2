@@ -38,7 +38,7 @@ dev-frontend:
 	cd frontend && npm run dev
 
 dev-all:
-	@echo "Starting backend and frontend..."
+		@echo "Starting backend and frontend..."
 	make dev-backend &
 	make dev-frontend &
 	wait
@@ -92,3 +92,7 @@ gpu-monitor:
 gpu-test:
 	@echo "🧪 Testing AI models..."
 	python3 scripts/test-ai.py
+# Codespaces specific commands
+codespaces-start:
+	@echo "Starting HTXV2 in Codespaces mode (CPU-only)"
+	@./scripts/start-codespaces.sh

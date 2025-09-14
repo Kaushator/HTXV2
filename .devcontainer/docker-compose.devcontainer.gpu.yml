@@ -1,0 +1,38 @@
+services:
+  backend:
+    image: mcr.microsoft.com/devcontainers/python:3.11
+    volumes:
+      - ..:/workspaces/HTXV2
+    working_dir: /workspaces/HTXV2/backend
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://htxv2_user:password@postgres:5432/htxv2
+      - REDIS_URL=redis://redis:6379/0
+      - SECRET_KEY=dev-secret-key-change-in-production
+      - DEBUG=true
+      - ENVIRONMENT=development
+      - ML_SERVICE_URL=http://ml-gpu:8080
+    network_mode: service:postgres
+    command: sleep infinity
+
+  frontend:
+    image: mcr.microsoft.com/devcontainers/javascript-node:18
+    volumes:
+      - ..:/workspaces/HTXV2
+    working_dir: /workspaces/HTXV2/frontend
+    command: sleep infinity
+
+
+  ml-gpu:
+    extends:
+      file: ../docker/docker-compose.gpu.yml
+      service: ml-gpu
+    volumes:
+      - ../ml:/app
+      - ml_models:/app/models
+      - fingpt_cache:/app/models/cache
+      - /workspaces/HTXV2/ml/models/fingpt:/app/models/fingpt  # Local model storage
+
+volumes:
+  ml_models:
+  fingpt_cache:
+
