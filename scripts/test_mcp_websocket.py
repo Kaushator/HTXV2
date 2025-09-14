@@ -1,9 +1,6 @@
 #!/usr/bin/env python3
 """
-MCP WebSocket Test Client
-
-Простой клиент для тестирования WebSocket с        except ConnectionRefusedError:
-        print("Ошибка: не удалось подключиться к серверу. Убедитесь, что сервер запущен.")динения с MCP сервисом.
+Простой клиент для тестирования WebSocket соединения с MCP сервисом.
 """
 
 import asyncio
