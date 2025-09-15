@@ -1,19 +1,17 @@
+from datetime import datetime, timedelta
+from typing import List, Optional
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
-from typing import List, Optional
-from datetime import datetime, timedelta
 
-from app.core.security import get_current_active_user
-from app.core.rate_limit import trading_rate_limit
 from app.core.cache import get_json, set_json
-from app.utils.validation import validate_trading_symbol, validate_timeframe
+from app.core.rate_limit import trading_rate_limit
+from app.core.security import get_current_active_user
 from app.db.session import get_db
 from app.models.user import User
-from app.schemas.trading import (
-    TradingSignalResponse, 
-    MarketDataResponse,
-    PriceHistoryResponse
-)
+from app.schemas.trading import (MarketDataResponse, PriceHistoryResponse,
+                                 TradingSignalResponse)
+from app.utils.validation import validate_timeframe, validate_trading_symbol
 
 router = APIRouter()
 
@@ -78,27 +76,41 @@ async def get_price_history(
     # For now, returning mock data
     end_date = datetime.utcnow()
     start_date = end_date - timedelta(days=days)
-    
+
     return PriceHistoryResponse(
         symbol=symbol,
         data=[],  # Would contain actual price data
         timeframe=timeframe,
         start_date=start_date,
-        end_date=end_date
+        end_date=end_date,
     )
 
 
 @router.get("/symbols")
 async def get_available_symbols(
     current_user: User = Depends(get_current_active_user),
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
 ):
     """Get available trading symbols"""
     # This would return available symbols from the database
     return {
         "symbols": [
-            "BTC", "ETH", "ADA", "DOT", "SOL", "AVAX", "MATIC", "LINK",
-            "UNI", "AAVE", "COMP", "MKR", "SUSHI", "CRV", "YFI", "1INCH"
+            "BTC",
+            "ETH",
+            "ADA",
+            "DOT",
+            "SOL",
+            "AVAX",
+            "MATIC",
+            "LINK",
+            "UNI",
+            "AAVE",
+            "COMP",
+            "MKR",
+            "SUSHI",
+            "CRV",
+            "YFI",
+            "1INCH",
         ]
     }
 
@@ -107,7 +119,7 @@ async def get_available_symbols(
 async def subscribe_to_signal(
     signal_id: int,
     current_user: User = Depends(get_current_active_user),
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
 ):
     """Subscribe to a trading signal"""
     # This would implement signal subscription logic
@@ -118,7 +130,7 @@ async def subscribe_to_signal(
 async def unsubscribe_from_signal(
     signal_id: int,
     current_user: User = Depends(get_current_active_user),
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
 ):
     """Unsubscribe from a trading signal"""
     # This would implement signal unsubscription logic

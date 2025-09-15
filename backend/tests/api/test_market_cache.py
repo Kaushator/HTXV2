@@ -2,10 +2,10 @@ from fastapi.testclient import TestClient
 
 
 def test_market_data_uses_cache_when_available(monkeypatch):
-    from app.main import app
     import app.api.api_v1.endpoints.trading as trading_module
     import app.core.cache as cache
     import app.core.security as sec
+    from app.main import app
 
     client = TestClient(app)
 
@@ -55,10 +55,10 @@ def test_market_data_uses_cache_when_available(monkeypatch):
 
 
 def test_market_data_sets_cache_when_missing(monkeypatch):
-    from app.main import app
     import app.api.api_v1.endpoints.trading as trading_module
     import app.core.cache as cache
     import app.core.security as sec
+    from app.main import app
 
     client = TestClient(app)
 
@@ -96,4 +96,3 @@ def test_market_data_sets_cache_when_missing(monkeypatch):
     resp = client.get("/api/v1/trading/market-data/BTC", headers=headers)
     assert resp.status_code == 200
     assert calls["set"] == 1
-

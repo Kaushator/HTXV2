@@ -47,4 +47,3 @@ async def set_json(key: str, value: dict[str, Any], ttl_seconds: int) -> None:
         await client.setex(key, ttl_seconds, json.dumps(value))
     except Exception:
         return
-

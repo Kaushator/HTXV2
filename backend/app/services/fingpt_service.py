@@ -1,8 +1,7 @@
 from __future__ import annotations
 
-from typing import Any, Dict, Optional
-
 import logging
+from typing import Any, Dict, Optional
 
 try:
     import httpx
@@ -63,20 +62,28 @@ class FinGPTService:
                 "confidence": 0.0,
                 "model_used": "offline",
             }
-        payload = {"prompt": prompt, **{k: v for k, v in kwargs.items() if v is not None}}
+        payload = {
+            "prompt": prompt,
+            **{k: v for k, v in kwargs.items() if v is not None},
+        }
         async with client as c:
             r = await c.post("/generate", json=payload)
             r.raise_for_status()
             return r.json()
 
-    async def get_sentiment(self, symbol: str, market_data: Dict[str, Any], context: Optional[str] = None) -> Dict[str, Any]:
+    async def get_sentiment(
+        self, symbol: str, market_data: Dict[str, Any], context: Optional[str] = None
+    ) -> Dict[str, Any]:
         """Ask the model server for a financial analysis for given symbol/market data."""
         client = await self._client()
         if not client:
-            return {"content": "Analysis unavailable (offline)", "confidence": 0.0, "model_used": "offline"}
+            return {
+                "content": "Analysis unavailable (offline)",
+                "confidence": 0.0,
+                "model_used": "offline",
+            }
         payload = {"symbol": symbol, "market_data": market_data, "context": context}
         async with client as c:
             r = await c.post("/analyze/financial", json=payload)
             r.raise_for_status()
             return r.json()
-

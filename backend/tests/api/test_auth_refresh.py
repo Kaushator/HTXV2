@@ -1,4 +1,5 @@
 import json
+
 from fastapi.testclient import TestClient
 
 from app.core.security import create_refresh_token
@@ -39,4 +40,3 @@ def test_refresh_token_success_with_mock_user(monkeypatch):
     assert "access_token" in data and data["access_token"]
     assert "refresh_token" in data and data["refresh_token"]
     assert data["token_type"] == "bearer"
-

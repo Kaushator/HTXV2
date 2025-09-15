@@ -12,7 +12,6 @@ except Exception:  # pragma: no cover - fallback import
 
 from app.core.config import settings
 
-
 _redis_client: Optional["redis.Redis"] = None
 _redis_lock = asyncio.Lock()
 
@@ -75,24 +74,25 @@ def trading_rate_limit(requests_per_minute: int = 60):
     return limiter
 
 
-async def websocket_rate_limit(websocket_id: str, max_messages_per_minute: int = 120) -> bool:
+async def websocket_rate_limit(
+    websocket_id: str, max_messages_per_minute: int = 120
+) -> bool:
     """Rate limit WebSocket messages per connection"""
     client = await _get_redis()
     if client is None:
         # If Redis not available, allow all requests
         return True
-    
+
     key = f"ws_rl:{websocket_id}"
     window = 60
-    
+
     try:
         # Atomically increment and set expiry if first hit
         hits = await client.incr(key)
         if hits == 1:
             await client.expire(key, window)
-        
+
         return hits <= max_messages_per_minute
     except Exception:
         # Fail-open on Redis errors
         return True
-

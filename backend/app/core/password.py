@@ -1,6 +1,7 @@
 """
 Password utilities to avoid circular imports
 """
+
 from passlib.context import CryptContext
 
 # Password hashing

@@ -46,4 +46,3 @@ def test_rate_limit_trading_endpoint_monkeypatch(monkeypatch):
     # Now forcefully check that the dependency triggered 429 by executing again
     r4 = client.get(url)
     assert r4.status_code == 429
-

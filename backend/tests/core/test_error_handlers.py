@@ -10,7 +10,8 @@ def test_validation_error_shape():
     assert resp.status_code == 422
     data = resp.json()
     # Unified error fields
-    assert set(["error", "message", "details", "request_id", "timestamp"]).issubset(data.keys())
+    assert set(["error", "message", "details", "request_id", "timestamp"]).issubset(
+        data.keys()
+    )
     assert data["error"] == "validation_error"
     assert isinstance(data["details"].get("errors", []), list)
-
