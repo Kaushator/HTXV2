@@ -1059,7 +1059,7 @@ class MCPService:
         cache_key = f"file_processor:{filename}:{content_hash}"
         
         # Проверяем наличие в кэше
-        cached_result = await self.get_cache(cache_key)
+        cached_result = await self.get_cached_data(cache_key)
         if cached_result:
             logger.info(f"Using cached result for file {filename}")
             return cached_result
