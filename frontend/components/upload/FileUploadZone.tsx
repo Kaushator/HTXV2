@@ -56,7 +56,7 @@ export function FileUploadZone({
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // File validation
-  const validateFile = (file: File): string | null => {
+  const validateFile = useCallback((file: File): string | null => {
     // Check file size
     if (file.size > maxSizeBytes) {
       return `File size exceeds ${(maxSizeBytes / 1024 / 1024).toFixed(1)}MB limit`;
@@ -69,58 +69,10 @@ export function FileUploadZone({
     }
 
     return null;
-  };
-
-  // Handle file selection
-  const handleFiles = useCallback(async (files: FileList) => {
-    const fileArray = Array.from(files);
-    
-    // Validate total number of files
-    if (uploadQueue.length + fileArray.length > maxFiles) {
-      onUploadError?.(`Maximum ${maxFiles} files allowed`);
-      return;
-    }
-
-    // Validate each file
-    const validFiles: File[] = [];
-    const errors: string[] = [];
-
-    for (const file of fileArray) {
-      const error = validateFile(file);
-      if (error) {
-        errors.push(`${file.name}: ${error}`);
-      } else {
-        validFiles.push(file);
-      }
-    }
-
-    if (errors.length > 0) {
-      onUploadError?.(errors.join('\n'));
-    }
-
-    if (validFiles.length === 0) return;
-
-    // Create upload progress entries
-    const newUploads: FileUploadProgress[] = validFiles.map(file => ({
-      file_id: `${Date.now()}-${file.name}`,
-      filename: file.name,
-      progress: 0,
-      status: 'uploading'
-    }));
-
-    setUploadQueue(prev => [...prev, ...newUploads]);
-
-    // Simulate file upload (replace with actual API call)
-    try {
-      await simulateFileUpload(validFiles, newUploads);
-      onFileUpload?.(validFiles);
-    } catch (error) {
-      onUploadError?.(error instanceof Error ? error.message : 'Upload failed');
-    }
-  }, [uploadQueue.length, maxFiles, maxSizeBytes, acceptedTypes, onFileUpload, onUploadError]);
+  }, [maxSizeBytes, acceptedTypes]);
 
   // Simulate file upload progress (replace with real API)
-  const simulateFileUpload = async (files: File[], uploads: FileUploadProgress[]) => {
+  const simulateFileUpload = useCallback(async (files: File[], uploads: FileUploadProgress[]) => {
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
       const upload = uploads[i];
@@ -187,7 +139,55 @@ export function FileUploadZone({
         );
       }
     }
-  };
+  }, [setUploadQueue, setUploadedFiles, onUploadComplete]);
+
+  // Handle file selection
+  const handleFiles = useCallback(async (files: FileList) => {
+    const fileArray = Array.from(files);
+    
+    // Validate total number of files
+    if (uploadQueue.length + fileArray.length > maxFiles) {
+      onUploadError?.(`Maximum ${maxFiles} files allowed`);
+      return;
+    }
+
+    // Validate each file
+    const validFiles: File[] = [];
+    const errors: string[] = [];
+
+    for (const file of fileArray) {
+      const error = validateFile(file);
+      if (error) {
+        errors.push(`${file.name}: ${error}`);
+      } else {
+        validFiles.push(file);
+      }
+    }
+
+    if (errors.length > 0) {
+      onUploadError?.(errors.join('\n'));
+    }
+
+    if (validFiles.length === 0) return;
+
+    // Create upload progress entries
+    const newUploads: FileUploadProgress[] = validFiles.map(file => ({
+      file_id: `${Date.now()}-${file.name}`,
+      filename: file.name,
+      progress: 0,
+      status: 'uploading'
+    }));
+
+    setUploadQueue(prev => [...prev, ...newUploads]);
+
+    // Simulate file upload (replace with actual API call)
+    try {
+      await simulateFileUpload(validFiles, newUploads);
+      onFileUpload?.(validFiles);
+    } catch (error) {
+      onUploadError?.(error instanceof Error ? error.message : 'Upload failed');
+    }
+  }, [uploadQueue.length, maxFiles, onFileUpload, onUploadError, simulateFileUpload, validateFile]);
 
   // Drag and drop handlers
   const handleDragOver = useCallback((e: React.DragEvent) => {
