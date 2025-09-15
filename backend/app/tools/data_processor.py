@@ -79,7 +79,7 @@ class DataProcessor:
                 # Пробуем разные разделители и кодировки
                 try:
                     df = pd.read_csv(file_stream)
-                except:
+                except (pd.errors.ParserError, UnicodeDecodeError, ValueError):
                     # Если не удалось, пробуем другие разделители
                     file_stream.seek(0)
                     df = pd.read_csv(file_stream, sep=';')
