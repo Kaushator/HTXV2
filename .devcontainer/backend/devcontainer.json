@@ -1,0 +1,75 @@
+{
+  "name": "HTXV2 Backend Development",
+  "dockerComposeFile": "../../docker/docker-compose.yml",
+  "service": "backend",
+  "workspaceFolder": "/app",
+  "shutdownAction": "stopCompose",
+
+  "features": {
+    "ghcr.io/devcontainers/features/python:1": {
+      "version": "3.11"
+    },
+    "ghcr.io/devcontainers/features/git:1": {},
+    "ghcr.io/devcontainers/features/github-cli:1": {},
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {}
+  },
+
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "python.defaultInterpreterPath": "/app/venv/bin/python",
+        "python.formatting.provider": "black",
+        "python.linting.enabled": true,
+        "python.linting.flake8Enabled": true,
+        "python.linting.pylintEnabled": false,
+        "python.testing.pytestEnabled": true,
+        "python.testing.pytestArgs": ["tests/"],
+        "files.exclude": {
+          "**/__pycache__": true,
+          "**/.pytest_cache": true,
+          "**/node_modules": true
+        }
+      },
+      "extensions": [
+        "ms-python.python",
+        "ms-python.black-formatter",
+        "ms-python.flake8",
+        "ms-python.isort",
+        "ms-python.pylint",
+        "ms-vscode.vscode-json",
+        "github.copilot",
+        "github.copilot-chat",
+        "ms-azuretools.vscode-docker",
+        "redhat.vscode-yaml",
+        "ms-vscode.vscode-thunder-client"
+      ]
+    }
+  },
+
+  "forwardPorts": [8000, 5432, 6379],
+  "portsAttributes": {
+    "8000": {
+      "label": "Backend API",
+      "protocol": "http"
+    },
+    "5432": {
+      "label": "PostgreSQL",
+      "protocol": "tcp"
+    },
+    "6379": {
+      "label": "Redis",
+      "protocol": "tcp"
+    }
+  },
+
+  "postCreateCommand": "cd /app && python -m pip install --upgrade pip && pip install -r requirements.txt",
+  "postStartCommand": "echo 'HTXV2 Backend DevContainer is ready! API: http://localhost:8000'",
+
+  "remoteUser": "app",
+  "overrideCommand": false,
+  
+  "mounts": [
+    "source=${localWorkspaceFolder}/backend,target=/app,type=bind,consistency=cached",
+    "source=backend_venv,target=/app/venv,type=volume"
+  ]
+}
