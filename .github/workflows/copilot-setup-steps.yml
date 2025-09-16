@@ -1,0 +1,82 @@
+name: "Шаги настройки Copilot"
+
+# Автоматически запускать шаги настройки при их изменении, чтобы обеспечить легкую проверку, и
+# разрешить ручное тестирование через вкладку «Действия» репозитория
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - .github/workflows/copilot-setup-steps.yml
+  pull_request:
+    paths:
+      - .github/workflows/copilot-setup-steps.yml
+
+jobs:
+  # Задание ДОЛЖНО называться `copilot-setup-steps`, иначе Copilot его не выполнит.
+  copilot-setup-steps:
+    runs-on: ubuntu-latest
+
+    # Установите минимально возможные разрешения, необходимые для ваших шагов.
+    # Второму пилоту будет предоставлен собственный токен для выполнения своих задач.
+    permissions:
+      # Если вы хотите клонировать репозиторий в процессе настройки, например, для установки зависимостей,
+      # вам потребуется разрешение `contents: read`. Если вы не клонируете репозиторий в процессе настройки,
+      # Copilot сделает это автоматически после завершения установки.
+      contents: read
+
+    # Вы можете определить любые шаги, которые захотите, и они будут выполняться перед запуском агента.
+    # Если вы не проверяете свой код, Copilot сделает это для вас.
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install JavaScript dependencies
+        run: npm ci
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r backend/requirements.txt
+
+      - name: Install Redis for testing
+        uses: supercharge/redis-github-action@1.7.0
+        with:
+          redis-version: "7"
+
+      - name: Install PostgreSQL for testing
+        uses: harmon758/postgresql-action@v1
+        with:
+          postgresql version: "15"
+          postgresql db: "htxdb"
+          postgresql user: "htx"
+          postgresql password: "htxpass"
+
+      - name: Run database migrations
+        run: |
+          cd backend
+          pip install alembic
+          alembic upgrade head
+
+      - name: Set up Docker
+        uses: docker/setup-buildx-action@v3
+
+      - name: Verify environment setup
+        run: |
+          echo "Node.js version: $(node -v)"
+          echo "NPM version: $(npm -v)"
+          echo "Python version: $(python -v)"
+          echo "PostgreSQL status: $(pg_isready -h localhost -p 5432 -d htxdb -U htx || echo 'Not running')"
+          echo "Redis status: $(redis-cli ping || echo 'Not running')"
+          echo "Docker version: $(docker -v)"
