@@ -1,12 +1,12 @@
 #!/bin/bash
 #
 # Script: init-github-repo.sh
-# Description: Initializes a GitHub repository for the HTXEnterface_v2 project.
+# Description: Initializes a GitHub repository for the HTXV2 project.
 # Author: GitHub Copilot
 # Date: 2023-07-25
 #
 # Usage: ./init-github-repo.sh [repository-name] [private]
-#   repository-name: Optional name for the repository (default: HTXEnterface_v2)
+#   repository-name: Optional name for the repository (default: HTXV2)
 #   private: Optional flag for private repository (default: true)
 #
 # Requirements:
@@ -49,7 +49,7 @@ if ! gh auth status &> /dev/null; then
 fi
 
 # Default values
-REPO_NAME=${1:-"HTXEnterface_v2"}
+REPO_NAME=${1:-"HTXV2"}
 PRIVATE=${2:-"true"}
 CURRENT_DIR=$(pwd)
 PROJECT_ROOT=$(git rev-parse --show-toplevel 2>/dev/null || echo $CURRENT_DIR)

@@ -4,7 +4,7 @@
 """
 Status Report Generator
 
-This script generates a status report for the HTXEnterface_v2 project.
+This script generates a status report for the HTXV2 project.
 It collects information about recent commits, open issues, tests, and
 code quality metrics.
 
@@ -22,7 +22,7 @@ from jinja2 import Template
 
 # Configuration
 REPO_OWNER = "YOUR_GITHUB_USERNAME"  # Change this
-REPO_NAME = "HTXEnterface_v2"  # Change this if needed
+REPO_NAME = "HTXV2"  # Change this if needed
 GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
 HEADERS = {"Authorization": f"token {GITHUB_TOKEN}"}
 
@@ -33,7 +33,7 @@ TEMPLATE = """
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HTXEnterface_v2 Status Report</title>
+    <title>HTXV2 Status Report</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -96,7 +96,7 @@ TEMPLATE = """
 </head>
 <body>
     <div class="container">
-        <h1>HTXEnterface_v2 Status Report</h1>
+        <h1>HTXV2 Status Report</h1>
         <p class="date">Generated on {{ date }}</p>
 
         <h2>Repository Summary</h2>
