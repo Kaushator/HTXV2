@@ -38,7 +38,7 @@ Dev-контейнер включает следующие компоненты:
 
 ```bash
 # Перейдите в корневую директорию проекта
-cd /path/to/HTXEnterface_v2
+cd /path/to/HTXV2
 
 # Запустите скрипт инициализации
 .devcontainer/scripts/init-dev-container.sh
@@ -48,7 +48,7 @@ cd /path/to/HTXEnterface_v2
 
 ```powershell
 # Перейдите в корневую директорию проекта
-cd path\to\HTXEnterface_v2
+cd path\to\HTXV2
 
 # Запустите скрипт инициализации
 .\.devcontainer\scripts\powershell\init-dev-container.ps1

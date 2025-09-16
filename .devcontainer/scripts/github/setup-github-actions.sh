@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Script: setup-github-actions.sh
-# Description: Sets up GitHub Actions workflows for the HTXEnterface_v2 project.
+# Description: Sets up GitHub Actions workflows for the HTXV2 project.
 # Author: GitHub Copilot
 # Date: 2023-07-25
 #

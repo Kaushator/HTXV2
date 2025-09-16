@@ -35,7 +35,7 @@ jobs:
           server_port: ${{ secrets.MAIL_PORT }}
           username: ${{ secrets.MAIL_USERNAME }}
           password: ${{ secrets.MAIL_PASSWORD }}
-          subject: HTXEnterface_v2 Status Report
+          subject: HTXV2 Status Report
           body: file://${{ github.workspace }}/status_report.html
           html_body: true
           to: ${{ secrets.MAIL_RECIPIENTS }}

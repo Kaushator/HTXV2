@@ -1,6 +1,6 @@
 <#
 .SYNOPSIS
-    Скрипт для управления Docker-контейнерами проекта HTXEnterface_v2.
+    Скрипт для управления Docker-контейнерами проекта HTXV2.
 
 .DESCRIPTION
     Этот скрипт позволяет управлять Docker-контейнерами с помощью docker-compose.

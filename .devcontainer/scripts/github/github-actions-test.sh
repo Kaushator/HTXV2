@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Script: github-actions-test.sh
-# Description: Tests the GitHub Actions workflows for the HTXEnterface_v2 project locally.
+# Description: Tests the GitHub Actions workflows for the HTXV2 project locally.
 # Author: GitHub Copilot
 # Date: 2023-07-25
 #

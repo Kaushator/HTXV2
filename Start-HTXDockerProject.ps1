@@ -1,6 +1,6 @@
 <#
 .SYNOPSIS
-    Скрипт для запуска проекта HTXEnterface_v2 в Docker
+    Скрипт для запуска проекта HTXV2 в Docker
 
 .DESCRIPTION
     Скрипт проверяет наличие всех необходимых зависимостей и запускает проект
@@ -239,7 +239,7 @@ function Show-ServiceInfo {
 }
 
 # Основной блок скрипта
-Write-Section "Запуск проекта HTXEnterface_v2"
+Write-Section "Запуск проекта HTXV2"
 
 # Очистка Docker если указан флаг
 if ($CleanDocker) {
@@ -267,4 +267,4 @@ Get-ContainersStatus
 # Вывод информации о доступных сервисах
 Show-ServiceInfo
 
-Write-Success "Проект HTXEnterface_v2 успешно запущен!"
+Write-Success "Проект HTXV2 успешно запущен!"

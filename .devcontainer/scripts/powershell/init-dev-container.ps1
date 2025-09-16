@@ -76,7 +76,7 @@ try {
         Write-Host "Контейнеры не запущены. Запускаем docker-compose..." -ForegroundColor Yellow
 
         # Переходим в корневую директорию проекта
-        Set-Location -Path "e:\HTXEnterface_v2"
+        Set-Location -Path "e:\HTXV2"
 
         # Запускаем docker-compose
         & $dockerCommand compose up -d
