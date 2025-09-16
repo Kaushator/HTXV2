@@ -80,6 +80,11 @@ cat > /root/.bash_aliases << EOF
 alias test-htx='pwsh /workspace/.devcontainer/scripts/powershell/test-containers.ps1'
 alias update-htx='pwsh /workspace/.devcontainer/scripts/powershell/update-containers.ps1'
 alias backup-htx='pwsh /workspace/.devcontainer/scripts/powershell/backup-data.ps1'
+alias start-htx='cd /workspace && docker compose up -d'
+alias stop-htx='cd /workspace && docker compose down'
+alias logs-htx='cd /workspace && docker compose logs -f'
+alias build-htx='cd /workspace && docker compose build'
+alias status-htx='cd /workspace && docker compose ps'
 EOF
 
 # Добавляем приветствие в .bashrc
@@ -93,6 +98,10 @@ echo -e "Доступные команды:"
 echo -e "  ${GREEN}test-htx${RESET}    - Тестирование контейнеров"
 echo -e "  ${GREEN}update-htx${RESET}  - Обновление контейнеров"
 echo -e "  ${GREEN}backup-htx${RESET}  - Создание резервных копий данных"
+echo -e "  ${GREEN}start-htx${RESET}   - Запуск всех сервисов"
+echo -e "  ${GREEN}stop-htx${RESET}    - Остановка всех сервисов"
+echo -e "  ${GREEN}logs-htx${RESET}    - Просмотр логов"
+echo -e "  ${GREEN}status-htx${RESET}  - Статус контейнеров"
 echo -e "${CYAN}===============================================${RESET}"
 EOF
 
