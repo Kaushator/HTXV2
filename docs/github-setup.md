@@ -1,6 +1,6 @@
-# Настройка GitHub для проекта HTXEnterface_v2
+# Настройка GitHub для проекта HTXV2
 
-В этом документе описаны шаги и скрипты для настройки GitHub репозитория и автоматизации для проекта HTXEnterface_v2.
+В этом документе описаны шаги и скрипты для настройки GitHub репозитория и автоматизации для проекта HTXV2.
 
 ## Содержание
 
@@ -36,7 +36,7 @@ gh auth login
 Для инициализации репозитория в PowerShell используйте скрипт:
 
 ```powershell
-.\.devcontainer\scripts\powershell\github\init-github-repo.ps1 -RepoName "HTXEnterface_v2" -Description "Проект HTXEnterface версии 2" -CreatePrivateRepo $true
+.\.devcontainer\scripts\powershell\github\init-github-repo.ps1 -RepoName "HTXV2" -Description "Проект HTXV2 версии 2" -CreatePrivateRepo $true
 ```
 
 Параметры:
@@ -51,12 +51,12 @@ gh auth login
 Для Linux/MacOS используйте bash скрипт:
 
 ```bash
-./.devcontainer/scripts/github/init-github-repo.sh HTXEnterface_v2 true
+./.devcontainer/scripts/github/init-github-repo.sh HTXV2 true
 ```
 
 Параметры:
 
-- Первый аргумент: Имя репозитория (по умолчанию: "HTXEnterface_v2")
+- Первый аргумент: Имя репозитория (по умолчанию: "HTXV2")
 - Второй аргумент: Приватный репозиторий (true/false, по умолчанию: true)
 
 ## Настройка GitHub Actions
