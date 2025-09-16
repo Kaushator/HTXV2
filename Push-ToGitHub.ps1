@@ -1,12 +1,12 @@
 <#
 .SYNOPSIS
     Скрипт для синхронизации изменений с GitHub репозиторием
-    
+
 .DESCRIPTION
     Скрипт выполняет все необходимые шаги для добавления, коммита и отправки изменений
     в GitHub репозиторий. Также включает проверку состояния репозитория и
     форматирование кода перед отправкой.
-    
+
 .PARAMETER Message
     Сообщение коммита. Если не указано, будет запрошено во время выполнения.
 
@@ -18,10 +18,10 @@
 
 .PARAMETER Force
     Использовать флаг --force-with-lease при push.
-    
+
 .EXAMPLE
     .\Push-ToGitHub.ps1 -Message "Добавлен скрипт настройки Copilot"
-    
+
 .EXAMPLE
     .\Push-ToGitHub.ps1 -Branch "feature/copilot-integration"
 #>
@@ -35,13 +35,13 @@ param (
 
 function Write-ColorOutput {
     param (
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [string]$Message,
-        
-        [Parameter(Mandatory=$true)]
+
+        [Parameter(Mandatory = $true)]
         [string]$Color
     )
-    
+
     $currentForeground = $Host.UI.RawUI.ForegroundColor
     $Host.UI.RawUI.ForegroundColor = $Color
     Write-Output $Message
@@ -106,7 +106,7 @@ function Get-CurrentBranch {
 
 function Invoke-CodeFormatting {
     Write-Section "Форматирование кода"
-    
+
     # Форматирование Python кода
     if (Test-Path "backend") {
         Write-Info "Форматирование Python кода..."
@@ -120,7 +120,7 @@ function Invoke-CodeFormatting {
             Write-Info "Форматирование Python кода будет пропущено. Установите black и isort для автоматического форматирования."
         }
     }
-    
+
     # Форматирование JavaScript/TypeScript кода
     if ((Test-Path "frontend") -and (Test-Path "package.json")) {
         Write-Info "Форматирование JavaScript/TypeScript кода..."
@@ -139,9 +139,9 @@ function Add-ChangesToGit {
     param (
         [array]$Files = @()
     )
-    
+
     Write-Section "Добавление изменений в Git"
-    
+
     if ($Files.Count -eq 0) {
         Write-Info "Добавление всех изменений..."
         git add .
@@ -152,7 +152,7 @@ function Add-ChangesToGit {
             git add $file
         }
     }
-    
+
     $status = Get-GitStatus
     if ([string]::IsNullOrEmpty($status)) {
         Write-Warning "Нет изменений для коммита."
@@ -168,17 +168,17 @@ function New-GitCommit {
     param (
         [string]$CommitMessage
     )
-    
+
     Write-Section "Создание коммита"
-    
+
     if ([string]::IsNullOrEmpty($CommitMessage)) {
         $CommitMessage = Read-Host "Введите сообщение коммита"
     }
-    
+
     if ([string]::IsNullOrEmpty($CommitMessage)) {
         Write-ErrorMsg "Сообщение коммита не может быть пустым."
     }
-    
+
     try {
         git commit -m $CommitMessage
         Write-Success "Коммит создан с сообщением: $CommitMessage"
@@ -193,18 +193,18 @@ function Push-GitChanges {
         [string]$BranchName,
         [bool]$UseForce
     )
-    
+
     Write-Section "Отправка изменений в GitHub"
-    
+
     if ([string]::IsNullOrEmpty($BranchName)) {
         $BranchName = Get-CurrentBranch
     }
-    
+
     $pushCommand = "git push origin $BranchName"
     if ($UseForce) {
         $pushCommand = "git push origin $BranchName --force-with-lease"
     }
-    
+
     try {
         Write-Info "Отправка изменений в ветку '$BranchName'..."
         Invoke-Expression $pushCommand
@@ -223,12 +223,12 @@ function Sync-GitHubRepository {
         [bool]$SkipFormatCode,
         [bool]$ForceOption
     )
-    
+
     # Проверка наличия Git
     if (-not (Test-GitInstalled)) {
         Write-ErrorMsg "Git не установлен. Пожалуйста, установите Git и повторите попытку."
     }
-    
+
     # Проверка, находимся ли мы в Git-репозитории
     try {
         git rev-parse --is-inside-work-tree | Out-Null
@@ -236,13 +236,13 @@ function Sync-GitHubRepository {
     catch {
         Write-ErrorMsg "Текущая директория не является Git-репозиторием."
     }
-    
+
     # Получение текущей ветки, если не указана
     if ([string]::IsNullOrEmpty($BranchName)) {
         $BranchName = Get-CurrentBranch
         Write-Info "Используется текущая ветка: $BranchName"
     }
-    
+
     # Форматирование кода (если не пропущено)
     if (-not $SkipFormatCode) {
         Invoke-CodeFormatting
@@ -250,16 +250,16 @@ function Sync-GitHubRepository {
     else {
         Write-Info "Форматирование кода пропущено."
     }
-    
+
     # Добавление изменений
     Add-ChangesToGit
-    
+
     # Создание коммита
     New-GitCommit -CommitMessage $CommitMessage
-    
+
     # Отправка изменений
     Push-GitChanges -BranchName $BranchName -UseForce $ForceOption
-    
+
     Write-Section "Завершение"
     Write-Info "Ссылка на репозиторий: https://github.com/Kaushator/HTXV2"
     Write-Info "Текущая ветка: $BranchName"

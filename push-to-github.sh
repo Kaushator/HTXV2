@@ -81,7 +81,7 @@ fi
 # Форматирование кода (если не пропущено)
 if [[ "$SKIP_FORMAT" == "false" ]]; then
     section "Форматирование кода"
-    
+
     # Форматирование Python кода
     if [[ -d "backend" ]]; then
         info "Форматирование Python кода..."
@@ -93,7 +93,7 @@ if [[ "$SKIP_FORMAT" == "false" ]]; then
             warning "Форматирование Python кода будет пропущено. Установите black и isort для автоматического форматирования."
         fi
     fi
-    
+
     # Форматирование JavaScript/TypeScript кода
     if [[ -d "frontend" && -f "package.json" ]]; then
         info "Форматирование JavaScript/TypeScript кода..."
