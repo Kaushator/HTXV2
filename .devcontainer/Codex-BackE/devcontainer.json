@@ -1,0 +1,58 @@
+{
+  "name": "Codex-BackE",
+  "context": "..",
+  "dockerFile": "Dockerfile",
+  "workspaceFolder": "/workspace",
+  "runArgs": ["--network=host"],
+  "shutdownAction": "none",
+  "appPort": [8000],
+  "forwardPorts": [5432, 6379, 8080, 3000, 3010],
+  "containerEnv": {
+    "DATABASE_URL": "postgresql://htx_user:htx_password@localhost:5432/htx_interface",
+    "REDIS_URL": "redis://:htx_redis_password@localhost:6379/0",
+    "BACKEND_BASE": "http://localhost:8000",
+    "FINGPT_BASE": "http://localhost:8080",
+    "AI_PROVIDER": "local",
+    "DEV_JOURNAL_PATH": "./docs/journal/",
+    "REQUEST_TIMEOUT_MS": "120000"
+  },
+  "postCreateCommand": "npm install && echo 'Codex-BackE container ready for backend and MCP development!'",
+  "postStartCommand": "npm start &",
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "terminal.integrated.defaultProfile.linux": "/bin/bash",
+        "python.defaultInterpreterPath": "/usr/local/bin/python",
+        "python.linting.enabled": true,
+        "python.linting.pylintEnabled": false,
+        "python.linting.ruffEnabled": true,
+        "python.formatting.provider": "black",
+        "editor.formatOnSave": true,
+        "editor.codeActionsOnSave": {
+          "source.organizeImports": "explicit"
+        },
+        "[python]": {
+          "editor.defaultFormatter": "ms-python.black-formatter",
+          "editor.formatOnSave": true,
+          "editor.codeActionsOnSave": {
+            "source.organizeImports": "explicit"
+          }
+        }
+      },
+      "extensions": [
+        "ms-python.python",
+        "ms-python.black-formatter",
+        "ms-python.isort",
+        "charliermarsh.ruff",
+        "ms-python.pylint",
+        "ms-azuretools.vscode-docker",
+        "GitHub.copilot",
+        "GitHub.copilot-chat",
+        "redhat.vscode-yaml",
+        "ms-vscode.makefile-tools",
+        "ms-vscode.test-adapter-converter"
+      ]
+    }
+  },
+  "remoteUser": "vscode"
+}

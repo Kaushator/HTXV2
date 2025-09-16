@@ -1,0 +1,29 @@
+version: "3"
+services:
+  app:
+    image: htx-interface-app:latest
+    volumes:
+      - ~/htx/data:/data
+      - ~/htx/logs:/logs
+    ports:
+      - "8000:8000"
+    environment:
+      - ENV=production
+      - DB_HOST=localhost
+      - DB_PORT=5432
+    networks:
+      - htx-network
+
+  fingpt:
+    image: htx-fingpt:latest
+    ports:
+      - "5000:5000"
+    volumes:
+      - ~/htx/data:/data
+      - ~/htx/logs:/logs
+    networks:
+      - htx-network
+
+networks:
+  htx-network:
+    name: htx-network

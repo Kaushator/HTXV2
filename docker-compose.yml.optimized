@@ -1,0 +1,241 @@
+# Docker Compose конфигурация для HTXEnterface_v2
+# Версия 2.0 - оптимизирована для производительности и безопасности
+
+services:
+  # База данных PostgreSQL с расширением pgvector
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: htx-postgres
+    environment:
+      POSTGRES_DB: htxdb
+      POSTGRES_USER: htx
+      POSTGRES_PASSWORD: htxpass
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U htx"]
+      interval: 20s
+      timeout: 5s
+      retries: 10
+    networks:
+      - htx-network
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+
+  # Redis для кэширования и очередей сообщений
+  redis:
+    image: redis:7-alpine
+    container_name: htx-redis
+    command: redis-server --appendonly yes
+    ports:
+      # Изменяем внешний порт, чтобы избежать конфликта
+      - "6389:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 20s
+      timeout: 5s
+      retries: 10
+    networks:
+      - htx-network
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+
+  # Backend API сервис
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.optimized
+    image: htx-backend:latest
+    container_name: htx-backend
+    environment:
+      DATABASE_URL: postgresql://htx:htxpass@postgres:5432/htxdb
+      REDIS_URL: redis://redis:6379/0
+      FINGPT_BASE: http://fingpt:8055
+      API_VERSION: 0.1.0
+      LOG_LEVEL: info
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app
+      - backend_cache:/app/.cache
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 10
+    networks:
+      - htx-network
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+      labels:
+        com.docker.scout.analyze: "true"
+
+  # Frontend сервис
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.optimized
+    image: htx-frontend:latest
+    container_name: htx-frontend
+    environment:
+      NODE_ENV: development
+      BACKEND_BASE: http://backend:8000
+      NEXT_PUBLIC_BACKEND_URL: http://localhost:8000
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+      - frontend_cache:/app/.next/cache
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - htx-network
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+      labels:
+        com.docker.scout.analyze: "true"
+
+  # FinGPT сервис для обработки финансовых данных
+  fingpt:
+    build:
+      context: ./fingpt
+      dockerfile: Dockerfile.optimized
+    image: htx-fingpt:latest
+    container_name: htx-fingpt
+    runtime: nvidia
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    environment:
+      CUDA_VISIBLE_DEVICES: 0
+      TORCH_CUDA_ARCH_LIST: "8.6"  # RTX 4060
+      MODEL_PATH: /app/models
+      LOG_LEVEL: info
+    ports:
+      - "8055:8055"
+    volumes:
+      - ./fingpt:/app
+      - fingpt_models:/app/models
+    networks:
+      - htx-network
+    restart: unless-stopped
+    deploy:
+      labels:
+        com.docker.scout.analyze: "true"
+
+  # Prometheus для мониторинга
+  prometheus:
+    image: prom/prometheus:v2.48.1
+    container_name: htx-prometheus
+    volumes:
+      - ./infra/prometheus:/etc/prometheus
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--web.enable-lifecycle'
+    ports:
+      - "9090:9090"
+    networks:
+      - htx-network
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+
+  # Grafana для визуализации метрик
+  grafana:
+    image: grafana/grafana:10.2.3
+    container_name: htx-grafana
+    volumes:
+      - ./infra/grafana/provisioning:/etc/grafana/provisioning
+      - grafana_data:/var/lib/grafana
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+    ports:
+      - "3001:3000"
+    networks:
+      - htx-network
+    depends_on:
+      - prometheus
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+
+  # Dev контейнер для разработки
+  dev:
+    image: mcr.microsoft.com/devcontainers/base:ubuntu
+    container_name: htx-dev
+    volumes:
+      - .:/workspace:cached
+    working_dir: /workspace
+    depends_on:
+      - backend
+      - frontend
+      - postgres
+      - redis
+      - fingpt
+    command: bash -lc "sleep infinity"
+    networks:
+      - htx-network
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+
+# Тома для сохранения данных
+volumes:
+  postgres_data:
+    name: htx-postgres-data
+  redis_data:
+    name: htx-redis-data
+  backend_cache:
+    name: htx-backend-cache
+  frontend_cache:
+    name: htx-frontend-cache
+  fingpt_models:
+    name: htx-fingpt-models
+  prometheus_data:
+    name: htx-prometheus-data
+  grafana_data:
+    name: htx-grafana-data
+
+# Сеть для связи всех сервисов
+networks:
+  htx-network:
+    name: htx-network
+    driver: bridge

@@ -1,11 +1,11 @@
 blank_issues_enabled: false
 contact_links:
   - name: 📧 Team Contact
-    url: https://github.com/Kaushator/HTX_interfacev2/discussions
+    url: https://github.com/Kaushator/HTXV2/discussions
     about: For general discussions and team communication
   - name: 🔒 Security Issues
-    url: https://github.com/Kaushator/HTX_interfacev2/security/advisories
+    url: https://github.com/Kaushator/HTXV2/security/advisories
     about: Please report security vulnerabilities privately
   - name: 📖 Documentation
-    url: https://github.com/Kaushator/HTX_interfacev2/tree/main/docs
+    url: https://github.com/Kaushator/HTXV2/tree/main/docs
     about: Browse project documentation and guides

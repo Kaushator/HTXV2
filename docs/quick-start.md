@@ -3,16 +3,18 @@
 Ниже краткий чек‑лист локального запуска (Python + Node.js) и развертывания в GCP.
 
 ## 1) Клонирование и подмодули
+
 ```bash
 # SSH (рекомендовано)
-git clone git@github.com:Kaushator/HTX_interfacev2.git
-cd HTX_interfacev2
+git clone git@github.com:Kaushator/HTXV2.git
+cd HTXV2
 
 # Инициализация подмодуля HTXV2
 git submodule update --init --recursive
 ```
 
 ## 2) Настройка окружения
+
 ```bash
 # MCP/сервер (Node.js)
 npm install
@@ -32,6 +34,7 @@ cd ..
 ```
 
 ## 3) Локальный запуск
+
 ```bash
 # MCP сервер (Node)
 npm run build
@@ -47,12 +50,14 @@ npm run dev
 ```
 
 Эндпоинты и порты:
+
 - MCP Server: настроен в VS Code/клиенте MCP
 - Backend API: http://localhost:8000/docs
 - Frontend: http://localhost:3000
 - FinGPT (локально): http://localhost:8055/predict
 
 ## 4) Тесты
+
 ```bash
 # Backend
 cd backend
@@ -64,6 +69,7 @@ npm test
 ```
 
 ## 5) (Опционально) Локальные профили
+
 Используйте `make dev` для одновременного запуска MCP, backend и frontend.
 
 ---
@@ -73,6 +79,7 @@ npm test
 ---
 
 ## Предварительные требования
+
 ```bash
 # Инструменты
 gcloud auth login
@@ -85,6 +92,7 @@ gcloud config set project $PROJECT_ID
 ```
 
 ### Phase 1: Infrastructure (20 минут)
+
 ```bash
 cd infra/terraform
 
@@ -96,15 +104,17 @@ terraform apply -auto-approve \
 ```
 
 **Что создается**:
+
 - VPC + Subnets
 - Cloud SQL (PostgreSQL + pgvector)
-- Memorystore (Redis)  
+- Memorystore (Redis)
 - GCS buckets
 - BigQuery datasets
 - Secret Manager
 - IAM роли
 
 ### Phase 2: Backend Services (15 минут)
+
 ```bash
 # Build & Deploy Backend
 cd backend
@@ -115,13 +125,14 @@ gcloud run deploy backend-api \
   --allow-unauthenticated
 
 # Deploy ETL Jobs
-cd ../etl  
+cd ../etl
 gcloud builds submit --tag gcr.io/$PROJECT_ID/etl
 gcloud run jobs create etl-processor \
   --image gcr.io/$PROJECT_ID/etl
 ```
 
 ### Phase 3: Frontend (10 минут)
+
 ```bash
 cd frontend
 gcloud builds submit --tag gcr.io/$PROJECT_ID/frontend
@@ -131,6 +142,7 @@ gcloud run deploy frontend \
 ```
 
 ### Phase 4: Secrets & Config (5 минут)
+
 ```bash
 # Загрузка секретов
 echo "your-htx-api-key" | gcloud secrets create htx-api-key --data-file=-
@@ -148,6 +160,7 @@ gcloud scheduler jobs create pubsub htx-poller \
 ## Проверка развертывания
 
 ### Health Checks
+
 ```bash
 # Backend API
 curl https://backend-api-xxx-uc.a.run.app/health
@@ -163,6 +176,7 @@ gcloud redis instances describe htx-cache --region=us-central1
 ```
 
 ### Logs & Monitoring
+
 ```bash
 # Real-time logs
 gcloud logging read "resource.type=cloud_run_revision" --limit=50 --format=table
@@ -176,13 +190,15 @@ echo "https://console.cloud.google.com/monitoring/dashboards"
 ## Стоимость (примерная)
 
 ### Development (месяц)
+
 - Cloud Run: $10-20
-- Cloud SQL: $30-50  
+- Cloud SQL: $30-50
 - Redis: $20-30
 - Storage: $5-10
 - **Итого**: ~$65-110/месяц
 
 ### Production (месяц, 1000 активных пользователей)
+
 - Cloud Run: $50-100
 - Cloud SQL: $100-200
 - Redis: $50-100
@@ -195,22 +211,26 @@ echo "https://console.cloud.google.com/monitoring/dashboards"
 ## Следующие шаги
 
 ### Неделя 1: Core Services
+
 - [ ] Backend API с всеми endpoints
 - [ ] ETL pipeline для HTX/CoinGecko
 - [ ] Basic frontend UI
 
-### Неделя 2: ML Integration  
+### Неделя 2: ML Integration
+
 - [ ] FinGPT Docker container
 - [ ] Vertex AI Workbench setup
 - [ ] Vector search в BigQuery
 
 ### Неделя 3: Production Ready
+
 - [ ] CI/CD pipeline
 - [ ] Monitoring & alerting
 - [ ] Load testing
 - [ ] Security audit
 
 ### Неделя 4: Business Features
+
 - [ ] Portfolio tracking
 - [ ] Signal generation
 - [ ] Backtesting tools
@@ -221,11 +241,13 @@ echo "https://console.cloud.google.com/monitoring/dashboards"
 ## 🆘 Поддержка
 
 ### Troubleshooting
+
 - **Logs**: `gcloud logging read --limit=100`
 - **Errors**: Cloud Console → Error Reporting
 - **Performance**: Cloud Console → Monitoring
 
 ### Полезные команды
+
 ```bash
 # Restart сервиса
 gcloud run services update backend-api --region=us-central1
@@ -238,4 +260,5 @@ gcloud run services update backend-api --concurrency=1 --min-instances=0
 ```
 
 ## C/C++ Toolchain
+
 - Если при установке зависящих пакетов требуется компилятор, см. `docs/cpp-toolchain.md`.

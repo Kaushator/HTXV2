@@ -1,0 +1,21 @@
+version: "3"
+
+services:
+  fingpt:
+    build:
+      context: ../fingpt
+      dockerfile: Dockerfile
+    volumes:
+      - ../fingpt:/app
+      - ./mcp-shared:/shared/mcp
+    environment:
+      - PYTHONPATH=/app
+    ports:
+      - "5000:5000"
+    networks:
+      - htx-network
+    command: sleep infinity
+
+networks:
+  htx-network:
+    external: true

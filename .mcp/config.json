@@ -1,0 +1,21 @@
+{
+  "version": "1.0",
+  "sources": [
+    {
+      "type": "code",
+      "path": "./",
+      "exclude": ["node_modules", ".git", "dist", "build"]
+    },
+    {
+      "type": "documentation",
+      "path": "./docs"
+    }
+  ],
+  "ai": {
+    "provider": "openai",
+    "model": "gpt-4",
+    "settings": {
+      "temperature": 0.2
+    }
+  }
+}

@@ -1,17 +1,19 @@
 # HTX Interface v2
 
-![CI](https://github.com/Kaushator/HTX_interfacev2/actions/workflows/ci.yml/badge.svg)
-![CI/CD](https://github.com/Kaushator/HTX_interfacev2/actions/workflows/ci-cd.yml/badge.svg)
+![CI](https://github.com/Kaushator/HTXV2/actions/workflows/ci.yml/badge.svg)
+![CI/CD](https://github.com/Kaushator/HTXV2/actions/workflows/ci-cd.yml/badge.svg)
 
 HTX Interface v2 — финтех‑платформа для анализа криптоактивов с ML/LLM стеком.
 
 Запуск локально
+
 ```bash
 make prepare
 make dev
 ```
 
 Артефакт‑регистри (GCP) — вход в Docker
+
 - Быстрый логин для Artifact Registry через gcloud:
   - Bash (Linux/macOS):
     - gcloud auth configure-docker us-central1-docker.pkg.dev
@@ -24,11 +26,14 @@ make dev
     - (gcloud auth print-access-token) | docker login -u oauth2accesstoken --password-stdin https://us-central1-docker.pkg.dev
 
 Наблюдаемость
+
 - Логи/ошибки/метрики описаны в `docs/observability.md` (JSON‑логи, единый формат ошибок, Prometheus `/metrics`).
- - Пример локального сбора метрик Prometheus: `docs/prometheus-scrape.md`.
+- Пример локального сбора метрик Prometheus: `docs/prometheus-scrape.md`.
 
 Uploads
+
 - Настройка GCS Signed URL: `docs/uploads-gcs-setup.md`.
 
 API Keys
+
 - Руководство по ключам API: `docs/api-keys-usage.md`.

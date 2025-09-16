@@ -1,0 +1,53 @@
+FROM node:20-slim AS builder
+
+WORKDIR /app
+
+# Копируем только файлы зависимостей для использования кэширования
+COPY package.json package-lock.json* /app/
+RUN npm ci --only=production
+
+# Копируем исходный код
+COPY . /app/
+
+# Сборка приложения
+RUN npm run build
+
+# Второй этап для создания минимального образа
+FROM node:20-alpine
+
+LABEL org.opencontainers.image.source="https://github.com/Kaushator/HTXV2" \
+      org.opencontainers.image.description="HTXEnterface v2 Frontend Service" \
+      org.opencontainers.image.licenses="MIT" \
+      com.docker.scout.analyze=true \
+      maintainer="HTX Team"
+
+WORKDIR /app
+
+# Переменные окружения
+ENV NODE_ENV=production \
+    PORT=3000
+
+# Копируем только необходимые файлы для запуска приложения
+COPY --from=builder /app/package.json /app/package-lock.json* ./
+COPY --from=builder /app/next.config.js ./
+COPY --from=builder /app/public ./public
+COPY --from=builder /app/.next ./.next
+COPY --from=builder /app/node_modules ./node_modules
+
+# Создаем пользователя с ограниченными привилегиями
+RUN addgroup -g 1001 -S nodejs && \
+    adduser -S nextjs -u 1001 -G nodejs && \
+    chown -R nextjs:nodejs /app
+
+# Переключаемся на пользователя с ограниченными привилегиями
+USER nextjs
+
+# Открываем порт
+EXPOSE 3000
+
+# Добавляем проверку работоспособности
+HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
+  CMD wget -qO- http://localhost:3000/ > /dev/null || exit 1
+
+# Запускаем приложение
+CMD ["npm", "start"]

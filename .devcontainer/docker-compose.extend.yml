@@ -1,0 +1,15 @@
+version: "3"
+
+services:
+  app:
+    volumes:
+      - ..:/workspace
+      - ./mcp-shared:/shared/mcp
+    environment:
+      - NODE_ENV=development
+      - PYTHONPATH=/workspace/backend
+    command: sleep infinity
+
+networks:
+  default:
+    name: htx-network

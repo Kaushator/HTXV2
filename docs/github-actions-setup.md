@@ -3,6 +3,7 @@
 ## Обзор CI/CD пайплайна
 
 Наш CI/CD пайплайн выполняет следующие задачи:
+
 1. Запускает тесты и линтинг для backend (Python)
 2. Запускает тесты, линтинг и проверку типов для frontend (Next.js)
 3. Сканирует код на наличие секретов с помощью TruffleHog
@@ -48,6 +49,7 @@
 ## Запуск пайплайна
 
 После настройки секретов пайплайн будет автоматически запускаться при:
+
 - Push в ветку `main`
 - Pull Request в ветку `main`
 - Ручном запуске через GitHub Actions UI
@@ -55,6 +57,7 @@
 ## Артефакты и отчеты
 
 После выполнения пайплайна будут доступны следующие артефакты:
+
 - Backend test reports: `backend-tests`
   - pytest-junit.xml (для интеграции с CI системами)
   - pytest-report.html (для визуального анализа результатов)
@@ -64,6 +67,7 @@
 ## Деплой и доступ к сервисам
 
 После успешного деплоя сервисы будут доступны по следующим URL:
+
 - Backend API: https://htx-interface-backend-876480894698.us-central1.run.app
 - Frontend: https://htx-interface-frontend-876480894698.us-central1.run.app
 
@@ -72,6 +76,7 @@
 ### Мониторинг и алертинг
 
 Для настройки мониторинга в Google Cloud:
+
 1. Перейдите в Cloud Monitoring
 2. Создайте дашборд для отслеживания:
    - Latency сервисов Cloud Run
@@ -107,15 +112,18 @@
 3. **Включите следующие настройки**:
 
 #### Required Status Checks
+
 - ✅ **Require status checks to pass before merging**
 - ✅ **Require branches to be up to date before merging**
 
 #### Обязательные проверки (точные названия из workflow)
+
 - `Backend (pytest)` - тесты и линтинг backend
 - `Frontend (lint + type-check + tests)` - проверки frontend
 - `Secret Scan (TruffleHog)` - сканирование секретов
 
 #### Дополнительные защитные правила
+
 - ✅ **Require pull request reviews before merging** (минимум 1 ревьюер)
 - ✅ **Dismiss stale pull request approvals when new commits are pushed**
 - ✅ **Require review from code owners** (если есть файл CODEOWNERS)
@@ -183,7 +191,7 @@ labeler:
 backend/ @Kaushator
 backend/**/*.py @Kaushator
 
-# Frontend code  
+# Frontend code
 frontend/ @Kaushator
 frontend/**/*.ts @Kaushator
 frontend/**/*.tsx @Kaushator
@@ -205,12 +213,14 @@ docs/ @Kaushator
 Каждый запуск workflow генерирует следующие артефакты:
 
 #### Backend Test Artifacts (`backend-tests`)
+
 - `pytest-junit.xml` - результаты тестов в формате JUnit
 - `pytest-report.html` - HTML отчет с детальными результатами
 - `backend-lint.txt` - вывод ruff линтера
 - `backend-errors.md` - сводный отчет об ошибках
 
 #### Frontend Test Artifacts (`frontend-tests`)
+
 - `coverage/` - отчеты покрытия кода Vitest (HTML и JSON)
 - `frontend-lint.txt` - вывод ESLint
 - `frontend-type-check.txt` - результаты TypeScript компилера
@@ -218,6 +228,7 @@ docs/ @Kaushator
 - `frontend-errors.md` - сводный отчет об ошибках
 
 #### Error Summary (`error-summary`)
+
 - `error-summary.md` - полный анализ ошибок с примерами
 
 ### Доступ к артефактам
@@ -238,12 +249,14 @@ docs/ @Kaushator
 ### Ручной запуск
 
 #### Через веб-интерфейс GitHub
+
 1. Перейдите на **вкладку Actions** в репозитории
 2. Выберите **workflow CI/CD**
 3. Нажмите **"Run workflow"**
 4. Выберите ветку и нажмите **"Run workflow"**
 
 #### Через GitHub CLI
+
 ```bash
 # Запуск workflow на текущей ветке
 gh workflow run ci-cd.yml
@@ -266,18 +279,21 @@ gh run list --workflow=ci-cd.yml
 ## Примеры ошибок и их анализ
 
 ### Типичные ошибки TypeScript
+
 ```
 src/components/Header.tsx:42:10 - error TS2339: Property 'title' does not exist on type 'HeaderProps'.
 src/utils/api.ts:78:15 - error TS2322: Type 'string | null' is not assignable to type 'string'.
 ```
 
 ### Предупреждения ESLint
+
 ```
 src/hooks/useData.ts:24:5 - warning: React Hook useEffect has a missing dependency: 'fetchData'. Either include it or remove the dependency array. (react-hooks/exhaustive-deps)
 src/pages/Dashboard.tsx:56:7 - warning: Do not use setState in componentDidMount (react/no-did-mount-set-state)
 ```
 
 ### Ошибки тестов Backend
+
 ```
 FAILED app/tests/test_api.py::test_create_user - AssertionError: assert 201 == 400
 FAILED app/tests/test_models.py::test_user_validation - ValidationError: {'email': ['Invalid email format']}
@@ -295,15 +311,19 @@ FAILED app/tests/test_models.py::test_user_validation - ValidationError: {'email
 ### Отладка типичных проблем
 
 #### 1. Ошибки установки зависимостей
+
 **Симптомы**: Установка Python/Node пакетов завершается неудачей
 **Решения**:
+
 - Проверьте `requirements.txt` и `package.json` на некорректные версии
 - Убедитесь в совместимости зависимостей
 - Очистите кэш, обновив запуски workflow
 
 #### 2. Неудачи тестов
+
 **Симптомы**: Тесты проходят локально, но падают в CI
 **Решения**:
+
 - Проверьте различия в окружении (версии Python/Node)
 - Убедитесь в изоляции тестов и правильной очистке
 - Проверьте настройки timeout для тестов
@@ -314,6 +334,6 @@ FAILED app/tests/test_models.py::test_user_validation - ValidationError: {'email
 Добавьте в README.md значки статуса сборки:
 
 ```markdown
-[![CI/CD](https://github.com/Kaushator/HTX_interfacev2/workflows/CI%2FCD/badge.svg)](https://github.com/Kaushator/HTX_interfacev2/actions)
-[![Backend Tests](https://github.com/Kaushator/HTX_interfacev2/workflows/CI%2FCD/badge.svg?event=push)](https://github.com/Kaushator/HTX_interfacev2/actions)
+[![CI/CD](https://github.com/Kaushator/HTXV2/workflows/CI%2FCD/badge.svg)](https://github.com/Kaushator/HTXV2/actions)
+[![Backend Tests](https://github.com/Kaushator/HTXV2/workflows/CI%2FCD/badge.svg?event=push)](https://github.com/Kaushator/HTXV2/actions)
 ```

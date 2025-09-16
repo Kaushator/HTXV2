@@ -1,0 +1,89 @@
+version: "3.8"
+
+services:
+  devcontainer:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        VARIANT: ubuntu-22.04
+    volumes:
+      - ../..:/workspaces:cached
+      - /var/run/docker.sock:/var/run/docker-host.sock
+    command: /bin/sh -c "while sleep 1000; do :; done"
+    environment:
+      - DISPLAY=${DISPLAY}
+      - NODE_ENV=development
+      - PYTHONPATH=/workspace
+      - BACKEND_BASE=http://localhost:8000
+      - FINGPT_BASE=http://localhost:8080
+      - AI_PROVIDER=local
+      - DEV_JOURNAL_PATH=./docs/dev-journal.md
+      - REQUEST_TIMEOUT_MS=120000
+    env_file:
+      - .env.dev
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - htx-dev
+
+  postgres:
+    image: postgres:15-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: htx_user
+      POSTGRES_PASSWORD: htx_password
+      POSTGRES_DB: htx_interface
+      POSTGRES_INITDB_ARGS: "--encoding=UTF-8"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql:ro
+    ports:
+      - "5432:5432"
+    networks:
+      - htx-dev
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: redis-server --appendonly yes --requirepass htx_redis_password
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6379:6379"
+    networks:
+      - htx-dev
+
+  mailhog:
+    image: mailhog/mailhog:latest
+    restart: unless-stopped
+    ports:
+      - "1025:1025"
+      - "8025:8025"
+    networks:
+      - htx-dev
+
+  fingpt_mock:
+    image: node:18-slim
+    restart: unless-stopped
+    working_dir: /app
+    volumes:
+      - ..:/app
+      - ./simple-fingpt.js:/app/simple-fingpt.js
+    ports:
+      - "8080:8080"
+    command: >
+      bash -c "echo 'Starting FinGPT Mock Service' &&
+      npm install -g express cors &&
+      node /app/simple-fingpt.js"
+    networks:
+      - htx-dev
+
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  htx-dev:
+    driver: bridge

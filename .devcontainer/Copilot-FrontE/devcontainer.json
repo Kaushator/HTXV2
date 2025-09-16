@@ -1,0 +1,56 @@
+{
+  "name": "Copilot-FrontE",
+  "context": "..",
+  "dockerFile": "Dockerfile",
+  "workspaceFolder": "/workspace",
+  "runArgs": ["--network=host"],
+  "shutdownAction": "none",
+  "appPort": [3000],
+  "forwardPorts": [5432, 6379, 8000, 8080, 3010, 6006],
+  "containerEnv": {
+    "BACKEND_BASE": "http://localhost:8000",
+    "FINGPT_BASE": "http://localhost:8080",
+    "AI_PROVIDER": "local",
+    "DEV_JOURNAL_PATH": "./docs/journal/",
+    "REQUEST_TIMEOUT_MS": "120000"
+  },
+  "postCreateCommand": "npm install && echo 'Copilot-FrontE container ready for frontend development!'",
+  "postStartCommand": "cd /workspace && npm start &",
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "terminal.integrated.defaultProfile.linux": "/bin/bash",
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "editor.codeActionsOnSave": {
+          "source.organizeImports": "explicit"
+        },
+        "[javascript]": {
+          "editor.defaultFormatter": "esbenp.prettier-vscode",
+          "editor.formatOnSave": true
+        },
+        "[typescript]": {
+          "editor.defaultFormatter": "esbenp.prettier-vscode",
+          "editor.formatOnSave": true
+        },
+        "[typescriptreact]": {
+          "editor.defaultFormatter": "esbenp.prettier-vscode",
+          "editor.formatOnSave": true
+        }
+      },
+      "extensions": [
+        "esbenp.prettier-vscode",
+        "dbaeumer.vscode-eslint",
+        "ms-azuretools.vscode-docker",
+        "GitHub.copilot",
+        "GitHub.copilot-chat",
+        "redhat.vscode-yaml",
+        "ms-vscode.makefile-tools",
+        "ms-vscode.test-adapter-converter",
+        "ms-vscode.vscode-typescript-next",
+        "bradlc.vscode-tailwindcss"
+      ]
+    }
+  },
+  "remoteUser": "node"
+}
