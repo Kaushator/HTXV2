@@ -9,7 +9,7 @@ charset-normalizer==3.4.3
 click==8.2.1
 colorama==0.4.6
 cryptography==45.0.7
-cyclonedx-python-lib==11.1.0
+cyclonedx-python-lib==9.0.0
 defusedxml==0.7.1
 dparse==0.6.4
 filelock==3.19.1
@@ -36,8 +36,9 @@ platformdirs==4.4.0
 psutil==7.0.0
 py-serializable==2.1.0
 pycparser==2.23
-pydantic==2.11.9
-pydantic_core==2.33.2
+# Исправлены совместимые версии
+pydantic==2.5.0
+pydantic-core==2.14.1
 Pygments==2.19.2
 pyparsing==3.2.4
 regex==2025.9.1

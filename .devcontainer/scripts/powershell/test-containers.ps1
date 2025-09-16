@@ -8,6 +8,10 @@ $errorColor = "Red"
 $infoColor = "Cyan"
 $warningColor = "Yellow"
 
+# Определение используемой ОС для корректной работы скрипта
+$isWindowsOS = $PSVersionTable.OS -match "Windows" -or $PSVersionTable.Platform -eq "Win32NT"
+$composeCommand = if ($isWindowsOS) { "docker compose" } else { "docker-compose" }
+
 # Функция вывода с форматированием
 function Write-Status {
     param (
@@ -99,7 +103,8 @@ function Test-ContainerStatus {
 
     try {
         # Получаем только контейнеры из нашего проекта
-        $containers = docker compose ps -a --format "{{.Name}}|{{.Status}}|{{.Image}}"
+        $command = "$composeCommand ps -a --format `"{{.Name}}|{{.Status}}|{{.Image}}`""
+        $containers = Invoke-Expression $command
 
         if (-not $containers) {
             Write-Status "Не найдено активных контейнеров" "ПРЕДУПРЕЖДЕНИЕ" $warningColor
@@ -355,7 +360,8 @@ function Test-DockerComposeFile {
         }
 
         # Проверка синтаксиса docker-compose.yml
-        $output = docker-compose -f $filePath config 2>&1
+        $command = "$composeCommand -f $filePath config"
+        $output = Invoke-Expression $command 2>&1
 
         if ($LASTEXITCODE -ne 0) {
             Write-Status "Обнаружены ошибки в конфигурации Docker Compose:" "ОШИБКА" $errorColor
@@ -366,7 +372,8 @@ function Test-DockerComposeFile {
         Write-Status "✓ Конфигурация Docker Compose в файле $filePath корректна" "УСПЕХ" $successColor
 
         # Получение списка сервисов
-        $services = docker-compose -f $filePath config --services
+        $command = "$composeCommand -f $filePath config --services"
+        $services = Invoke-Expression $command
 
         Write-Host "`nСервисы, определенные в Docker Compose:" -ForegroundColor $infoColor
         $services | ForEach-Object { Write-Host "  • $_" }
@@ -432,7 +439,7 @@ function Start-ContainerTesting {
 
     # 7. Проверка логов ключевых контейнеров
     $logTestResults = @()
-    $containers = docker ps --format "{{.Names}}"
+    $containers = docker ps --format "{{.Names}}" | Where-Object { $_ -match "htxenterface_v2" }
 
     foreach ($container in $containers) {
         $logTestResults += (Test-ContainerLogs -containerName $container)
@@ -460,6 +467,8 @@ function Start-ContainerTesting {
 
     Write-Host "`nТестирование завершено: $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')" -ForegroundColor $infoColor
     Write-Host "=====================================================" -ForegroundColor $infoColor
+
+    return $allTestsPassed
 }
 
 # Запуск полного тестирования

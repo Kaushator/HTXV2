@@ -1,0 +1,10 @@
+version: "3.9"
+
+services:
+  postgres:
+    ports:
+      - "5433:5432" # Изменен внешний порт с 5432 на 5433
+
+  backend:
+    environment:
+      DATABASE_URL: postgresql://htx:htxpass@postgres:5432/htxdb # Внутренний порт в контейнере остается 5432

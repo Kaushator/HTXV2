@@ -3,19 +3,43 @@
   "dockerComposeFile": ["../docker-compose.yml"],
   "service": "dev",
   "workspaceFolder": "/workspace",
-  "features": {},
+  "features": {
+    "ghcr.io/devcontainers/features/powershell:1": {
+      "version": "latest"
+    },
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {
+      "version": "latest",
+      "moby": true
+    }
+  },
   "forwardPorts": [3000, 8000, 8055, 5432, 6379],
   "shutdownAction": "stopCompose",
-  "postCreateCommand": "npm install && (cd frontend && npm ci) && (cd backend && pip install -r requirements.txt)",
+  "postCreateCommand": "bash -c 'chmod +x /workspace/.devcontainer/scripts/*.sh && chmod +x /workspace/.devcontainer/scripts/powershell/*.ps1 && /workspace/.devcontainer/scripts/init-dev-container.sh'",
   "customizations": {
     "vscode": {
       "extensions": [
         "ms-python.python",
         "ms-python.vscode-pylance",
         "esbenp.prettier-vscode",
-        "dbaeumer.vscode-eslint"
-      ]
+        "dbaeumer.vscode-eslint",
+        "ms-vscode.powershell",
+        "ms-azuretools.vscode-docker"
+      ],
+      "settings": {
+        "terminal.integrated.defaultProfile.linux": "bash",
+        "terminal.integrated.profiles.linux": {
+          "powershell": {
+            "path": "pwsh",
+            "icon": "terminal-powershell"
+          },
+          "bash": {
+            "path": "bash",
+            "icon": "terminal-bash"
+          }
+        },
+        "powershell.powerShellDefaultVersion": "PowerShell Core 7 (x64)",
+        "editor.formatOnSave": true
+      }
     }
   }
 }
-
