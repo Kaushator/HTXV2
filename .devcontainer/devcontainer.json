@@ -1,6 +1,6 @@
 {
-  "name": "HTX Interface v2 Dev",
-  "dockerComposeFile": ["../docker-compose.yml"],
+  "name": "HTXV2 Development Environment",
+  "dockerComposeFile": ["docker-compose.yml"],
   "service": "dev",
   "workspaceFolder": "/workspace",
   "features": {
@@ -9,21 +9,61 @@
     },
     "ghcr.io/devcontainers/features/docker-in-docker:2": {
       "version": "latest",
-      "moby": true
+      "moby": true,
+      "dockerDashComposeVersion": "v2"
+    },
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "18"
+    },
+    "ghcr.io/devcontainers/features/python:1": {
+      "version": "3.11"
+    },
+    "ghcr.io/devcontainers/features/git:1": {
+      "version": "latest"
     }
   },
   "forwardPorts": [3000, 8000, 8055, 5432, 6379],
+  "portsAttributes": {
+    "3000": {
+      "label": "Frontend",
+      "onAutoForward": "notify"
+    },
+    "8000": {
+      "label": "Backend API", 
+      "onAutoForward": "notify"
+    },
+    "5432": {
+      "label": "PostgreSQL",
+      "onAutoForward": "silent"
+    },
+    "6379": {
+      "label": "Redis",
+      "onAutoForward": "silent"
+    }
+  },
   "shutdownAction": "stopCompose",
   "postCreateCommand": "bash -c 'chmod +x /workspace/.devcontainer/scripts/*.sh && chmod +x /workspace/.devcontainer/scripts/powershell/*.ps1 && /workspace/.devcontainer/scripts/init-dev-container.sh'",
+  "remoteEnv": {
+    "DATABASE_URL": "postgresql+asyncpg://htxv2_user:password@postgres:5432/htxv2",
+    "REDIS_URL": "redis://redis:6379/0",
+    "ENVIRONMENT": "development"
+  },
   "customizations": {
     "vscode": {
       "extensions": [
         "ms-python.python",
         "ms-python.vscode-pylance",
+        "ms-python.black-formatter",
+        "ms-python.isort", 
+        "ms-python.flake8",
         "esbenp.prettier-vscode",
         "dbaeumer.vscode-eslint",
         "ms-vscode.powershell",
-        "ms-azuretools.vscode-docker"
+        "ms-azuretools.vscode-docker",
+        "GitHub.copilot",
+        "GitHub.copilot-chat",
+        "bradlc.vscode-tailwindcss",
+        "ms-vscode.vscode-typescript-next"
       ],
       "settings": {
         "terminal.integrated.defaultProfile.linux": "bash",
@@ -38,7 +78,16 @@
           }
         },
         "powershell.powerShellDefaultVersion": "PowerShell Core 7 (x64)",
-        "editor.formatOnSave": true
+        "editor.formatOnSave": true,
+        "python.defaultInterpreterPath": "/usr/local/bin/python",
+        "python.formatting.provider": "black",
+        "python.linting.enabled": true,
+        "python.linting.flake8Enabled": true,
+        "python.sortImports.args": ["--profile", "black"],
+        "typescript.preferences.includePackageJsonAutoImports": "auto",
+        "editor.codeActionsOnSave": {
+          "source.organizeImports": true
+        }
       }
     }
   }

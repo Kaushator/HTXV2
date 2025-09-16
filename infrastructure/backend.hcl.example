@@ -1,0 +1,11 @@
+bucket = "htxv2-terraform-state"
+prefix = "terraform/state"
+
+# Optional: path to a service account JSON key file.
+# If omitted, Terraform uses Application Default Credentials (ADC)
+# via `gcloud auth application-default login` or environment.
+# credentials = "C:/path/to/service-account.json"
+
+# Optional: impersonation if you use Workload Identity Federation or SA impersonation
+# impersonate_service_account = "tf-admin@your-project.iam.gserviceaccount.com"
+

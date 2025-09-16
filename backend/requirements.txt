@@ -1,3 +1,12 @@
+# Core web framework and database dependencies
+fastapi==0.115.6
+uvicorn[standard]==0.32.1
+asyncpg==0.30.0
+redis==5.0.1
+sqlalchemy[asyncio]==2.0.36
+alembic==1.14.0
+
+# Additional core dependencies
 annotated-types==0.7.0
 anyio==4.10.0
 Authlib==1.6.3
@@ -37,8 +46,8 @@ psutil==7.0.0
 py-serializable==2.1.0
 pycparser==2.23
 # Исправлены совместимые версии
-pydantic==2.5.0
-pydantic-core==2.14.1
+pydantic>=2.6.0,<3.0.0
+pydantic-core
 Pygments==2.19.2
 pyparsing==3.2.4
 regex==2025.9.1
@@ -46,7 +55,7 @@ requests==2.32.5
 rich==14.1.0
 ruamel.yaml==0.18.15
 ruamel.yaml.clib==0.2.12
-safety==3.6.1
+safety>=3.0.0
 safety-schemas==0.0.15
 setuptools==80.9.0
 shellingham==1.5.4

@@ -57,7 +57,7 @@ Clients configuration examples:
   ```json
   {
     "mcpServers": {
-      "htx-mcp": { "command": "node", "args": ["dist/index.js"], "cwd": "E:\\HTXEnterface_v2", "env": {"NODE_ENV": "development"} }
+      "htx-mcp": { "command": "node", "args": ["dist/index.js"], "cwd": "E:\\HTXV2", "env": {"NODE_ENV": "development"} }
     }
   }
   ```
@@ -66,7 +66,7 @@ Clients configuration examples:
   {
     "github.copilot.chat.mcp.enabled": true,
     "github.copilot.chat.mcpServers": {
-      "htx-mcp": { "command": "node", "args": ["dist/index.js"], "cwd": "E:\\HTXEnterface_v2", "env": {"NODE_ENV": "development"} }
+      "htx-mcp": { "command": "node", "args": ["dist/index.js"], "cwd": "E:\\HTXV2", "env": {"NODE_ENV": "development"} }
     }
   }
   ```
@@ -75,12 +75,12 @@ Clients configuration examples:
   [tasks.mcp_dev]
   description = "Run MCP server in dev (tsx watch)"
   command = ["npx","tsx","watch","src/index.ts"]
-  cwd = "E:\\HTXEnterface_v2"
+  cwd = "E:\\HTXV2"
   env = { NODE_ENV = "development" }
   [tasks.mcp_start]
   description = "Run MCP server (built)"
   command = ["node","dist/index.js"]
-  cwd = "E:\\HTXEnterface_v2"
+  cwd = "E:\\HTXV2"
   env = { NODE_ENV = "development" }
   ```
 
