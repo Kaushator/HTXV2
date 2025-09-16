@@ -1,5 +1,6 @@
-from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
-from sqlalchemy.orm import declarative_base
+from sqlalchemy.ext.asyncio import (AsyncSession, async_sessionmaker,
+                                    create_async_engine)
+
 from app.core.config import settings
 
 # Create async engine
@@ -18,8 +19,8 @@ AsyncSessionLocal = async_sessionmaker(
     expire_on_commit=False,
 )
 
-# Base class for models
-Base = declarative_base()
+# Import Base from models to ensure single metadata registry
+from app.models import Base
 
 
 async def get_db() -> AsyncSession:
@@ -32,3 +33,8 @@ async def get_db() -> AsyncSession:
             raise
         finally:
             await session.close()
+
+
+def get_async_session():
+    """Get async session context manager (for use outside FastAPI dependencies)"""
+    return AsyncSessionLocal()

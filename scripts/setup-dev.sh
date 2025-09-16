@@ -25,8 +25,9 @@ if ! command -v docker &> /dev/null; then
 fi
 
 if ! command -v terraform &> /dev/null; then
-    echo "❌ Terraform is required. Please install Terraform 1.5+"
-    exit 1
+    echo "⚠️  Terraform not found. Terraform is optional for local development."
+else
+    echo "✅ Terraform found"
 fi
 
 echo "✅ All prerequisites found"
@@ -86,7 +87,7 @@ fi
 
 # Start services with Docker
 echo "🐳 Starting services with Docker..."
-docker-compose -f docker/docker-compose.yml up -d
+docker compose -f docker/docker-compose.yml up -d
 
 echo "✅ Development environment setup complete!"
 echo ""

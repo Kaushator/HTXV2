@@ -27,12 +27,12 @@ help:
 
 setup:
 	@echo "Setting up development environment..."
-	cd backend && python -m venv venv && source venv/bin/activate && pip install -r requirements.txt
+	cd backend && python3 -m venv venv && ./venv/bin/pip install -r requirements.txt
 	cd frontend && npm install
 	@echo "Setup complete!"
 
 dev-backend:
-	cd backend && source venv/bin/activate && uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+	cd backend && ./venv/bin/uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 
 dev-frontend:
 	cd frontend && npm run dev
@@ -44,7 +44,7 @@ dev-all:
 	wait
 
 test-backend:
-	cd backend && source venv/bin/activate && pytest tests/
+	cd backend && ./venv/bin/pytest tests/
 
 test-frontend:
 	cd frontend && npm test
@@ -52,7 +52,7 @@ test-frontend:
 test-all: test-backend test-frontend
 
 lint-backend:
-	cd backend && source venv/bin/activate && black . && isort . && flake8 .
+	cd backend && ./venv/bin/black . && ./venv/bin/isort . && ./venv/bin/flake8 .
 
 lint-frontend:
 	cd frontend && npm run lint

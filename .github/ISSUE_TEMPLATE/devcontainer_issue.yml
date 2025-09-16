@@ -1,0 +1,84 @@
+name: 🔧 DevContainer Issue
+description: Report an issue with the development container setup
+title: "[DevContainer]: "
+labels: ["devcontainer", "developer-experience"]
+assignees: []
+
+body:
+  - type: dropdown
+    id: container-type
+    attributes:
+      label: Container Type
+      description: Which DevContainer are you using?
+      options:
+        - Backend DevContainer
+        - Frontend DevContainer
+        - Legacy DevContainer
+        - Custom Setup
+    validations:
+      required: true
+
+  - type: dropdown
+    id: issue-type
+    attributes:
+      label: Issue Type
+      description: What type of issue is this?
+      options:
+        - Container won't start
+        - Build failure
+        - Extension not working
+        - Port forwarding issue
+        - Volume mount problem
+        - Performance issue
+        - VS Code integration issue
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Issue Description
+      description: Describe the issue you're experiencing
+      placeholder: What's happening vs what should happen?
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Container Logs
+      description: Paste relevant container logs
+      render: shell
+      placeholder: |
+        Docker logs, VS Code output, etc.
+
+  - type: dropdown
+    id: os
+    attributes:
+      label: Host Operating System
+      description: What OS are you running?
+      options:
+        - Windows (WSL2)
+        - macOS
+        - Linux
+        - GitHub Codespaces
+    validations:
+      required: true
+
+  - type: input
+    id: vscode-version
+    attributes:
+      label: VS Code Version
+      description: What version of VS Code are you using?
+      placeholder: e.g., 1.84.2
+
+  - type: checkboxes
+    id: troubleshooting
+    attributes:
+      label: Troubleshooting Steps Tried
+      options:
+        - label: Rebuilt the container
+        - label: Cleared Docker cache (docker system prune)
+        - label: Restarted VS Code
+        - label: Checked .devcontainer/README.md
+        - label: Verified Docker is running

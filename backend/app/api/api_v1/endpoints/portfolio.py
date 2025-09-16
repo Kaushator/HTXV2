@@ -1,18 +1,14 @@
+from typing import List
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
-from typing import List
 
 from app.core.security import get_current_active_user
 from app.db.session import get_db
 from app.models.user import User
-from app.schemas.trading import (
-    PortfolioCreate,
-    PortfolioUpdate, 
-    PortfolioResponse,
-    PositionCreate,
-    PositionUpdate,
-    PositionResponse
-)
+from app.schemas.trading import (PortfolioCreate, PortfolioResponse,
+                                 PortfolioUpdate, PositionCreate,
+                                 PositionResponse, PositionUpdate)
 
 router = APIRouter()
 
@@ -20,7 +16,7 @@ router = APIRouter()
 @router.get("/", response_model=List[PortfolioResponse])
 async def get_portfolios(
     current_user: User = Depends(get_current_active_user),
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
 ):
     """Get user's portfolios"""
     # This would implement the actual portfolio retrieval
@@ -32,12 +28,13 @@ async def get_portfolios(
 async def create_portfolio(
     portfolio_create: PortfolioCreate,
     current_user: User = Depends(get_current_active_user),
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
 ):
     """Create a new portfolio"""
     # This would implement the actual portfolio creation
     # For now, returning mock response
     from datetime import datetime
+
     return PortfolioResponse(
         id=1,
         user_id=current_user.id,
@@ -46,7 +43,7 @@ async def create_portfolio(
         base_currency=portfolio_create.base_currency,
         risk_tolerance=portfolio_create.risk_tolerance,
         is_active=True,
-        created_at=datetime.utcnow()
+        created_at=datetime.utcnow(),
     )
 
 
@@ -54,12 +51,13 @@ async def create_portfolio(
 async def get_portfolio(
     portfolio_id: int,
     current_user: User = Depends(get_current_active_user),
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
 ):
     """Get a specific portfolio"""
     # This would implement the actual portfolio retrieval
     # For now, returning mock response
     from datetime import datetime
+
     return PortfolioResponse(
         id=portfolio_id,
         user_id=current_user.id,
@@ -68,7 +66,7 @@ async def get_portfolio(
         base_currency="USD",
         risk_tolerance="medium",
         is_active=True,
-        created_at=datetime.utcnow()
+        created_at=datetime.utcnow(),
     )
 
 
@@ -77,12 +75,13 @@ async def update_portfolio(
     portfolio_id: int,
     portfolio_update: PortfolioUpdate,
     current_user: User = Depends(get_current_active_user),
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
 ):
     """Update a portfolio"""
     # This would implement the actual portfolio update
     # For now, returning mock response
     from datetime import datetime
+
     return PortfolioResponse(
         id=portfolio_id,
         user_id=current_user.id,
@@ -92,7 +91,7 @@ async def update_portfolio(
         risk_tolerance=portfolio_update.risk_tolerance or "medium",
         is_active=True,
         created_at=datetime.utcnow(),
-        updated_at=datetime.utcnow()
+        updated_at=datetime.utcnow(),
     )
 
 
@@ -100,7 +99,7 @@ async def update_portfolio(
 async def delete_portfolio(
     portfolio_id: int,
     current_user: User = Depends(get_current_active_user),
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
 ):
     """Delete (deactivate) a portfolio"""
     # This would implement the actual portfolio deletion
@@ -111,7 +110,7 @@ async def delete_portfolio(
 async def get_portfolio_positions(
     portfolio_id: int,
     current_user: User = Depends(get_current_active_user),
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
 ):
     """Get positions in a portfolio"""
     # This would implement the actual position retrieval
@@ -124,14 +123,14 @@ async def create_position(
     portfolio_id: int,
     position_create: PositionCreate,
     current_user: User = Depends(get_current_active_user),
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
 ):
     """Create a new position in a portfolio"""
     # This would implement the actual position creation
     # For now, returning mock response
     from datetime import datetime
     from decimal import Decimal
-    
+
     return PositionResponse(
         id=1,
         portfolio_id=portfolio_id,
@@ -142,7 +141,7 @@ async def create_position(
         unrealized_pnl=Decimal("0.00"),
         realized_pnl=Decimal("0.00"),
         position_type=position_create.position_type,
-        created_at=datetime.utcnow()
+        created_at=datetime.utcnow(),
     )
 
 
@@ -150,7 +149,7 @@ async def create_position(
 async def get_portfolio_analytics(
     portfolio_id: int,
     current_user: User = Depends(get_current_active_user),
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
 ):
     """Get portfolio analytics and performance metrics"""
     # This would implement the actual analytics calculation
@@ -163,9 +162,5 @@ async def get_portfolio_analytics(
         "daily_pnl_percentage": 1.0,
         "best_performer": "BTC",
         "worst_performer": "ETH",
-        "asset_allocation": {
-            "BTC": 50.0,
-            "ETH": 30.0,
-            "Others": 20.0
-        }
+        "asset_allocation": {"BTC": 50.0, "ETH": 30.0, "Others": 20.0},
     }

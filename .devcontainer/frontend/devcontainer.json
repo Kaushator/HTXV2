@@ -1,0 +1,73 @@
+{
+  "name": "HTXV2 Frontend Development",
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:18-bullseye",
+  "workspaceFolder": "/workspace",
+
+  "features": {
+    "ghcr.io/devcontainers/features/git:1": {},
+    "ghcr.io/devcontainers/features/github-cli:1": {},
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {}
+  },
+
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "typescript.preferences.importModuleSpecifier": "relative",
+        "typescript.suggest.autoImports": true,
+        "javascript.suggest.autoImports": true,
+        "eslint.workingDirectories": ["frontend"],
+        "tailwindCSS.includeLanguages": {
+          "typescript": "typescript",
+          "typescriptreact": "typescript"
+        },
+        "tailwindCSS.experimental.classRegex": [
+          ["cva\\(([^)]*)\\)", "[\"'`]([^\"'`]*).*?[\"'`]"],
+          ["cx\\(([^)]*)\\)", "(?:'|\"|`)([^']*)(?:'|\"|`)"]
+        ],
+        "files.exclude": {
+          "**/node_modules": true,
+          "**/.next": true,
+          "**/out": true,
+          "**/.cache": true
+        }
+      },
+      "extensions": [
+        "ms-vscode.vscode-typescript-next",
+        "bradlc.vscode-tailwindcss",
+        "esbenp.prettier-vscode",
+        "dbaeumer.vscode-eslint",
+        "ms-vscode.vscode-json",
+        "github.copilot",
+        "github.copilot-chat",
+        "ms-azuretools.vscode-docker",
+        "redhat.vscode-yaml",
+        "ms-vscode.vscode-thunder-client",
+        "formulahendry.auto-rename-tag",
+        "christian-kohler.path-intellisense"
+      ]
+    }
+  },
+
+  "forwardPorts": [3000, 8000],
+  "portsAttributes": {
+    "3000": {
+      "label": "Frontend Dev Server",
+      "protocol": "http"
+    },
+    "8000": {
+      "label": "Backend API",
+      "protocol": "http"
+    }
+  },
+
+  "postCreateCommand": "cd /workspace/frontend && npm install",
+  "postStartCommand": "echo 'HTXV2 Frontend DevContainer is ready! Frontend: http://localhost:3000'",
+
+  "remoteUser": "node",
+  "overrideCommand": false,
+  
+  "mounts": [
+    "source=${localWorkspaceFolder}/frontend,target=/workspace/frontend,type=bind,consistency=cached",
+    "source=frontend_node_modules,target=/workspace/frontend/node_modules,type=volume"
+  ]
+}

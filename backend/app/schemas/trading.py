@@ -1,11 +1,13 @@
-from pydantic import BaseModel
-from typing import Optional, List
 from datetime import datetime
 from decimal import Decimal
+from typing import List, Optional
+
+from pydantic import BaseModel
 
 
 class CryptoPriceDataBase(BaseModel):
     """Base crypto price data schema"""
+
     symbol: str
     exchange: str
     price: Decimal
@@ -21,23 +23,26 @@ class CryptoPriceDataBase(BaseModel):
 
 class CryptoPriceDataCreate(CryptoPriceDataBase):
     """Crypto price data creation schema"""
+
     timestamp: datetime
     metadata: Optional[dict] = None
 
 
 class CryptoPriceDataResponse(CryptoPriceDataBase):
     """Crypto price data response schema"""
+
     id: int
     timestamp: datetime
     metadata: Optional[dict] = None
     created_at: datetime
-    
+
     class Config:
         from_attributes = True
 
 
 class TradingSignalBase(BaseModel):
     """Base trading signal schema"""
+
     symbol: str
     signal_type: str  # buy, sell, hold
     confidence: Decimal
@@ -49,6 +54,7 @@ class TradingSignalBase(BaseModel):
 
 class TradingSignalCreate(TradingSignalBase):
     """Trading signal creation schema"""
+
     model_version: Optional[str] = None
     features: Optional[dict] = None
     metadata: Optional[dict] = None
@@ -57,6 +63,7 @@ class TradingSignalCreate(TradingSignalBase):
 
 class TradingSignalResponse(TradingSignalBase):
     """Trading signal response schema"""
+
     id: int
     model_version: Optional[str] = None
     features: Optional[dict] = None
@@ -64,13 +71,14 @@ class TradingSignalResponse(TradingSignalBase):
     is_active: bool
     created_at: datetime
     expires_at: Optional[datetime] = None
-    
+
     class Config:
         from_attributes = True
 
 
 class PortfolioBase(BaseModel):
     """Base portfolio schema"""
+
     name: str
     description: Optional[str] = None
     base_currency: str = "USD"
@@ -79,11 +87,13 @@ class PortfolioBase(BaseModel):
 
 class PortfolioCreate(PortfolioBase):
     """Portfolio creation schema"""
+
     pass
 
 
 class PortfolioUpdate(BaseModel):
     """Portfolio update schema"""
+
     name: Optional[str] = None
     description: Optional[str] = None
     base_currency: Optional[str] = None
@@ -92,18 +102,20 @@ class PortfolioUpdate(BaseModel):
 
 class PortfolioResponse(PortfolioBase):
     """Portfolio response schema"""
+
     id: int
     user_id: int
     is_active: bool
     created_at: datetime
     updated_at: Optional[datetime] = None
-    
+
     class Config:
         from_attributes = True
 
 
 class PositionBase(BaseModel):
     """Base position schema"""
+
     symbol: str
     quantity: Decimal
     average_price: Decimal
@@ -112,11 +124,13 @@ class PositionBase(BaseModel):
 
 class PositionCreate(PositionBase):
     """Position creation schema"""
+
     portfolio_id: int
 
 
 class PositionUpdate(BaseModel):
     """Position update schema"""
+
     quantity: Optional[Decimal] = None
     average_price: Optional[Decimal] = None
     current_price: Optional[Decimal] = None
@@ -124,6 +138,7 @@ class PositionUpdate(BaseModel):
 
 class PositionResponse(PositionBase):
     """Position response schema"""
+
     id: int
     portfolio_id: int
     current_price: Optional[Decimal] = None
@@ -131,13 +146,14 @@ class PositionResponse(PositionBase):
     realized_pnl: Decimal
     created_at: datetime
     updated_at: Optional[datetime] = None
-    
+
     class Config:
         from_attributes = True
 
 
 class MarketDataResponse(BaseModel):
     """Market data response schema"""
+
     symbol: str
     price: Decimal
     price_change_24h: Optional[Decimal] = None
@@ -149,6 +165,7 @@ class MarketDataResponse(BaseModel):
 
 class PriceHistoryResponse(BaseModel):
     """Price history response schema"""
+
     symbol: str
     data: List[dict]  # List of {timestamp, price, volume} objects
     timeframe: str
