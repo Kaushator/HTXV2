@@ -1,0 +1,60 @@
+Requirement already satisfied: cyclonedx-python-lib in e:\htxenterface_v2\fingpt\.venv_update\lib\site-packages (9.1.0)
+Collecting cyclonedx-python-lib
+  Using cached cyclonedx_python_lib-11.1.0-py3-none-any.whl.metadata (6.6 kB)
+Requirement already satisfied: pip in e:\htxenterface_v2\fingpt\.venv_update\lib\site-packages (25.1.1)
+Collecting pip
+  Using cached pip-25.2-py3-none-any.whl.metadata (4.7 kB)
+Requirement already satisfied: pydantic in e:\htxenterface_v2\fingpt\.venv_update\lib\site-packages (2.9.2)
+Collecting pydantic
+  Using cached pydantic-2.11.9-py3-none-any.whl.metadata (68 kB)
+Requirement already satisfied: pydantic_core in e:\htxenterface_v2\fingpt\.venv_update\lib\site-packages (2.23.4)
+Collecting pydantic_core
+  Using cached pydantic_core-2.39.0-cp313-cp313-win_amd64.whl.metadata (7.4 kB)
+Requirement already satisfied: safety-schemas in e:\htxenterface_v2\fingpt\.venv_update\lib\site-packages (0.0.14)
+Collecting safety-schemas
+  Using cached safety_schemas-0.0.15-py3-none-any.whl.metadata (1.1 kB)
+Requirement already satisfied: license-expression<31,>=30 in e:\htxenterface_v2\fingpt\.venv_update\lib\site-packages (from cyclonedx-python-lib) (30.4.4)
+Requirement already satisfied: packageurl-python<2,>=0.11 in e:\htxenterface_v2\fingpt\.venv_update\lib\site-packages (from cyclonedx-python-lib) (0.17.5)
+Requirement already satisfied: py-serializable<3.0.0,>=2.1.0 in e:\htxenterface_v2\fingpt\.venv_update\lib\site-packages (from cyclonedx-python-lib) (2.1.0)
+Requirement already satisfied: sortedcontainers<3.0.0,>=2.4.0 in e:\htxenterface_v2\fingpt\.venv_update\lib\site-packages (from cyclonedx-python-lib) (2.4.0)
+Requirement already satisfied: boolean.py>=4.0 in e:\htxenterface_v2\fingpt\.venv_update\lib\site-packages (from license-expression<31,>=30->cyclonedx-python-lib) (5.0)
+Requirement already satisfied: defusedxml<0.8.0,>=0.7.1 in e:\htxenterface_v2\fingpt\.venv_update\lib\site-packages (from py-serializable<3.0.0,>=2.1.0->cyclonedx-python-lib) (0.7.1)
+Requirement already satisfied: annotated-types>=0.6.0 in e:\htxenterface_v2\fingpt\.venv_update\lib\site-packages (from pydantic) (0.7.0)
+Collecting pydantic_core
+  Using cached pydantic_core-2.33.2-cp313-cp313-win_amd64.whl.metadata (6.9 kB)
+Requirement already satisfied: typing-extensions>=4.12.2 in e:\htxenterface_v2\fingpt\.venv_update\lib\site-packages (from pydantic) (4.15.0)
+Collecting typing-inspection>=0.4.0 (from pydantic)
+  Using cached typing_inspection-0.4.1-py3-none-any.whl.metadata (2.6 kB)
+Requirement already satisfied: dparse>=0.6.4 in e:\htxenterface_v2\fingpt\.venv_update\lib\site-packages (from safety-schemas) (0.6.4)
+Requirement already satisfied: packaging>=21.0 in e:\htxenterface_v2\fingpt\.venv_update\lib\site-packages (from safety-schemas) (25.0)
+Requirement already satisfied: ruamel-yaml>=0.17.21 in e:\htxenterface_v2\fingpt\.venv_update\lib\site-packages (from safety-schemas) (0.18.15)
+Requirement already satisfied: ruamel.yaml.clib>=0.2.7 in e:\htxenterface_v2\fingpt\.venv_update\lib\site-packages (from ruamel-yaml>=0.17.21->safety-schemas) (0.2.12)
+Using cached cyclonedx_python_lib-11.1.0-py3-none-any.whl (382 kB)
+Using cached pip-25.2-py3-none-any.whl (1.8 MB)
+Using cached pydantic-2.11.9-py3-none-any.whl (444 kB)
+Using cached pydantic_core-2.33.2-cp313-cp313-win_amd64.whl (2.0 MB)
+Using cached safety_schemas-0.0.15-py3-none-any.whl (39 kB)
+Using cached typing_inspection-0.4.1-py3-none-any.whl (14 kB)
+Installing collected packages: typing-inspection, pydantic_core, pip, pydantic, cyclonedx-python-lib, safety-schemas
+  Attempting uninstall: pydantic_core
+    Found existing installation: pydantic_core 2.23.4
+    Uninstalling pydantic_core-2.23.4:
+      Successfully uninstalled pydantic_core-2.23.4
+  Attempting uninstall: pip
+    Found existing installation: pip 25.1.1
+    Uninstalling pip-25.1.1:
+      Successfully uninstalled pip-25.1.1
+  Attempting uninstall: pydantic
+    Found existing installation: pydantic 2.9.2
+    Uninstalling pydantic-2.9.2:
+      Successfully uninstalled pydantic-2.9.2
+  Attempting uninstall: cyclonedx-python-lib
+    Found existing installation: cyclonedx-python-lib 9.1.0
+    Uninstalling cyclonedx-python-lib-9.1.0:
+      Successfully uninstalled cyclonedx-python-lib-9.1.0
+  Attempting uninstall: safety-schemas
+    Found existing installation: safety-schemas 0.0.14
+    Uninstalling safety-schemas-0.0.14:
+      Successfully uninstalled safety-schemas-0.0.14
+
+Successfully installed cyclonedx-python-lib-11.1.0 pip-25.2 pydantic-2.11.9 pydantic_core-2.33.2 safety-schemas-0.0.15 typing-inspection-0.4.1
