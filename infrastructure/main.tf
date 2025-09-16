@@ -1,6 +1,6 @@
 terraform {
   required_version = ">= 1.5"
-  
+
   required_providers {
     google = {
       source  = "hashicorp/google"
@@ -54,12 +54,12 @@ resource "google_compute_subnetwork" "app_subnet" {
   ip_cidr_range = "10.0.1.0/24"
   region        = var.region
   network       = google_compute_network.vpc.id
-  
+
   secondary_ip_range {
     range_name    = "services-range"
     ip_cidr_range = "192.168.1.0/24"
   }
-  
+
   secondary_ip_range {
     range_name    = "pod-ranges"
     ip_cidr_range = "192.168.64.0/22"
@@ -75,9 +75,9 @@ resource "google_compute_router" "router" {
 
 resource "google_compute_router_nat" "nat" {
   name                               = "${var.project_name}-nat"
-  router                            = google_compute_router.router.name
-  region                            = var.region
-  nat_ip_allocate_option            = "AUTO_ONLY"
+  router                             = google_compute_router.router.name
+  region                             = var.region
+  nat_ip_allocate_option             = "AUTO_ONLY"
   source_subnetwork_ip_ranges_to_nat = "ALL_SUBNETWORKS_ALL_IP_RANGES"
 }
 
@@ -86,26 +86,23 @@ resource "google_sql_database_instance" "postgres" {
   name             = "${var.project_name}-postgres"
   database_version = "POSTGRES_15"
   region           = var.region
-  
+
   settings {
     tier              = var.db_tier
     availability_type = "REGIONAL"
     disk_type         = "PD_SSD"
     disk_size         = 20
     disk_autoresize   = true
-    
-    database_flags {
-      name  = "shared_preload_libraries"
-      value = "pgvector"
-    }
-    
+
+    # Note: pgvector is enabled via CREATE EXTENSION in the DB; no need for shared_preload_libraries
+
     ip_configuration {
       ipv4_enabled                                  = false
       private_network                               = google_compute_network.vpc.id
       enable_private_path_for_google_cloud_services = true
       require_ssl                                   = true
     }
-    
+
     backup_configuration {
       enabled                        = true
       start_time                     = "23:00"
@@ -114,16 +111,16 @@ resource "google_sql_database_instance" "postgres" {
         retained_backups = 7
       }
     }
-    
+
     maintenance_window {
       day          = 7
       hour         = 2
       update_track = "stable"
     }
   }
-  
+
   deletion_protection = var.enable_deletion_protection
-  
+
   depends_on = [google_service_networking_connection.private_vpc_connection]
 }
 
@@ -161,11 +158,11 @@ resource "google_redis_instance" "cache" {
   tier           = var.redis_tier
   memory_size_gb = var.redis_memory_size
   region         = var.region
-  
+
   authorized_network = google_compute_network.vpc.id
   redis_version      = "REDIS_7_0"
   display_name       = "HTXV2 Redis Cache"
-  
+
   redis_configs = {
     maxmemory-policy = "allkeys-lru"
   }
@@ -176,13 +173,13 @@ resource "google_storage_bucket" "raw_data" {
   name          = "${var.project_id}-raw-data"
   location      = var.region
   force_destroy = !var.enable_deletion_protection
-  
+
   uniform_bucket_level_access = true
-  
+
   versioning {
     enabled = true
   }
-  
+
   lifecycle_rule {
     condition {
       age = 365
@@ -191,7 +188,7 @@ resource "google_storage_bucket" "raw_data" {
       type = "Delete"
     }
   }
-  
+
   lifecycle_rule {
     condition {
       age = 30
@@ -207,9 +204,9 @@ resource "google_storage_bucket" "processed_data" {
   name          = "${var.project_id}-processed-data"
   location      = var.region
   force_destroy = !var.enable_deletion_protection
-  
+
   uniform_bucket_level_access = true
-  
+
   versioning {
     enabled = true
   }
@@ -219,9 +216,9 @@ resource "google_storage_bucket" "ml_models" {
   name          = "${var.project_id}-ml-models"
   location      = var.region
   force_destroy = !var.enable_deletion_protection
-  
+
   uniform_bucket_level_access = true
-  
+
   versioning {
     enabled = true
   }
@@ -229,17 +226,17 @@ resource "google_storage_bucket" "ml_models" {
 
 # BigQuery dataset
 resource "google_bigquery_dataset" "main" {
-  dataset_id                  = "htxv2_main"
-  friendly_name               = "HTXV2 Main Dataset"
-  description                 = "Main dataset for HTXV2 cryptocurrency data"
-  location                    = var.region
-  delete_contents_on_destroy  = !var.enable_deletion_protection
-  
+  dataset_id                 = "htxv2_main"
+  friendly_name              = "HTXV2 Main Dataset"
+  description                = "Main dataset for HTXV2 cryptocurrency data"
+  location                   = var.region
+  delete_contents_on_destroy = !var.enable_deletion_protection
+
   access {
     role          = "OWNER"
     user_by_email = google_service_account.etl_service.email
   }
-  
+
   access {
     role          = "READER"
     user_by_email = google_service_account.backend_service.email
@@ -250,14 +247,14 @@ resource "google_bigquery_dataset" "main" {
 resource "google_bigquery_table" "crypto_prices" {
   dataset_id = google_bigquery_dataset.main.dataset_id
   table_id   = "crypto_prices"
-  
+
   time_partitioning {
     type  = "DAY"
     field = "timestamp"
   }
-  
+
   clustering = ["symbol", "exchange"]
-  
+
   schema = file("${path.module}/schemas/crypto_prices.json")
 }
 
@@ -348,9 +345,9 @@ resource "google_project_iam_member" "ml_storage_admin" {
 # Secret Manager secrets
 resource "google_secret_manager_secret" "db_password" {
   secret_id = "${var.project_name}-db-password"
-  
+
   replication {
-    automatic = true
+    auto {}
   }
 }
 
@@ -361,17 +358,17 @@ resource "google_secret_manager_secret_version" "db_password" {
 
 resource "google_secret_manager_secret" "htx_api_key" {
   secret_id = "${var.project_name}-htx-api-key"
-  
+
   replication {
-    automatic = true
+    auto {}
   }
 }
 
 resource "google_secret_manager_secret" "openai_api_key" {
   secret_id = "${var.project_name}-openai-api-key"
-  
+
   replication {
-    automatic = true
+    auto {}
   }
 }
 
@@ -379,12 +376,12 @@ resource "google_secret_manager_secret" "openai_api_key" {
 resource "google_cloud_scheduler_job" "htx_data_ingestion" {
   name     = "${var.project_name}-htx-ingestion"
   region   = var.region
-  schedule = "*/5 * * * *"  # Every 5 minutes
-  
+  schedule = "*/5 * * * *" # Every 5 minutes
+
   http_target {
     http_method = "POST"
     uri         = "https://${var.region}-${var.project_id}.cloudfunctions.net/htx-ingestion"
-    
+
     oidc_token {
       service_account_email = google_service_account.etl_service.email
     }
@@ -394,12 +391,12 @@ resource "google_cloud_scheduler_job" "htx_data_ingestion" {
 resource "google_cloud_scheduler_job" "coingecko_data_ingestion" {
   name     = "${var.project_name}-coingecko-ingestion"
   region   = var.region
-  schedule = "0 */1 * * *"  # Every hour
-  
+  schedule = "0 */1 * * *" # Every hour
+
   http_target {
     http_method = "POST"
     uri         = "https://${var.region}-${var.project_id}.cloudfunctions.net/coingecko-ingestion"
-    
+
     oidc_token {
       service_account_email = google_service_account.etl_service.email
     }
@@ -434,9 +431,9 @@ resource "google_project_service" "required_apis" {
     "cloudresourcemanager.googleapis.com",
     "iam.googleapis.com"
   ])
-  
+
   project = var.project_id
   service = each.value
-  
+
   disable_dependent_services = true
 }
