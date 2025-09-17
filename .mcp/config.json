@@ -1,0 +1,17 @@
+{
+  "name": "htxv2-mcp-config",
+  "version": "1.0.0",
+  "description": "Конфигурация MCP сервера для HTXV2",
+  "settings": {
+    "apiUrl": "http://localhost:8000",
+    "websocketUrl": "ws://localhost:3001",
+    "enabledFeatures": ["marketData", "portfolio", "tradingSignals"],
+    "cacheEnabled": true,
+    "cacheTTL": 60,
+    "requestTimeout": 5000,
+    "logging": {
+      "level": "info",
+      "format": "json"
+    }
+  }
+}

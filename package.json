@@ -1,0 +1,23 @@
+{
+  "name": "htxv2-mcp-server",
+  "version": "1.0.0",
+  "description": "Model Context Protocol Server для интеграции HTXV2 с GitHub Copilot",
+  "main": "mcp-server.js",
+  "scripts": {
+    "start": "node start.js",
+    "dev": "nodemon start.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "ws": "^8.14.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  }
+}

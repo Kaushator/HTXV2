@@ -11,6 +11,14 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+      - type: bind
+        source: W:\\docker\\backups
+        target: /backups
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U htxv2_user -d htxv2"]
       interval: 10s
@@ -24,6 +32,11 @@ services:
       - "6379:6379"
     volumes:
       - redis_data:/data
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s
@@ -51,6 +64,11 @@ services:
     volumes:
       - ../backend:/app
     command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   # Frontend application
   frontend:
@@ -60,6 +78,8 @@ services:
     ports:
       - "3000:3000"
     environment:
+      - NODE_ENV=development
+      - NEXT_TELEMETRY_DISABLED=1
       - NEXT_PUBLIC_API_URL=http://localhost:8000/api/v1
       - NEXT_PUBLIC_WS_URL=ws://localhost:8000/api/v1/mcp/ws
     depends_on:
@@ -68,6 +88,13 @@ services:
       - ../frontend:/app
       - /app/node_modules
       - /app/.next
+    working_dir: /app
+    command: sh -c "npm install && npm run dev"
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   # ETL services
   etl:
@@ -84,6 +111,11 @@ services:
         condition: service_healthy
     volumes:
       - ../etl:/app
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   # ML services
   ml:
@@ -100,7 +132,14 @@ services:
         condition: service_healthy
     volumes:
       - ../ml:/app
-      - ml_models:/app/models
+      - type: bind
+        source: W:\\docker\\ml_models
+        target: /app/models
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
 
 volumes:
   postgres_data:

@@ -6,7 +6,7 @@ peft>=0.7.0  # LoRA adapters
 bitsandbytes>=0.41.0  # Quantization
 
 # GPU-specific packages for RTX 4060
-nvidia-ml-py3>=12.535.0  # NVIDIA GPU monitoring
+nvidia-ml-py3>=7.352.0  # NVIDIA GPU monitoring (latest available)
 
 # Google Cloud AI
 google-cloud-aiplatform>=1.38.0
