@@ -42,7 +42,7 @@
     }
   },
   "shutdownAction": "stopCompose",
-  "postCreateCommand": "bash -c 'chmod +x /workspace/.devcontainer/scripts/*.sh && chmod +x /workspace/.devcontainer/scripts/powershell/*.ps1 && /workspace/.devcontainer/scripts/init-dev-container.sh'",
+  "postCreateCommand": "bash -c 'chmod +x /workspace/.devcontainer/scripts/*.sh && chmod +x /workspace/.devcontainer/scripts/powershell/*.ps1 && /workspace/.devcontainer/scripts/init-dev-container.sh && /workspace/.devcontainer/scripts/setup-mcp-tools.sh'",
   "remoteEnv": {
     "DATABASE_URL": "postgresql+asyncpg://htxv2_user:password@postgres:5432/htxv2",
     "REDIS_URL": "redis://redis:6379/0",
