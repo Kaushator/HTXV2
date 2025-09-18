@@ -1,0 +1,107 @@
+# HTXV2 ML Development Requirements
+# Core ML/AI libraries
+numpy>=1.24.0
+pandas>=2.0.0
+scikit-learn>=1.3.0
+scipy>=1.10.0
+
+# Deep Learning
+torch>=2.0.0
+torchvision>=0.15.0
+torchaudio>=2.0.0
+transformers>=4.30.0
+datasets>=2.12.0
+accelerate>=0.20.0
+
+# Hugging Face ecosystem
+huggingface-hub>=0.16.0
+tokenizers>=0.13.0
+safetensors>=0.3.0
+
+# ML Frameworks
+tensorflow>=2.13.0
+keras>=2.13.0
+xgboost>=1.7.0
+lightgbm>=4.0.0
+catboost>=1.2.0
+
+# MLflow and experiment tracking
+mlflow>=2.5.0
+wandb>=0.15.0
+neptune>=1.0.0
+
+# Computer Vision
+opencv-python>=4.8.0
+Pillow>=10.0.0
+albumentations>=1.3.0
+
+# NLP
+spacy>=3.6.0
+nltk>=3.8.0
+textblob>=0.17.0
+
+# Time Series
+prophet>=1.1.0
+statsmodels>=0.14.0
+arch>=6.2.0
+
+# Web Framework
+fastapi>=0.100.0
+uvicorn[standard]>=0.22.0
+pydantic>=2.0.0
+
+# Database
+sqlalchemy>=2.0.0
+alembic>=1.11.0
+asyncpg>=0.28.0
+redis>=4.6.0
+
+# HTTP Client
+httpx>=0.24.0
+aiohttp>=3.8.0
+requests>=2.31.0
+
+# Data Processing
+dask>=2023.5.0
+polars>=0.19.0
+pyarrow>=12.0.0
+
+# Visualization
+matplotlib>=3.7.0
+seaborn>=0.12.0
+plotly>=5.15.0
+bokeh>=3.2.0
+
+# Jupyter
+jupyterlab>=4.0.0
+ipywidgets>=8.0.0
+jupyterlab-git>=0.41.0
+jupyterlab-lsp>=4.0.0
+
+# Development Tools
+pre-commit>=3.3.0
+black>=23.0.0
+isort>=5.12.0
+flake8>=6.0.0
+pylint>=2.17.0
+mypy>=1.4.0
+
+# Testing
+pytest>=7.4.0
+pytest-asyncio>=0.21.0
+pytest-cov>=4.1.0
+
+# Utilities
+python-dotenv>=1.0.0
+click>=8.1.0
+rich>=13.4.0
+tqdm>=4.65.0
+joblib>=1.3.0
+
+# Cryptocurrency specific
+ccxt>=4.0.0
+python-binance>=1.0.0
+websockets>=11.0.0
+
+# MCP Tools
+@modelcontextprotocol/sdk>=0.4.0
