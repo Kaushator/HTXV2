@@ -23,7 +23,6 @@
   "license": "MIT",
   "dependencies": {
     "@modelcontextprotocol/sdk": "^0.4.0",
-    "httpx": "^0.24.0",
     "ws": "^8.14.0",
     "json5": "^2.2.0",
     "winston": "^3.8.0"
