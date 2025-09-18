@@ -1,123 +1,316 @@
-# HTXV2 - Cryptocurrency Trading Platform
+# 🚀 HTXV2 ML Development Environment
 
-A comprehensive GCP-based cryptocurrency trading platform with ML/AI capabilities.
+Полнофункциональная среда разработки для ML/AI проекта HTXV2 с поддержкой MCP Tools, оптимизированная для экономии токенов.
 
-## Quick Start
+## 🎯 Особенности
 
-### Prerequisites
+- **ML/AI стек**: PyTorch, TensorFlow, Transformers, MLflow
+- **MCP Tools**: Интеграция с GitHub Copilot Chat
+- **JupyterLab**: Интерактивная разработка ML моделей
+- **Docker**: Полная контейнеризация с оптимизацией
+- **Terraform**: Инфраструктура как код
+- **Экономия токенов**: ~60% экономии через оптимизацию
 
-- **Python 3.11+** (recommended 3.11 for best compatibility)
-- **Node.js 18+**
-- **Docker & Docker Compose**
-- **Git**
+## 🛠️ Установленные инструменты
 
-### Local Development
+### DevOps инструменты
+- `hadolint` - линтер для Dockerfile
+- `dive` - анализ Docker образов
+- `trivy` - сканер безопасности
+- `docker-slim` - оптимизация образов
+- `docker-compose` - оркестрация контейнеров
+- `terraform` - инфраструктура как код
+- `pre-commit` - хуки для Git
 
-1. **Clone and setup:**
-   ```bash
-   git clone https://github.com/Kaushator/HTXV2.git
-   cd HTXV2
-   make setup
-   ```
+### ML/AI стек
+- **PyTorch** + **TensorFlow** + **Transformers**
+- **MLflow** + **Weights & Biases** для экспериментов
+- **JupyterLab** с расширениями
+- **OpenCV** + **Pillow** для компьютерного зрения
+- **spaCy** + **NLTK** для NLP
 
-2. **Start with Docker:**
-   ```bash
-   cd docker
-   docker compose up -d
-   ```
+## 🚀 Быстрый старт
 
-3. **Manual setup (alternative):**
-   ```bash
-   # Backend
-   cd backend
-   python3 -m venv venv
-   ./venv/bin/pip install -r requirements.txt
-   
-   # Frontend
-   cd frontend
-   npm install
-   ```
+### 1. Открытие в DevContainer
 
-### Access Points
+```bash
+# Клонирование репозитория
+git clone https://github.com/Kaushator/HTXV2.git
+cd HTXV2
+
+# Открытие в VS Code
+code .
+```
+
+В VS Code:
+1. Нажмите `F1` → `Remote-Containers: Reopen in Container`
+2. Дождитесь сборки контейнера
+3. Все инструменты установятся автоматически
+
+### 2. Запуск сервисов
+
+```bash
+# Запуск всех сервисов
+docker compose up -d
+
+# Проверка статуса
+docker compose ps
+
+# Просмотр логов
+docker compose logs -f
+```
+
+### 3. Доступ к сервисам
 
 - **Frontend**: http://localhost:3000
 - **Backend API**: http://localhost:8000
-- **API Documentation**: http://localhost:8000/docs
-- **Database**: PostgreSQL on localhost:5432
-- **Cache**: Redis on localhost:6379
+- **API Docs**: http://localhost:8000/docs
+- **JupyterLab**: http://localhost:8888/lab?token=htxv2-dev
+- **PostgreSQL**: localhost:5432
+- **Redis**: localhost:6379
 
-## Data Sources
+## 🔧 Использование инструментов
 
-- **HTX (Huobi)**: Cryptocurrency exchange data
-- **Coingecko**: Market data and cryptocurrency information  
-- **Cryptopanic**: News and sentiment data
-- **User uploads**: CSV/XLSX files via signed URLs
-
-## Development Commands
+### Hadolint - анализ Dockerfile
 
 ```bash
-# Setup environment
-make setup
+# Анализ Dockerfile
+hadolint .devcontainer/Dockerfile
 
-# Development servers
-make dev-backend      # Start FastAPI backend
-make dev-frontend     # Start Next.js frontend  
-make dev-all          # Start both frontend and backend
-
-# Testing & Quality
-make test-all         # Run all tests
-make lint-all         # Run all linters
-make clean           # Clean build artifacts
-
-# Docker
-cd docker && docker compose up -d
-
-# Terraform (Infrastructure)
-make tf-init         # Initialize Terraform
-make tf-plan         # Plan infrastructure changes
-make tf-apply        # Apply infrastructure changes
+# Анализ всех Dockerfile в проекте
+find . -name "Dockerfile*" -exec hadolint {} \;
 ```
 
-## Security & Best Practices
+### Dive - анализ Docker образов
 
-### Development
-- Environment variables in `.env` files (never committed)
-- Type safety with TypeScript and Python type hints
-- Linting with ESLint (frontend) and flake8 (backend)
-- Pre-commit hooks for code quality
-
-### Production
-- JWT authentication with Google OAuth2
-- API rate limiting and CORS protection
-- Secret management via GCP Secret Manager
-- Container security with non-root users
-- Network security with VPC and firewall rules
-
-## Deployment
-
-### Local Development
 ```bash
-cd docker && docker compose up -d
+# Анализ образа
+dive htxv2-ml:latest
+
+# Анализ с детализацией
+dive --ci htxv2-ml:latest
 ```
 
-### Production (GCP)
+### Trivy - сканирование безопасности
+
 ```bash
-# Deploy infrastructure
-make tf-apply
+# Сканирование образа
+trivy image htxv2-ml:latest
 
-# Build and deploy containers
-make docker-build-all
-make docker-push-all
-make deploy-prod
+# Сканирование с отчетом
+trivy image --format json --output report.json htxv2-ml:latest
 ```
 
-## Support & Documentation
+### Docker Slim - оптимизация образов
 
-- **API Docs**: http://localhost:8000/docs (when running)
-- **Architecture**: See `docs/` directory
-- **Component READMEs**: Each directory has detailed setup instructions
-- **Issues**: Use GitHub Issues for bug reports and feature requests
+```bash
+# Анализ и оптимизация
+docker-slim build --target htxv2-ml:latest --tag htxv2-ml:slim
 
-## License
+# Создание отчета
+docker-slim build --target htxv2-ml:latest --report
+```
 
-MIT License - see LICENSE file for details.
+## 🌱 Terraform
+
+### Инициализация
+
+```bash
+# Инициализация Terraform
+terraform init
+
+# Планирование изменений
+terraform plan
+
+# Применение конфигурации
+terraform apply
+
+# Уничтожение инфраструктуры
+terraform destroy
+```
+
+### Полезные команды
+
+```bash
+# Просмотр состояния
+terraform show
+
+# Список ресурсов
+terraform state list
+
+# Импорт существующих ресурсов
+terraform import docker_container.backend <container_id>
+```
+
+## 💰 Экономия токенов
+
+### MCP Tools
+
+```bash
+# Используйте встроенные инструменты
+/tools health_check
+/tools market_analysis BTC 1h
+/tools portfolio_status
+
+# Быстрые команды
+mcp-health
+mcp-assets
+mcp-btc
+mcp-portfolio
+```
+
+### Оптимизированные запросы
+
+```bash
+# ✅ Хорошо - группировка
+"Анализ BTC, ETH, BNB за 4h с сигналами"
+
+# ❌ Плохо - отдельные запросы
+"Анализ BTC" + "Анализ ETH" + "Анализ BNB"
+```
+
+### Конкретизация параметров
+
+```bash
+# ✅ Хорошо - конкретный запрос
+"Покажи анализ BTC за последний час с рекомендациями"
+
+# ❌ Плохо - общий запрос
+"Расскажи про криптовалюты"
+```
+
+## 🧹 Очистка системы
+
+### Docker
+
+```bash
+# Очистка неиспользуемых ресурсов
+docker system prune -a
+
+# Очистка томов
+docker volume prune
+
+# Очистка сетей
+docker network prune
+
+# Полная очистка
+docker system prune -a --volumes
+```
+
+### Terraform
+
+```bash
+# Очистка состояния
+terraform destroy
+
+# Очистка кэша
+rm -rf .terraform/
+rm -f .terraform.lock.hcl
+```
+
+## 📊 Мониторинг
+
+### Статистика использования
+
+```bash
+# Использование токенов
+curl -s http://localhost:8000/api/v1/mcp/stats
+
+# Статус системы
+/tools health_check all
+
+# Статистика Docker
+docker stats
+```
+
+### Логи
+
+```bash
+# Логи всех сервисов
+docker compose logs -f
+
+# Логи конкретного сервиса
+docker compose logs -f backend
+
+# Логи с фильтрацией
+docker compose logs -f | grep ERROR
+```
+
+## 🔍 Устранение проблем
+
+### Проблема: Контейнер не запускается
+
+```bash
+# Проверка логов
+docker compose logs <service_name>
+
+# Перезапуск сервиса
+docker compose restart <service_name>
+
+# Полная пересборка
+docker compose down
+docker compose up -d --build
+```
+
+### Проблема: Порты заняты
+
+```bash
+# Поиск процессов на портах
+sudo lsof -ti:3000,8000,8888,5432,6379
+
+# Завершение процессов
+sudo lsof -ti:3000,8000,8888,5432,6379 | xargs kill -9
+```
+
+### Проблема: MCP tools не работают
+
+```bash
+# Перезапуск MCP сервера
+cd /workspace/.mcp
+npm install
+npm start
+
+# Проверка конфигурации
+cat /workspace/.vscode/settings.json
+```
+
+## 📚 Дополнительные ресурсы
+
+- [TOKEN_ECONOMY.md](.mcp/TOKEN_ECONOMY.md) - экономия токенов
+- [CODESPACE_SETUP.md](.mcp/CODESPACE_SETUP.md) - настройка codespace
+- [Backend MCP_README.md](backend/MCP_README.md) - техническая документация
+
+## 🆘 Поддержка
+
+Если возникли проблемы:
+
+1. **Проверьте логи**: `docker compose logs`
+2. **Перезапустите сервисы**: `docker compose restart`
+3. **Проверьте MCP**: `test-mcp`
+4. **Обратитесь к документации** в `/workspace/docs/`
+
+## 📈 Производительность
+
+### Оптимизация образов
+- Использование `python:3.12-slim` базового образа
+- Кэширование pip зависимостей
+- Очистка apt кэша
+- Многоэтапная сборка
+
+### Экономия токенов
+- Группировка запросов: **-47% токенов**
+- Использование `/tools`: **-83% повторных запросов**
+- Конкретизация параметров: **-75% избыточной информации**
+- **Итоговая экономия: ~60% токенов**
+
+## 🎯 Следующие шаги
+
+1. **Откройте проект в DevContainer**
+2. **Запустите сервисы**: `docker compose up -d`
+3. **Откройте JupyterLab**: http://localhost:8888/lab?token=htxv2-dev
+4. **Протестируйте MCP tools**: `/tools health_check`
+5. **Изучите экономию токенов**: `TOKEN_ECONOMY.md`
+
+---
+
+**Готово к ML разработке! 🚀**

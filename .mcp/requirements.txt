@@ -1,0 +1,37 @@
+# MCP Tools Requirements для HTXV2
+# Основные зависимости для Model Context Protocol
+
+# Core MCP SDK
+@modelcontextprotocol/sdk>=0.4.0
+
+# Node.js зависимости
+node>=18.0.0
+npm>=8.0.0
+
+# Дополнительные утилиты
+jq>=1.6
+curl>=7.68.0
+
+# Python зависимости для интеграции
+httpx>=0.24.0
+asyncio>=3.4.3
+aiofiles>=23.0.0
+
+# Веб-сокеты для real-time коммуникации
+websockets>=11.0.0
+ws>=8.14.0
+
+# JSON обработка
+json5>=2.2.0
+
+# Логирование
+winston>=3.8.0
+pino>=8.15.0
+
+# Тестирование
+jest>=29.0.0
+supertest>=6.3.0
+
+# Типизация
+@types/node>=18.0.0
+typescript>=4.9.0

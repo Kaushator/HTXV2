@@ -1,30 +1,10 @@
-# Legacy docker-compose.yml for backwards compatibility
-# Use docker/docker-compose.yml for the full setup
+version: '3.8'
 
 services:
-  # Development container service for devcontainer
-  dev:
-    build:
-      context: .
-      dockerfile: docker/backend.Dockerfile
-    working_dir: /workspace
-    volumes:
-      - .:/workspace
-      - /var/run/docker.sock:/var/run/docker.sock
-    environment:
-      - DATABASE_URL=postgresql+asyncpg://htxv2_user:password@postgres:5432/htxv2
-      - REDIS_URL=redis://redis:6379/0
-      - SECRET_KEY=dev-secret-key-change-in-production
-      - DEBUG=true
-      - ENVIRONMENT=development
-    command: sleep infinity
-    depends_on:
-      - postgres
-      - redis
-
-  # PostgreSQL database with pgvector
+  # PostgreSQL database with pgvector for ML embeddings
   postgres:
     image: pgvector/pgvector:pg15
+    container_name: htxv2-postgres
     environment:
       POSTGRES_DB: htxv2
       POSTGRES_USER: htxv2_user
@@ -39,10 +19,16 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
-  # Redis cache
+  # Redis cache for ML model caching
   redis:
     image: redis:7-alpine
+    container_name: htxv2-redis
     ports:
       - "6379:6379"
     volumes:
@@ -52,11 +38,157 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # Backend API with ML capabilities
+  backend:
+    build:
+      context: .
+      dockerfile: docker/backend.Dockerfile
+    container_name: htxv2-backend
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://htxv2_user:password@postgres:5432/htxv2
+      - REDIS_URL=redis://redis:6379/0
+      - SECRET_KEY=dev-secret-key-change-in-production
+      - DEBUG=true
+      - ENVIRONMENT=development
+      - HF_HOME=/workspace/models/huggingface
+      - TRANSFORMERS_CACHE=/workspace/models/transformers
+      - TORCH_HOME=/workspace/models/torch
+      - MLFLOW_TRACKING_URI=/workspace/models/mlflow
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./backend:/app
+      - models_volume:/workspace/models
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # Frontend application
+  frontend:
+    build:
+      context: .
+      dockerfile: docker/frontend.Dockerfile
+    container_name: htxv2-frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:8000/api/v1
+      - NEXT_PUBLIC_WS_URL=ws://localhost:8000/api/v1/mcp/ws
+    depends_on:
+      - backend
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+      - /app/.next
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # ETL services for data processing
+  etl:
+    build:
+      context: .
+      dockerfile: docker/etl.Dockerfile
+    container_name: htxv2-etl
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://htxv2_user:password@postgres:5432/htxv2
+      - REDIS_URL=redis://redis:6379/1
+      - HF_HOME=/workspace/models/huggingface
+      - TRANSFORMERS_CACHE=/workspace/models/transformers
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./etl:/app
+      - models_volume:/workspace/models
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # ML services for AI/ML operations
+  ml:
+    build:
+      context: .
+      dockerfile: docker/ml.Dockerfile
+    container_name: htxv2-ml
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://htxv2_user:password@postgres:5432/htxv2
+      - REDIS_URL=redis://redis:6379/2
+      - HF_HOME=/workspace/models/huggingface
+      - TRANSFORMERS_CACHE=/workspace/models/transformers
+      - TORCH_HOME=/workspace/models/torch
+      - MLFLOW_TRACKING_URI=/workspace/models/mlflow
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./ml:/app
+      - models_volume:/workspace/models
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # JupyterLab for ML development
+  jupyter:
+    build:
+      context: .
+      dockerfile: .devcontainer/Dockerfile
+    container_name: htxv2-jupyter
+    ports:
+      - "8888:8888"
+    environment:
+      - JUPYTER_ENABLE_LAB=yes
+      - JUPYTER_TOKEN=htxv2-dev
+      - HF_HOME=/workspace/models/huggingface
+      - TRANSFORMERS_CACHE=/workspace/models/transformers
+      - TORCH_HOME=/workspace/models/torch
+    volumes:
+      - ./:/workspace
+      - models_volume:/workspace/models
+    command: jupyter lab --ip=0.0.0.0 --port=8888 --no-browser --allow-root --NotebookApp.token='htxv2-dev'
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
 volumes:
   postgres_data:
+    driver: local
   redis_data:
+    driver: local
+  models_volume:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /mnt/hdd/models
 
 networks:
   default:
     name: htxv2-network
+    driver: bridge
