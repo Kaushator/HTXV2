@@ -63,20 +63,8 @@ variable "enable_deletion_protection" {
   default     = false
 }
 
-variable "allowed_source_ranges" {
-  description = "CIDR blocks that are allowed to access the resources"
+variable "alert_emails" {
+  description = "List of email addresses for monitoring alerts"
   type        = list(string)
-  default     = ["0.0.0.0/0"]
-}
-
-variable "domain_name" {
-  description = "Domain name for the application"
-  type        = string
-  default     = ""
-}
-
-variable "ssl_certificate_name" {
-  description = "Name of the SSL certificate to use"
-  type        = string
-  default     = ""
+  default     = []
 }

@@ -17,8 +17,6 @@ redis_memory_size = 1
 
 # Security
 enable_deletion_protection = false
-allowed_source_ranges     = ["0.0.0.0/0"]
 
-# Optional: Custom domain
-# domain_name = "yourdomain.com"
-# ssl_certificate_name = "your-ssl-cert"
+# Monitoring recipients
+# alert_emails = ["devops@example.com"]
